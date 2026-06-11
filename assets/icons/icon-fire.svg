@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Flame icon for Fire specialty -->
+  <g>
+    <!-- Outer flame -->
+    <path d="M 16 4 Q 20 8 20 12 Q 20 14 19 16 Q 22 14 24 16 Q 26 18 26 22 Q 26 27 21 29 Q 16 31 11 29 Q 6 27 6 22 Q 6 18 8 15 Q 10 12 12 12 Q 12 9 14 6 Q 15 4.5 16 4 Z"
+          fill="#f97316"
+          stroke="#ea580c"
+          stroke-width="1.5"/>
+
+    <!-- Inner flame highlight -->
+    <path d="M 16 10 Q 17 12 17 14 Q 17 16 16 18 Q 18 16 19 18 Q 20 20 20 22 Q 20 25 17 26 Q 16 26.5 15 26 Q 12 25 12 22 Q 12 20 13 18 Q 14 16 14 15 Q 14 13 15 11 Q 15.5 10 16 10 Z"
+          fill="#fbbf24"
+          opacity="0.8"/>
+  </g>
+</svg>

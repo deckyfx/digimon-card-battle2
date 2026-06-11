@@ -1,0 +1,49 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Plant/Leaf icon for Nature specialty - wider -->
+  <g>
+    <!-- Stem -->
+    <path d="M 16 28 Q 16 22 16 16 Q 16 10 16 8"
+          stroke="#22c55e"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          fill="none"/>
+
+    <!-- Left leaf - wider -->
+    <path d="M 16 14 Q 9 13 6 11 Q 4 9 5 6 Q 8 8 11 10 Q 14 12 16 14 Z"
+          fill="#22c55e"
+          stroke="#16a34a"
+          stroke-width="1.5"/>
+
+    <!-- Right leaf - wider -->
+    <path d="M 16 14 Q 23 13 26 11 Q 28 9 27 6 Q 24 8 21 10 Q 18 12 16 14 Z"
+          fill="#22c55e"
+          stroke="#16a34a"
+          stroke-width="1.5"/>
+
+    <!-- Top center leaf - wider -->
+    <path d="M 16 8 Q 13 6 13 3 Q 13 2 16 2 Q 19 2 19 3 Q 19 6 16 8 Z"
+          fill="#4ade80"
+          stroke="#22c55e"
+          stroke-width="1.5"/>
+
+    <!-- Lower left leaf - wider -->
+    <path d="M 16 20 Q 11 19 8 18 Q 6 17 7 14 Q 10 16 13 18 Q 15 19 16 20 Z"
+          fill="#4ade80"
+          stroke="#22c55e"
+          stroke-width="1.5"/>
+
+    <!-- Lower right leaf - wider -->
+    <path d="M 16 20 Q 21 19 24 18 Q 26 17 25 14 Q 22 16 19 18 Q 17 19 16 20 Z"
+          fill="#4ade80"
+          stroke="#22c55e"
+          stroke-width="1.5"/>
+
+    <!-- Outer glow -->
+    <g opacity="0.3">
+      <path d="M 16 28 Q 16 22 16 16 Q 16 10 16 8"
+            stroke="#22c55e"
+            stroke-width="1"
+            fill="none"/>
+    </g>
+  </g>
+</svg>

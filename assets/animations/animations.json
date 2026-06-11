@@ -1,0 +1,59 @@
+[
+  {
+    "animation": {
+      "id": 1,
+      "name": "Hit Physical",
+      "position": 1,
+      "animation1Name": "Hit1",
+      "animation1Hue": 0,
+      "animation2Name": "",
+      "animation2Hue": 0,
+      "frames": [
+        [],
+        [
+          [0, 0, 0, 250, 0, 0, 255, 1]
+        ],
+        [[1, 0, 0, 200, 0, 0, 255, 1]],
+        [[2, 0, 0, 200, 0, 0, 255, 1]],
+        [[3, 0, 0, 200, 0, 0, 255, 1]]
+      ],
+      "timings": [
+        {
+          "frame": 0,
+          "flashScope": 1,
+          "flashColor": [255, 255, 255, 255],
+          "flashDuration": 2,
+          "se": {
+            "name": "Blow3",
+            "volume": 90,
+            "pitch": 100,
+            "pan": 0
+          }
+        }
+      ]
+    },
+    "assets": {
+      "spritesheets": [
+        {
+          "name": "Hit1",
+          "path": "assets/animation-sprites/Hit1.png",
+          "hue": 0,
+          "slot": 1
+        }
+      ],
+      "soundEffects": [
+        {
+          "name": "Blow3",
+          "path": "assets/se/Blow3.ogg"
+        }
+      ]
+    },
+    "metadata": {
+      "exportedAt": "2026-01-18T10:43:52.702Z",
+      "exportedFrom": "RMMV Animation Studio",
+      "version": "1.0.0",
+      "animationId": 1,
+      "animationName": "Hit Physical"
+    }
+  }
+]

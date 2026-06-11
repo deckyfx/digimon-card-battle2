@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Water Droplet for Ice specialty -->
+  <g>
+    <!-- Main droplet - wider/fatter -->
+    <path d="M 16 4 Q 10 8 8 12 Q 6 16 6 20 Q 6 24 10 27 Q 13 30 16 30 Q 19 30 22 27 Q 26 24 26 20 Q 26 16 24 12 Q 22 8 16 4 Z"
+          fill="#60a5fa"
+          stroke="#3b82f6"
+          stroke-width="1.5"/>
+
+    <!-- Highlight -->
+    <ellipse cx="13" cy="14" rx="4" ry="6"
+             fill="#bfdbfe"
+             opacity="0.6"/>
+
+    <!-- Sparkle -->
+    <circle cx="21" cy="22" r="1.5"
+            fill="#dbeafe"
+            opacity="0.8"/>
+  </g>
+</svg>

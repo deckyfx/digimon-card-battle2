@@ -1,0 +1,49 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pale Skull for Darkness specialty -->
+  <g>
+    <!-- Skull cranium -->
+    <ellipse cx="16" cy="14" rx="10" ry="11"
+             fill="#d1d5db"
+             stroke="#9ca3af"
+             stroke-width="1.5"/>
+
+    <!-- Left eye socket -->
+    <ellipse cx="12" cy="13" rx="2.5" ry="3.5"
+             fill="#1f2937"/>
+
+    <!-- Right eye socket -->
+    <ellipse cx="20" cy="13" rx="2.5" ry="3.5"
+             fill="#1f2937"/>
+
+    <!-- Nasal cavity -->
+    <path d="M 16 18 L 14.5 20 L 16 22 L 17.5 20 Z"
+          fill="#1f2937"/>
+
+    <!-- Teeth - upper jaw -->
+    <g fill="#f3f4f6" stroke="#9ca3af" stroke-width="0.5">
+      <rect x="10" y="24" width="2" height="3" rx="0.5"/>
+      <rect x="13" y="24" width="2" height="3" rx="0.5"/>
+      <rect x="16" y="24" width="2" height="3" rx="0.5"/>
+      <rect x="19" y="24" width="2" height="3" rx="0.5"/>
+    </g>
+
+    <!-- Jaw line -->
+    <path d="M 7 20 Q 7 24 10 26 L 10 28 L 12 27 L 13 28 L 15 27 L 16 28 L 17 27 L 19 28 L 20 27 L 22 28 L 22 26 Q 25 24 25 20"
+          fill="#d1d5db"
+          stroke="#9ca3af"
+          stroke-width="1.5"/>
+
+    <!-- Cracks -->
+    <g stroke="#9ca3af" stroke-width="1" opacity="0.5">
+      <path d="M 11 8 Q 12 10 13 11" fill="none" stroke-linecap="round"/>
+      <path d="M 21 8 Q 20 10 19 11" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- Outer glow/shadow -->
+    <ellipse cx="16" cy="14" rx="10" ry="11"
+             fill="none"
+             stroke="#6b7280"
+             stroke-width="1"
+             opacity="0.3"/>
+  </g>
+</svg>

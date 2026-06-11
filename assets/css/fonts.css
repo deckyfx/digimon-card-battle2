@@ -1,0 +1,28 @@
+/**
+ * Self-hosted fonts for Digimon Card Battle
+ * Fonts: Audiowide, Exo 2, Rajdhani
+ */
+
+@font-face {
+  font-family: 'Audiowide';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Audiowide-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Exo 2';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/Exo2-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Rajdhani';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/Rajdhani-Medium.ttf') format('truetype');
+}

@@ -334,6 +334,68 @@ body {
   border-color: #d4a017;
 }
 
+/* ── Deck builder ───────────────────────────────────────────────── */
+.builder-columns {
+  display: grid;
+  grid-template-columns: minmax(380px, 1fr) 420px 300px;
+  gap: 10px;
+  align-items: start;
+}
+
+.builder-filters {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.builder-filters input[type="text"] {
+  flex: 1;
+  min-width: 120px;
+}
+
+.pool-list {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+
+.pool-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
+.pool-row:hover {
+  background: #232842;
+}
+
+.pool-row .pool-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pool-row .pool-meta {
+  color: #9aa3c7;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.pool-row .pool-copies {
+  width: 16px;
+  text-align: center;
+  color: #ffc66d;
+  font-weight: 700;
+}
+
+.pool-row button {
+  padding: 1px 8px;
+}
+
 /* Side rail beside the hand: deck/trash counts + win lights. */
 .with-rail {
   display: flex;

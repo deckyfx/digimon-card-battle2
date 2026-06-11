@@ -19,6 +19,11 @@ export function buildDeck(name: string): MasterCard[] {
     .filter((c): c is MasterCard => c !== undefined);
 }
 
+/** Resolves a list of card numbers (one per copy) to master cards. */
+export function cardsByNumbers(numbers: string[]): MasterCard[] {
+  return numbers.map((n) => CARD_BY_NUMBER.get(n)).filter((c): c is MasterCard => c !== undefined);
+}
+
 /** A random prebuilt deck name (used for the CPU's "Random" option). */
 export function randomDeckName(): string {
   return DECK_NAMES[Math.floor(Math.random() * DECK_NAMES.length)] ?? "Tutorial Deck";

@@ -2,10 +2,17 @@ import { For, Index, Show, createEffect, createSignal, onCleanup, untrack } from
 import type { AttackType, MasterCard } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
-import { DECK_NAMES, buildDeck, randomDeckName } from "@src/data/prebuilt-decks";
+import { DECK_NAMES, buildDeck, cardsByNumbers, randomDeckName } from "@src/data/prebuilt-decks";
+import { CustomDeckStore } from "@src/store/custom-deck-store";
+import { LocalStorageProvider } from "@src/store/storage-provider";
+import { DeckBuilder } from "./DeckBuilder";
 import { CardView, setInspectedCard, inspectedCard, specialtyClass } from "./CardView";
 
 const RANDOM_DECK = "__random__";
+const CUSTOM_PREFIX = "custom:";
+
+/** Persistent custom decks (browser localStorage provider for now). */
+export const customDeckStore = new CustomDeckStore(new LocalStorageProvider());
 
 const CPU_DELAY_MS = 600;
 const BATTLE_STEP_MS = 1000;
@@ -16,6 +23,22 @@ export function App() {
   const [version, setVersion] = createSignal(0);
   const [playerDeck, setPlayerDeck] = createSignal<string>(DECK_NAMES[0] ?? "Tutorial Deck");
   const [cpuDeck, setCpuDeck] = createSignal<string>(RANDOM_DECK);
+  const [view, setView] = createSignal<"menu" | "builder">("menu");
+
+  /** Custom decks re-read whenever we return from the builder. */
+  const customDecks = () => {
+    view();
+    return customDeckStore.list();
+  };
+
+  /** Resolves a deck selection value (prebuilt name or custom:<id>). */
+  const resolveDeck = (value: string): { name: string; cards: ReturnType<typeof buildDeck> } => {
+    if (value.startsWith(CUSTOM_PREFIX)) {
+      const deck = customDeckStore.get(value.slice(CUSTOM_PREFIX.length));
+      if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers) };
+    }
+    return { name: value, cards: buildDeck(value) };
+  };
   // Dynamic visibility rule: revealed vs CPU for now; PvP will set this false.
   const [revealOpponentHand, setRevealOpponentHand] = createSignal(true);
   const [firstPlayer, setFirstPlayer] = createSignal<PlayerId | "random">("random");
@@ -41,14 +64,15 @@ export function App() {
   };
 
   function startMatch() {
-    const cpuDeckName = cpuDeck() === RANDOM_DECK ? randomDeckName() : cpuDeck();
-    const eng = new GameEngine(buildDeck(playerDeck()), buildDeck(cpuDeckName), Date.now(), {
+    const mine = resolveDeck(playerDeck());
+    const theirs = resolveDeck(cpuDeck() === RANDOM_DECK ? randomDeckName() : cpuDeck());
+    const eng = new GameEngine(mine.cards, theirs.cards, Date.now(), {
       playerName: playerName().trim(),
       cpuName: cpuName().trim(),
-      playerDeckName: playerDeck(),
-      cpuDeckName,
+      playerDeckName: mine.name,
+      cpuDeckName: theirs.name,
     });
-    eng.log.push(`${eng.players.player.name} [${playerDeck()}] vs ${eng.players.cpu.name} [${cpuDeckName}]`);
+    eng.log.push(`${eng.players.player.name} [${mine.name}] vs ${eng.players.cpu.name} [${theirs.name}]`);
     eng.setOnChange(() => setVersion((v) => v + 1));
     setCpu(new CpuPlayer(eng));
     setEngine(eng);
@@ -114,6 +138,10 @@ export function App() {
       <Show
         when={game()}
         fallback={
+          <Show
+            when={view() === "menu"}
+            fallback={<DeckBuilder store={customDeckStore} onBack={() => setView("menu")} />}
+          >
           <div class="area banner">
             <h1>Digital Card Battle</h1>
             <p>
@@ -130,9 +158,20 @@ export function App() {
             <p>
               Your deck:{" "}
               <select onChange={(e) => setPlayerDeck(e.currentTarget.value)}>
-                <For each={DECK_NAMES}>
-                  {(name) => <option value={name} selected={name === playerDeck()}>{name}</option>}
-                </For>
+                <optgroup label="Custom Decks">
+                  <For each={customDecks()}>
+                    {(d) => (
+                      <option value={`custom:${d.id}`} selected={`custom:${d.id}` === playerDeck()}>
+                        {d.name}
+                      </option>
+                    )}
+                  </For>
+                </optgroup>
+                <optgroup label="Prebuilt Decks">
+                  <For each={DECK_NAMES}>
+                    {(name) => <option value={name} selected={name === playerDeck()}>{name}</option>}
+                  </For>
+                </optgroup>
               </select>
             </p>
             <p>
@@ -141,9 +180,20 @@ export function App() {
                 <option value={RANDOM_DECK} selected={cpuDeck() === RANDOM_DECK}>
                   Random
                 </option>
-                <For each={DECK_NAMES}>
-                  {(name) => <option value={name} selected={name === cpuDeck()}>{name}</option>}
-                </For>
+                <optgroup label="Custom Decks">
+                  <For each={customDecks()}>
+                    {(d) => (
+                      <option value={`custom:${d.id}`} selected={`custom:${d.id}` === cpuDeck()}>
+                        {d.name}
+                      </option>
+                    )}
+                  </For>
+                </optgroup>
+                <optgroup label="Prebuilt Decks">
+                  <For each={DECK_NAMES}>
+                    {(name) => <option value={name} selected={name === cpuDeck()}>{name}</option>}
+                  </For>
+                </optgroup>
               </select>
             </p>
             <p>
@@ -172,8 +222,10 @@ export function App() {
             </p>
             <button class="primary" onClick={startMatch}>
               Start Match
-            </button>
+            </button>{" "}
+            <button onClick={() => setView("builder")}>🛠 Deck Builder</button>
           </div>
+          </Show>
         }
       >
         {/* Read game() directly in every expression: the engine object is
@@ -574,7 +626,7 @@ function TurnTab(props: { on: boolean }) {
 }
 
 /** Right-panel full card details for the hovered card (any side's). */
-function CardInspector() {
+export function CardInspector() {
   const c = () => inspectedCard();
   return (
     <div class="area">
