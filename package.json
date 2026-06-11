@@ -1,0 +1,24 @@
+{
+  "name": "digimon-card-battle2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "simulate": "bun run scripts/simulate.ts",
+    "gen:decks": "bun run scripts/gen-decks.ts"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "vite": "^6.0.0",
+    "vite-plugin-solid": "^2.11.0"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  }
+}

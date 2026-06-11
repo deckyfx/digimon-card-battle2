@@ -1,0 +1,165 @@
+:root {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #14161f;
+  color: #e8e8ee;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+}
+
+.layout {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.area {
+  border: 1px solid #3a3f55;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #1c1f2e;
+}
+
+.area h2 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: #9aa3c7;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.card {
+  border: 1px solid #4a5070;
+  border-radius: 6px;
+  padding: 8px;
+  width: 175px;
+  background: #232842;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.card .name {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.card .tag {
+  color: #8fd3ff;
+}
+
+.card.option {
+  background: #2e2742;
+}
+
+.card .effect {
+  color: #c9b6ff;
+  font-style: italic;
+}
+
+.card button {
+  margin: 4px 4px 0 0;
+}
+
+button {
+  background: #3b4fa0;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+button:hover:not(:disabled) {
+  background: #5068c8;
+}
+
+button:disabled {
+  background: #2a2e44;
+  color: #666e90;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: #b0541f;
+  font-weight: 700;
+}
+
+button.primary:hover:not(:disabled) {
+  background: #d56a2c;
+}
+
+.log {
+  height: 180px;
+  overflow-y: auto;
+  font-family: "Cascadia Mono", monospace;
+  font-size: 0.74rem;
+  background: #10121b;
+  border-radius: 6px;
+  padding: 8px;
+  white-space: pre-wrap;
+}
+
+.log .turn-marker {
+  color: #ffc66d;
+  font-weight: 700;
+}
+
+.stats {
+  display: flex;
+  gap: 18px;
+  font-size: 0.82rem;
+  color: #b8c0e0;
+  margin-bottom: 6px;
+}
+
+.stats .score {
+  color: #ffd76d;
+  font-weight: 700;
+}
+
+.hp-bar {
+  height: 6px;
+  background: #39406a;
+  border-radius: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.hp-bar > div {
+  height: 100%;
+  background: #4ecf6a;
+}
+
+.warn {
+  color: #ff9d6b;
+  font-size: 0.72rem;
+  margin-top: 3px;
+}
+
+.banner {
+  text-align: center;
+  font-size: 1.3rem;
+  padding: 22px;
+}
+
+select,
+input[type="text"] {
+  background: #232842;
+  color: #e8e8ee;
+  border: 1px solid #4a5070;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 0.78rem;
+}
