@@ -89,6 +89,8 @@ export class BattleResolver {
       first = defender;
       second = owner;
       this.log(`${defender.name}'s ${defender.card.name} gains 1st Attack!`);
+    } else if (defender.ctx.is_first_attack && owner.ctx.is_first_attack) {
+      this.log(`Both claim 1st Attack — ${owner.name} keeps the initiative as turn owner.`);
     }
 
     // 5. First strike.
