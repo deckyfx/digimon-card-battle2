@@ -61,12 +61,15 @@ Rules that enforce this:
 ## Data
 
 - `src/data/master-cards.ts` (301 cards) and `src/data/deck-lists.ts`
-  (125 prebuilt decks) are **generated artifacts** — do not hand-edit.
-  Their seeds (migrate-master-cards.ts, DECKLIST.txt) were removed from the
-  repo; treat the generated files as the source of truth now.
+  (138 prebuilt decks: { name, owner, cardNumbers, armors }) are the
+  **sole source of truth** — all seed files/scripts were deliberately
+  removed to prevent accidental reseeds. Hand-edit with care; every deck
+  is verified legal (exactly 30 cards, max 4 copies per card).
+- Custom decks live in localStorage via src/store/ (CustomDeckStore +
+  pluggable StorageProvider); same 30-card / 4-copy rules, 15-char names.
 - Card numbers 293–300 are the digivolve option cards; 294/298 (Armor)
-  are intentionally unimplemented until Armor level exists.
-- "Dark Hand" doesn't exist in this card set — 5 decks legitimately run short.
+  are intentionally unimplemented until Armor level exists. Deck `armors`
+  arrays hold armor side-deck card numbers for that future feature.
 
 ## Commands
 
