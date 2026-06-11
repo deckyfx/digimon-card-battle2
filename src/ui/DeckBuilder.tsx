@@ -1,7 +1,8 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
 import { CardLevel, CardSpecialty, CardType, type MasterCard } from "@src/types";
 import { MASTER_CARDS } from "@src/data/master-cards";
-import { DECK_SIZE, MAX_COPIES, type CustomDeck, type CustomDeckStore } from "@src/store/custom-deck-store";
+import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck, type CustomDeckStore } from "@src/store/custom-deck-store";
+import { DECK_LISTS } from "@src/data/deck-lists";
 import { CardInspector } from "./App";
 import { setInspectedCard } from "./CardView";
 
@@ -96,6 +97,16 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setMessage(`Saved "${saved.name}" ✅`);
   };
 
+  /** Copy a prebuilt template into the editor as a new (unsaved) deck. */
+  const copyTemplate = (templateName: string) => {
+    const tpl = DECK_LISTS.find((d) => d.name === templateName);
+    if (!tpl) return;
+    setEditingId(null); // saving creates a NEW deck, never overwrites
+    setDeckName(templateName.replace(/\s*Deck$/i, "").slice(0, MAX_NAME_LENGTH));
+    setNumbers([...tpl.cardNumbers]);
+    setMessage(`Copied template "${templateName}" — rename and save as your own.`);
+  };
+
   const deleteDeck = (d: CustomDeck) => {
     props.store.delete(d.id);
     setDecks(props.store.list());
@@ -150,7 +161,24 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           Deck — {numbers().length}/{DECK_SIZE}
         </h2>
         <div class="builder-filters">
-          <input type="text" value={deckName()} onInput={(e) => setDeckName(e.currentTarget.value)} maxLength={30} />
+          <select
+            onChange={(e) => {
+              if (e.currentTarget.value) copyTemplate(e.currentTarget.value);
+              e.currentTarget.value = "";
+            }}
+          >
+            <option value="">📋 Copy from template…</option>
+            <For each={DECK_LISTS}>{(d) => <option value={d.name}>{d.name}</option>}</For>
+          </select>
+        </div>
+        <div class="builder-filters">
+          <input
+            type="text"
+            value={deckName()}
+            onInput={(e) => setDeckName(e.currentTarget.value)}
+            maxLength={MAX_NAME_LENGTH}
+            placeholder={`Deck name (max ${MAX_NAME_LENGTH})`}
+          />
           <button class="primary" onClick={saveDeck}>
             Save
           </button>

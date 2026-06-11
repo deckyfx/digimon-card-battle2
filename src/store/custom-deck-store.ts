@@ -14,6 +14,8 @@ export interface CustomDeck {
 export const DECK_SIZE = 30;
 /** At most this many copies of the same card (by card number). */
 export const MAX_COPIES = 4;
+/** Deck names are short labels. */
+export const MAX_NAME_LENGTH = 15;
 
 const KNOWN_NUMBERS = new Set(MASTER_CARDS.map((c) => c.number));
 
@@ -79,6 +81,7 @@ export class CustomDeckStore {
   save(deck: { id?: string; name: string; cardNumbers: string[] }): CustomDeck {
     const name = deck.name.trim();
     if (!name) throw new Error("Deck name is required.");
+    if (name.length > MAX_NAME_LENGTH) throw new Error(`Deck name must be ${MAX_NAME_LENGTH} characters or fewer.`);
     const errors = this.validate(deck.cardNumbers);
     if (errors.length > 0) throw new Error(errors.join(" "));
 

@@ -142,88 +142,69 @@ export function App() {
             when={view() === "menu"}
             fallback={<DeckBuilder store={customDeckStore} onBack={() => setView("menu")} />}
           >
-          <div class="area banner">
-            <h1>Digital Card Battle</h1>
-            <p>
-              Your name:{" "}
-              <input
-                type="text"
-                value={playerName()}
-                onInput={(e) => setPlayerName(e.currentTarget.value)}
-                maxLength={20}
-              />{" "}
-              CPU name:{" "}
-              <input type="text" value={cpuName()} onInput={(e) => setCpuName(e.currentTarget.value)} maxLength={20} />
-            </p>
-            <p>
-              Your deck:{" "}
-              <select onChange={(e) => setPlayerDeck(e.currentTarget.value)}>
-                <optgroup label="Custom Decks">
-                  <For each={customDecks()}>
-                    {(d) => (
-                      <option value={`custom:${d.id}`} selected={`custom:${d.id}` === playerDeck()}>
-                        {d.name}
-                      </option>
-                    )}
-                  </For>
-                </optgroup>
-                <optgroup label="Prebuilt Decks">
-                  <For each={DECK_NAMES}>
-                    {(name) => <option value={name} selected={name === playerDeck()}>{name}</option>}
-                  </For>
-                </optgroup>
-              </select>
-            </p>
-            <p>
-              CPU deck:{" "}
-              <select onChange={(e) => setCpuDeck(e.currentTarget.value)}>
-                <option value={RANDOM_DECK} selected={cpuDeck() === RANDOM_DECK}>
-                  Random
-                </option>
-                <optgroup label="Custom Decks">
-                  <For each={customDecks()}>
-                    {(d) => (
-                      <option value={`custom:${d.id}`} selected={`custom:${d.id}` === cpuDeck()}>
-                        {d.name}
-                      </option>
-                    )}
-                  </For>
-                </optgroup>
-                <optgroup label="Prebuilt Decks">
-                  <For each={DECK_NAMES}>
-                    {(name) => <option value={name} selected={name === cpuDeck()}>{name}</option>}
-                  </For>
-                </optgroup>
-              </select>
-            </p>
-            <p>
-              First player:{" "}
-              <select onChange={(e) => setFirstPlayer(e.currentTarget.value as PlayerId | "random")}>
-                <option value="random" selected={firstPlayer() === "random"}>
-                  Random
-                </option>
-                <option value="player" selected={firstPlayer() === "player"}>
-                  Me
-                </option>
-                <option value="cpu" selected={firstPlayer() === "cpu"}>
-                  CPU
-                </option>
-              </select>
-            </p>
-            <p>
+          <div class="setup">
+            <h1 class="game-title">DIGITAL CARD BATTLE</h1>
+            <p class="subtitle">Battle Engine · 301 Cards · 125 Decks</p>
+
+            <div class="setup-grid">
+              <div class="setup-side">
+                <h3>You</h3>
+                <label>Name</label>
+                <input
+                  type="text"
+                  value={playerName()}
+                  onInput={(e) => setPlayerName(e.currentTarget.value)}
+                  maxLength={20}
+                />
+                <label>Deck</label>
+                <DeckPicker
+                  decks={customDecks()}
+                  value={playerDeck()}
+                  onPick={setPlayerDeck}
+                  allowRandom={false}
+                />
+              </div>
+
+              <div class="setup-side">
+                <h3>CPU</h3>
+                <label>Name</label>
+                <input type="text" value={cpuName()} onInput={(e) => setCpuName(e.currentTarget.value)} maxLength={20} />
+                <label>Deck</label>
+                <DeckPicker decks={customDecks()} value={cpuDeck()} onPick={setCpuDeck} allowRandom={true} />
+              </div>
+            </div>
+
+            <div class="setup-options">
+              <span>
+                First player:{" "}
+                <select onChange={(e) => setFirstPlayer(e.currentTarget.value as PlayerId | "random")}>
+                  <option value="random" selected={firstPlayer() === "random"}>
+                    Random
+                  </option>
+                  <option value="player" selected={firstPlayer() === "player"}>
+                    Me
+                  </option>
+                  <option value="cpu" selected={firstPlayer() === "cpu"}>
+                    CPU
+                  </option>
+                </select>
+              </span>
               <label>
                 <input
                   type="checkbox"
                   checked={revealOpponentHand()}
                   onChange={(e) => setRevealOpponentHand(e.currentTarget.checked)}
                 />{" "}
-                Reveal opponent's hand (vs CPU)
+                Reveal CPU hand
               </label>
-            </p>
-            <button class="primary" onClick={startMatch}>
-              Start Match
-            </button>{" "}
-            <button onClick={() => setView("builder")}>🛠 Deck Builder</button>
+            </div>
+
+            <div class="setup-actions">
+              <button class="primary" onClick={startMatch}>
+                ▶ START MATCH
+              </button>
+              <button onClick={() => setView("builder")}>🛠 Deck Builder</button>
+            </div>
           </div>
           </Show>
         }
@@ -625,6 +606,65 @@ function TurnTab(props: { on: boolean }) {
   );
 }
 
+/**
+ * Deck picker with search: filters custom + prebuilt decks as you type,
+ * so picking from 125+ decks doesn't mean scrolling a giant dropdown.
+ */
+function DeckPicker(props: {
+  decks: { id: string; name: string }[];
+  value: string;
+  onPick: (v: string) => void;
+  allowRandom: boolean;
+}) {
+  const [query, setQuery] = createSignal("");
+
+  const customMatches = () =>
+    props.decks.filter((d) => d.name.toLowerCase().includes(query().toLowerCase()));
+  const prebuiltMatches = () =>
+    DECK_NAMES.filter((n) => n.toLowerCase().includes(query().toLowerCase()));
+
+  /** Keep the selection visible even when the filter excludes it. */
+  const sizeFor = () => Math.min(8, Math.max(3, customMatches().length + prebuiltMatches().length + 1));
+
+  return (
+    <div class="deck-picker">
+      <input
+        type="text"
+        placeholder="🔍 Search decks…"
+        value={query()}
+        onInput={(e) => setQuery(e.currentTarget.value)}
+      />
+      <select size={sizeFor()} onChange={(e) => props.onPick(e.currentTarget.value)}>
+        <Show when={props.allowRandom}>
+          <option value={RANDOM_DECK} selected={props.value === RANDOM_DECK}>
+            🎲 Random Deck
+          </option>
+        </Show>
+        <Show when={customMatches().length > 0}>
+          <optgroup label="Custom Decks">
+            <For each={customMatches()}>
+              {(d) => (
+                <option value={`custom:${d.id}`} selected={`custom:${d.id}` === props.value}>
+                  {d.name}
+                </option>
+              )}
+            </For>
+          </optgroup>
+        </Show>
+        <optgroup label="Prebuilt Decks">
+          <For each={prebuiltMatches()}>
+            {(name) => (
+              <option value={name} selected={name === props.value}>
+                {name}
+              </option>
+            )}
+          </For>
+        </optgroup>
+      </select>
+    </div>
+  );
+}
+
 /** Right-panel full card details for the hovered card (any side's). */
 export function CardInspector() {
   const c = () => inspectedCard();
@@ -633,6 +673,7 @@ export function CardInspector() {
       <h2>Card Details</h2>
       <Show when={c()} fallback={<div class="tag">Hover a card to inspect it.</div>}>
         <div class="inspect">
+          <img class="inspect-img" src={c()!.img_src} alt={c()!.name} />
           <div class="name-row">
             <span class="name">
               #{c()!.number} {c()!.name}
