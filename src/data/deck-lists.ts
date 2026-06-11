@@ -16,7 +16,7 @@ export interface DeckList {
 export const DECK_LISTS: DeckList[] = [
   {
     name: "Tutorial Deck",
-    owner: "Betamon (firstdeck)",
+    owner: "Betamon (Tutorial)",
     cardNumbers: ["017","022","027","033","051","052","053","062","062","063","063","063","067","094","098","124","124","132","135","163","169","263","264","266","267","268","269","270","271","272"],
     armors: [],
   },
