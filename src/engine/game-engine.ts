@@ -1,6 +1,6 @@
 import { CardLevel, CardType, type AttackType, type MasterCard } from "@src/types";
 import { createCombatantCtx } from "./battle-context";
-import { BattleResolver, type BattleSide } from "./battle-resolver";
+import { BattleResolver, type BattleFx, type BattleOutcome, type BattleSide } from "./battle-resolver";
 import { Rng } from "./rng";
 import { ScriptRunner, type SideZoneOps, type ZoneName } from "./script-runner";
 
@@ -9,7 +9,7 @@ import { ScriptRunner, type SideZoneOps, type ZoneName } from "./script-runner";
  * that start with an empty battlefield: the deployment can be cancelled or
  * switched freely until finalized, which advances to "digivolve".
  */
-export type Phase = "setup" | "deploy" | "digivolve" | "battle-select" | "game-over";
+export type Phase = "setup" | "deploy" | "digivolve" | "battle-select" | "battle-resolve" | "game-over";
 
 export type PlayerId = "player" | "cpu";
 
@@ -46,6 +46,8 @@ export interface BattleChoice {
   attack: AttackType;
   /** Index into hand of the support card, or null for no support. */
   supportHandIndex: number | null;
+  /** Gamble: use the top card of the deck as a mystery support instead. */
+  supportFromDeck?: boolean;
 }
 
 const PENALTY: Partial<Record<CardLevel, number>> = {
@@ -57,6 +59,10 @@ const PENALTY: Partial<Record<CardLevel, number>> = {
 
 const WIN_SCORE = 3;
 const HAND_SIZE = 4;
+/** DP slot holds at most 8 cards. */
+const DP_SLOT_LIMIT = 8;
+/** DP total is capped at 90 regardless of stocked card values. */
+const DP_VALUE_CAP = 90;
 
 /** Prep-phase digivolve option cards, keyed by master card number. */
 export type DigivolveOptionKind = "download" | "special" | "mutant" | "warp" | "speed" | "devolve";
@@ -98,6 +104,12 @@ export class GameEngine {
   private turnActionTaken = false;
   /** The card stocked this turn, while it can still be cancelled. */
   private stockedCardThisTurn: MasterCard | null = null;
+
+  /** Battle in progress (phase "battle-resolve"), for UI rendering. */
+  activeBattle: { ownerId: PlayerId; owner: BattleSide; defender: BattleSide } | null = null;
+  /** Presentation cue of the last battle step (drives UI animations). */
+  currentFx: { kind: BattleFx["kind"]; side: PlayerId } | null = null;
+  private battleGen: Generator<BattleFx, BattleOutcome> | null = null;
 
   readonly players: Record<PlayerId, PlayerState>;
 
@@ -257,12 +269,17 @@ export class GameEngine {
     return true;
   }
 
-  /** Discard a Digimon card from hand into the DP slot (once per turn). */
+  /** True if the player may stock another DP card (slot not full). */
+  canStockMoreDp(p: PlayerState): boolean {
+    return p.dpSlot.length < DP_SLOT_LIMIT;
+  }
+
+  /** Discard a Digimon card from hand into the DP slot (once per turn, max 8 cards). */
   stockDp(handIndex: number): boolean {
     const p = this.current();
     const card = p.hand[handIndex];
     if (this.phase !== "digivolve" || !p.active || !card || card.type !== CardType.Digimon) return false;
-    if (this.dpStockedThisTurn) return false;
+    if (this.dpStockedThisTurn || !this.canStockMoreDp(p)) return false;
 
     this.dpStockedThisTurn = true;
     this.turnActionTaken = true;
@@ -480,17 +497,66 @@ export class GameEngine {
 
   // ── Battle ─────────────────────────────────────────────────────────────
 
-  /** Resolves the battle once both sides have chosen attack + support. */
-  resolveBattlePhase(ownerChoice: BattleChoice, defenderChoice: BattleChoice): void {
+  /**
+   * Begins staged battle resolution: supports leave hands/decks, the phase
+   * becomes "battle-resolve", and the UI advances steps via battleStep().
+   */
+  startBattle(ownerChoice: BattleChoice, defenderChoice: BattleChoice): void {
     if (this.phase !== "battle-select") return;
     const owner = this.current();
     const defender = this.opponentOf(owner.id);
 
     const ownerSide = this.buildSide(owner, ownerChoice);
     const defenderSide = this.buildSide(defender, defenderChoice);
+    this.activeBattle = { ownerId: owner.id, owner: ownerSide, defender: defenderSide };
+    this.battleGen = this.resolver.resolveSteps(ownerSide, defenderSide);
+    this.phase = "battle-resolve";
+    this.notify();
+  }
 
-    const outcome = this.resolver.resolve(ownerSide, defenderSide);
+  /** Advances one battle step. Returns true while the battle continues. */
+  battleStep(): boolean {
+    if (!this.battleGen || !this.activeBattle) return false;
+    const ab = this.activeBattle;
+    const ownerP = this.players[ab.ownerId];
+    const defenderP = this.opponentOf(ab.ownerId);
+    const result = this.battleGen.next();
 
+    // Live-sync HP after every step so the UI animates each change.
+    if (ownerP.active) ownerP.active.hp = Math.max(0, Math.round(ab.owner.ctx.hp));
+    if (defenderP.active) defenderP.active.hp = Math.max(0, Math.round(ab.defender.ctx.hp));
+
+    if (!result.done) {
+      this.currentFx = {
+        kind: result.value.kind,
+        side: result.value.actor === "owner" ? ab.ownerId : defenderP.id,
+      };
+      this.notify();
+      return true;
+    }
+
+    this.currentFx = null;
+    this.battleGen = null;
+    this.activeBattle = null;
+    this.finishBattle(ownerP, defenderP, ab.owner, ab.defender, result.value);
+    return false;
+  }
+
+  /** Headless convenience: runs an entire battle synchronously (AI/sim). */
+  resolveBattlePhase(ownerChoice: BattleChoice, defenderChoice: BattleChoice): void {
+    this.startBattle(ownerChoice, defenderChoice);
+    while (this.battleStep()) {
+      // advance until the battle concludes
+    }
+  }
+
+  private finishBattle(
+    owner: PlayerState,
+    defender: PlayerState,
+    ownerSide: BattleSide,
+    defenderSide: BattleSide,
+    outcome: BattleOutcome,
+  ): void {
     // Write battle results back to persistent state.
     this.applyBattleResult(owner, ownerSide, outcome.koed === "owner" && !outcome.revived);
     this.applyBattleResult(defender, defenderSide, outcome.koed === "defender" && !outcome.revived);
@@ -511,7 +577,14 @@ export class GameEngine {
   private buildSide(p: PlayerState, choice: BattleChoice): BattleSide {
     const active = p.active as ActiveDigimon;
     let support: MasterCard | null = null;
-    if (choice.supportHandIndex !== null) {
+    if (choice.supportFromDeck) {
+      support = p.deck.shift() ?? null;
+      this.pushLog(
+        support
+          ? `${p.name} gambles the top card of the deck as support…`
+          : `${p.name} tried to gamble a deck support but the deck is empty!`,
+      );
+    } else if (choice.supportHandIndex !== null) {
       support = p.hand.splice(choice.supportHandIndex, 1)[0] ?? null;
     }
     const ctx = createCombatantCtx({
@@ -525,7 +598,16 @@ export class GameEngine {
       dp_count: p.dpSlot.length,
       hand_count: p.hand.length,
     });
-    return { name: p.name, card: active.card, ctx, support, zones: this.zoneOps(p), counterDamage: null };
+    return {
+      name: p.name,
+      card: active.card,
+      ctx,
+      support,
+      fromDeck: !!choice.supportFromDeck,
+      revealed: false,
+      zones: this.zoneOps(p),
+      counterDamage: null,
+    };
   }
 
   private applyBattleResult(p: PlayerState, side: BattleSide, koed: boolean): void {
@@ -563,8 +645,9 @@ export class GameEngine {
     return this.players[id === "player" ? "cpu" : "player"];
   }
 
+  /** DP total of the slot, capped at {@link DP_VALUE_CAP}. */
   dpTotal(p: PlayerState): number {
-    return p.dpSlot.reduce((sum, c) => sum + c.dp_point, 0);
+    return Math.min(DP_VALUE_CAP, p.dpSlot.reduce((sum, c) => sum + c.dp_point, 0));
   }
 
   isDeployable(card: MasterCard): boolean {

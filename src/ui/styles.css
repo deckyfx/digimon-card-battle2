@@ -2,6 +2,22 @@
   font-family: "Segoe UI", system-ui, sans-serif;
   background: #14161f;
   color: #e8e8ee;
+
+  /* Card geometry — board width derives from these. */
+  --card-w: 180px;
+  --card-gap: 10px;
+  --area-pad: 14px;
+  --rail-w: 64px;
+  /* left rail + 4 cards + gaps + right rail + area padding/border */
+  --board-w: calc(
+    2 * (var(--rail-w) + var(--card-gap)) + 4 * var(--card-w) + 3 * var(--card-gap) + 2 * var(--area-pad) + 2px
+  );
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -10,17 +26,68 @@ body {
 }
 
 .layout {
-  max-width: 980px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* Three-column match layout: battle log | game board | detail panel */
+.columns {
+  display: grid;
+  /* Board sized to fit the 4-card rows; leftover width goes to the log. */
+  grid-template-columns: minmax(280px, 1fr) var(--board-w) 300px;
+  gap: 10px;
+  width: 100%;
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  top: 12px;
+}
+
+.column-center {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.column .log {
+  height: calc(100vh - 360px);
+}
+
+/* Control panel below the log: stacked full-width actions. */
+.controls button {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 7px 10px;
+}
+
+.controls select {
+  width: 100%;
+  margin: 4px 0;
+}
+
+.controls .attack-row {
+  display: flex;
+  gap: 6px;
+}
+
+.controls .attack-row button {
+  flex: 1;
+}
+
 .area {
   border: 1px solid #3a3f55;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 10px var(--area-pad);
   background: #1c1f2e;
 }
 
@@ -32,26 +99,202 @@ body {
   letter-spacing: 0.08em;
 }
 
+/* Header line with name hugging left and deck name hugging right. */
+.split-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.turn-info-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffc66d;
+  margin-bottom: 4px;
+}
+
 .row {
   display: flex;
-  gap: 10px;
+  gap: var(--card-gap);
   flex-wrap: wrap;
-  align-items: flex-start;
+  /* Stretch so empty placeholders match the tallest card in the row. */
+  align-items: stretch;
 }
 
 .card {
-  border: 1px solid #4a5070;
+  border: 3px solid #4a5070;
   border-radius: 6px;
   padding: 8px;
-  width: 175px;
+  width: var(--card-w);
+  flex-shrink: 0;
+  min-height: 200px;
   background: #232842;
   font-size: 0.78rem;
   line-height: 1.35;
 }
 
+.card {
+  position: relative;
+}
+
+/* Manga speech balloon hovering over the card's head, tail pointing down. */
+.bubbles {
+  position: absolute;
+  top: -44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: #fffef8;
+  border: 2.5px solid #1a1a1a;
+  /* Uneven radii give the hand-drawn oval wobble. */
+  border-radius: 55% 45% 50% 50% / 70% 65% 55% 60%;
+  padding: 7px 16px;
+  box-shadow: 2px 3px 0 #1a1a1acc;
+  z-index: 5;
+  animation: bubble-pop 0.3s ease-out, bubble-bounce 2.2s ease-in-out 0.3s infinite;
+}
+
+/* Pop in, then keep gently bouncing like a manga balloon begging attention. */
+@keyframes bubble-pop {
+  0% {
+    transform: translateX(-50%) scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: translateX(-50%) scale(1.1);
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bubble-bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+
+/* Curved off-center tail — skewed triangles read as hand-drawn. */
+.bubbles::before {
+  content: "";
+  position: absolute;
+  top: calc(100% - 3px);
+  left: 38%;
+  border: 14px solid transparent;
+  border-top-width: 18px;
+  border-top-color: #1a1a1a;
+  transform: skewX(-30deg);
+}
+
+.bubbles::after {
+  content: "";
+  position: absolute;
+  top: calc(100% - 5px);
+  left: calc(38% + 3px);
+  border: 10px solid transparent;
+  border-top-width: 14px;
+  border-top-color: #fffef8;
+  transform: skewX(-30deg);
+}
+
+/* Plain dialog-text actions inside the balloon, comic lettering. */
+.bubbles button {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  color: #1a1a1a;
+  font-family: "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Segoe Print", cursive;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.bubbles button:hover:not(:disabled) {
+  background: none;
+  color: #b0541f;
+  text-decoration: underline;
+}
+
+.bubbles button.fizzle {
+  color: #8a8fa3;
+}
+
 .card .name {
   font-weight: 700;
   font-size: 0.85rem;
+}
+
+/* Compact card header: name left, level badge right. */
+.name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.lvl {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #14161f;
+  background: #9aa3c7;
+  border-radius: 4px;
+  padding: 0 5px;
+}
+
+/* Battle-zone card: larger status text (no support line to make room). */
+.card.battler {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.card.battler .name {
+  font-size: 1.05rem;
+}
+
+.card.battler .lvl {
+  font-size: 0.8rem;
+}
+
+.card.battler .effect {
+  font-size: 0.8rem;
+}
+
+/* Two stats sharing a line: spread apart with clear breathing room. */
+.stat-split {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 6px;
+}
+
+.inspect .name-row .name {
+  font-size: 0.9rem;
+}
+
+.inspect-attacks {
+  margin: 6px 0;
+  padding: 6px 8px;
+  background: #10121b;
+  border-radius: 6px;
+  font-size: 0.78rem;
+}
+
+.inspect {
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .card .tag {
@@ -60,6 +303,209 @@ body {
 
 .card.option {
   background: #2e2742;
+}
+
+/* Specialty border colours */
+.card.spec-fire {
+  border-color: #e0452f;
+}
+
+.card.spec-nature {
+  border-color: #3fb950;
+}
+
+.card.spec-ice {
+  border-color: #3f8fe0;
+}
+
+.card.spec-rare {
+  border-color: #e6c229;
+}
+
+.card.spec-darkness {
+  border-color: #9d4ee0;
+}
+
+.card.spec-option {
+  border-color: #e8e8ee;
+}
+
+.card.spec-digivolve {
+  border-color: #d4a017;
+}
+
+/* Side rail beside the hand: deck/trash counts + win lights. */
+.with-rail {
+  display: flex;
+  gap: var(--card-gap);
+}
+
+.rail {
+  width: var(--rail-w);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rail-stat {
+  text-align: center;
+  font-size: 0.72rem;
+  color: #9aa3c7;
+}
+
+.rail-stat .rail-num {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e8e8ee;
+}
+
+.win-lights {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.win-light {
+  height: 30px;
+  border: 2px solid #4a5070;
+  border-radius: 6px;
+  background: #1c1f2e;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.win-light.on {
+  background: #3fb950;
+  border-color: #58d96a;
+  box-shadow: 0 0 8px #3fb95088;
+}
+
+/* DP stacks flanking the battle zone, aligned toward their owner's card. */
+.dp-rail {
+  justify-content: center;
+  border: 1px dashed #3a3f55;
+  border-radius: 6px;
+  padding: 6px 0;
+}
+
+.dp-rail.dp-player {
+  justify-content: flex-end; /* near the bottom-left player card */
+}
+
+.dp-rail.dp-cpu {
+  justify-content: flex-start; /* near the top-right opponent card */
+}
+
+/* DP card slots: 2 × 4 grid of small boxes, filled as cards are stocked. */
+.dp-slots {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+  padding: 0 8px;
+}
+
+.dp-slot {
+  height: 12px;
+  border: 1px solid #e8e8ee;
+  border-radius: 3px;
+  background: transparent;
+}
+
+.dp-slot.filled {
+  background: #e8e8ee;
+}
+
+/* Turn indicator: tall vertical TURN tab on the right of the active hand. */
+.turn-rail {
+  width: var(--rail-w);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.turn-tab {
+  width: 100%;
+  min-height: 200px;
+  border-radius: 6px;
+  background: #b0541f;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.4s ease, transform 0.6s ease;
+}
+
+.turn-tab.on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Battle zone: the two active Digimon overlap face-to-face. */
+.vs-zone {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-height: 240px;
+}
+
+.vs-side {
+  position: relative;
+}
+
+.vs-side .tag {
+  margin-bottom: 4px;
+}
+
+.vs-player {
+  align-self: flex-end; /* bottom-left */
+}
+
+/* Player's active card with the selected support card docked beside it. */
+.vs-with-support {
+  display: flex;
+  gap: var(--card-gap);
+  align-items: flex-end;
+}
+
+.support-card .tag {
+  margin-bottom: 4px;
+}
+
+/* Facedown gamble support: mystery card. */
+.card.mystery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffc66d;
+  border-color: #d4a017;
+  background: repeating-linear-gradient(45deg, #232842, #232842 8px, #1c1f2e 8px, #1c1f2e 16px);
+}
+
+.vs-cpu {
+  align-self: flex-start; /* top-right */
+}
+
+/* Empty slot placeholders (hand / battlefield) */
+.card.empty {
+  border-style: dashed;
+  border-color: #3a3f55;
+  color: #666e90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card .effect {
@@ -140,6 +586,46 @@ button.primary:hover:not(:disabled) {
 .hp-bar > div {
   height: 100%;
   background: #4ecf6a;
+  transition: width 0.5s ease;
+}
+
+/* ── Battle step animations ─────────────────────────────────────── */
+
+/* Support / ✕-effect resolving: golden glow on the acting side. */
+.vs-side.fx-glow .card {
+  box-shadow: 0 0 18px #d4a017cc;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Attacker lunges toward the enemy. */
+.vs-side.fx-strike .card {
+  transform: translateY(-8px) scale(1.04);
+  transition: transform 0.25s ease;
+}
+
+/* Defender shakes and flashes red when hit. */
+.vs-side.fx-hit .card {
+  animation: hit-shake 0.5s ease;
+  box-shadow: 0 0 14px #e0452fcc;
+}
+
+@keyframes hit-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
 }
 
 .warn {

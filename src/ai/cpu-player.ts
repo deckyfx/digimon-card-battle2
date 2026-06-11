@@ -19,6 +19,9 @@ export class CpuPlayer {
 
   /** Runs the CPU's deploy + digivolve phases, ending with endPrep(). */
   runPrepPhase(): void {
+    // Never act outside our own turn — engine actions target the current
+    // player, so a stale scheduled call would otherwise play for the human.
+    if (this.engine.turn !== this.id) return;
     const cpu = this.engine.players[this.id];
 
     if (this.engine.phase === "deploy") {
@@ -74,7 +77,10 @@ export class CpuPlayer {
       attack = "x";
     }
 
-    return { attack, supportHandIndex: this.pickSupport(cpu) };
+    // No good support in hand → occasionally gamble the top of the deck.
+    const supportHandIndex = this.pickSupport(cpu);
+    const supportFromDeck = supportHandIndex === null && cpu.deck.length > 4 && Math.random() < 0.35;
+    return { attack, supportHandIndex, supportFromDeck };
   }
 
   /**

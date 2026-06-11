@@ -12,10 +12,20 @@ export interface BattleSide {
   ctx: CombatantCtx;
   /** Support card selected for this battle, if any (already out of hand). */
   support: MasterCard | null;
+  /** True when the support came from the top of the deck (gamble). */
+  fromDeck: boolean;
+  /** True once the support has been revealed during resolution. */
+  revealed: boolean;
   /** Zone operations for effect commands. */
   zones: SideZoneOps;
   /** Set when this side counters: next strike uses the received damage. */
   counterDamage: number | null;
+}
+
+/** Presentation cue yielded between battle steps (for UI animation). */
+export interface BattleFx {
+  kind: "support" | "x-effect" | "strike";
+  actor: "owner" | "defender";
 }
 
 /** Outcome of one battle resolution. */
@@ -40,18 +50,37 @@ export class BattleResolver {
     private readonly log: (msg: string) => void,
   ) {}
 
-  resolve(owner: BattleSide, defender: BattleSide): BattleOutcome {
+  /**
+   * Resolves the battle as a step machine: each yield is a presentation
+   * moment (support reveal/effect, ✕ effect, strike) with state already
+   * mutated, letting the UI pace and animate the battle.
+   */
+  *resolveSteps(owner: BattleSide, defender: BattleSide): Generator<BattleFx, BattleOutcome> {
     // 1. Jamming declared on cards voids the opposing support up front.
     this.applyJamming(owner, defender);
     this.applyJamming(defender, owner);
 
-    // 2. Support effects — turn owner resolves first.
-    this.runSupport(owner, defender);
-    this.runSupport(defender, owner);
+    // 2. Support effects — turn owner reveals and resolves first.
+    if (owner.support) {
+      owner.revealed = true;
+      this.runSupport(owner, defender);
+      yield { kind: "support", actor: "owner" };
+    }
+    if (defender.support) {
+      defender.revealed = true;
+      this.runSupport(defender, owner);
+      yield { kind: "support", actor: "defender" };
+    }
 
     // 3. Cross (✕) effects for each side that is attacking with ✕.
-    this.runXEffect(owner, defender);
-    this.runXEffect(defender, owner);
+    if (owner.ctx.selected_attack === "x" && owner.card.x_effect_script) {
+      this.runXEffect(owner, defender);
+      yield { kind: "x-effect", actor: "owner" };
+    }
+    if (defender.ctx.selected_attack === "x" && defender.card.x_effect_script) {
+      this.runXEffect(defender, owner);
+      yield { kind: "x-effect", actor: "defender" };
+    }
 
     // 4. Strike order — turn owner first unless the defender gained 1st Attack.
     let first = owner;
@@ -64,12 +93,14 @@ export class BattleResolver {
 
     // 5. First strike.
     this.strike(first, second);
+    yield { kind: "strike", actor: first === owner ? "owner" : "defender" };
     if (second.ctx.hp <= 0) {
       return this.handleKo(second, first, owner);
     }
 
     // 6. Counterattack.
     this.strike(second, first);
+    yield { kind: "strike", actor: second === owner ? "owner" : "defender" };
     if (first.ctx.hp <= 0) {
       return this.handleKo(first, second, owner);
     }
