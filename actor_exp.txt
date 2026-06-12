@@ -1,162 +1,66 @@
-EXP points by duelist:
+Beginner City:
+#260 - Greymon: Option Pack
+#261 - WarGreymon: Option Pack
+#262 - Tai: S-Option Pack
+Flame City:
+#263 - Raidramon: Red Pack
+#264 - Paildramon: Red Pack
+#265 - Magnamon: S-Red Pack
+x - Imperialdramon: S-Red Pack (skip this since you've beaten him many times before)
+???:
+#266 - Apokarimon (look at my 96.9 notes for possible spawning location)
+Flame City:
+#267 - Garudamon: S-Red Pack
+#268 - Sora: S-Red Pack
+Jungle City:
+#269 - HerculesKabuterimon: S-Green Pack
+#270 - Halsemon: Green Pack (there is text glitch when displaying the name; for a split second you can see "hat day" and the text then goes blank)
+#271 - Shurimon: Green Pack
+#272 - Sylphymon: S-Green Pack
+#273 - Valkyrimon: S-Green Pack
+#274 - Lillymon: S-Green Pack
+#275 - Mimi: S-Green Pack
+Igloo City:
+#276 - MetalGarurumon: S-Blue Pack
+???:
+#277 - Apokarimon (look at my 96.9 notes for possible spawning location)
+Igloo City:
+#278 - Matt: S-Blue Pack
+#279 - BKMetalGarurumon: S-Blue Pack
+#280 - Digmon: Yellow Pack
+#281 - Submarimon: Yellow Pack
+#282 - Shakkoumon: S-Yellow Pack
+#283 - Vikemon: S-Blue Pack
+Junk City:
+#284 - SuperStarmon: S-Yellow Pack
+#285 - Zudomon: S-Blue Pack
+#286 - Joe: S-Blue Pack
+Desert Island:
+#287 - Myotismon: S-Black Pack
+???:
+#288 - Apokarimon (look at my 96.9 notes for possible spawning location)
+Dark City:
+#289 - Myotismon: S-Black Pack
+#290 - MegaKabuterimon: S-Green Pack
+#291 - Izzy: S-Green Pack
+Pyramid City:
+#292 - Pegasusmon: Green Pack
+#293 - MagnaAngemon: Green Pack
+x - Seraphimon: S-Green Pack (skip this since you've beaten him many times before)
+Sky City:
+#294 - Tylomon: Green Pack
+#295 - Angewomon: Green Pack
+#296 - Magnadramon: S-Green Pack
+Steep Road:
+x - GranKuwagamon: S-Black Pack (skip this since you've beaten him many times before)
+x - Ken: S-Black Pack (skip this since you've beaten him many times before)
+Infinity Tower:
+#297 - VenomMyotismon: S-Black Pack
+x - Piedmon: S-Black Pack (skip this since you've beaten him many times before)
+#298 - Infermon: S-Black Pack
+???:
+#299 - Apokarimon (look at my 96.9 notes for possible spawning location)
+Infinity Tower:
+#300 - Diaboromon: S-Black Pack
 
-Betamon (first deck) gives 2 exp
-Babamon (missable duelist) - 5 exp
-Agumon - 3 p
-
-Meramon - 4 exp
-Phoenixmon - 4 exp
-Veemon - 5 exp
-
-Vegiemon - 5 exp
-Ninjamon - 5 exp
-Veedramon - 6 exp
-Wormmon (first deck, one time) gives 7 exp
-
-Frigimon - 5 exp
-Whamon - 5 exp
-Garurumon - 6 exp
-Stingmon (first deck, one time) - 7 exp
-
-Hagurumon - 5 exp
-ShellNumemon - 5 exp
-KingSukamon - 6 exp
-Shadramon (first deck, one time) - 7 exp
-
-Wormmon (second deck) - 5 exp
-Stingmon (second deck) - 6 exp
-Shadramon (second deck) - 7 exp
-Quetzalmon - 8 exp
-Digimon Emperor (one time) - 15 exp
-
-Centarumon - 5 exp
-Tyrannomon - 6 exp
-Angemon - 7 exp
-
-Wizardmon - 6 exp
-AeroVeedramon - 7 exp
-Gatomon (first deck) - 8 exp
-
-Goburimon - 5 exp
-DemiDevimon - 6 exp
-Megadramon - 7 exp
-Gigadramon - 8 exp
-
-Togemon - 8 exp
-Kabuterimon - 8 exp
-Ikkakumon - 8 exp
-Birdramon - 8 exp
-WereGarurumon - 8 exp
-MetalGreymon - 8 exp
-
-Tuskmon - 8 exp
-Phantomon - 8 exp
-MegaSeadramon - 8 exp
-Machinedramon - 9 exp
-VenomMyotismon - 10 exp
-A (one time) - 30 exp
-
-Nanimon - 10 exp
-
-Davis - 8 exp
-Keely - 8 exp
-Cody - 8 exp
-T.K. - 7 exp
-Kari - 8 exp
-
-Leomon - 8 exp
-Devimon (Desert Island) - 9 exp
-MetalEtemon - 9 exp
-Myotismon (Desert Island) - 10 exp
-
-Bakemon - 8 exp
-Devimon (Dark City) - 9 exp
-SkullGreymon - 10 exp
-Myotismon (Dark City) - 11 exp
-
-Rosemon - 5 exp
-Penguinmon - 4 exp
-Greymon - 8 exp
-
-Thundermon - 8 exp
-MetalMamemon - 9 exp
-SuperStarmon - 10 exp
-
-ExVeemon - 8 exp
-Flamedramon - 9 exp
-Raidramon - 10 exp
-
-Hawkmon - 8 exp
-Aquilamon - 8 exp
-Halsemon - 10 exp
-Kuwagamon - 10 exp
-HerculesKabuterimon - 13 exp
-
-Armadillomon - 8 exp
-Ankylomon - 9 exp
-Digmon - 10 exp
-
-Patamon - 8 exp
-Baronmon - 9 exp
-Pegasusmon - 10 exp
-
-Gatomon (second deck) - 8 exp
-Nefertimon - 9 exp
-Tylomon - 10 exp
-
-WarGreymon - 10 exp
-Tai - 10 exp
-
-Garudamon - 10 exp
-Sora - 10 exp
-Paildramon - 10 exp
-
-Lillymon - 10 exp
-Mimi - 10 exp
-Shurimon - 10 exp
-
-MetalGarurumon - 10 exp
-Matt - 10 exp
-Submarimon - 10 exp
-
-Zudomon - 10 exp
-Joe - 10 exp
-
-MegaKabuterimon - 10 exp
-Izzy - 10 exp
-
-MagnaAngemon - 10 exp
-Angewomon - 10 exp
-
-GranKuwagamon - 10 exp
-Ken - 10 exp
-
-Magnamon - 12 exp
-Sylphymon - 12 exp
-Shakkoumon - 12 exp
-
-Seraphimon - 12 exp
-Magnadramon - 12 exp
-
-MetalSeadramon - 12 exp
-Puppetmon - 12 exp
-LadyDevimon - 12 exp
-Piedmon - 12 exp
-
-Piximon - 12 exp
-
-Infermon - 13 exp
-Diaboromon - 14 exp
-
-Omnimon - 15 exp
-
-Apokarimon - 25 exp
-
-Imperialdramon - 15 exp
-Valkyrimon - 15 exp
-Vikemon - 15 exp
-
-BK MetalGarurumon - 16 exp
-BK WarGreymon - 16 exp
-
-Betamon (second deck - pick up) - 30 exp
+#301 - Omnimon: S-Option Pack.

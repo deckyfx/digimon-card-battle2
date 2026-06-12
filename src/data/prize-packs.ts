@@ -206,6 +206,9 @@ export function getPackById(id: string): PrizePack | null {
   return PRIZE_PACKS.find((p) => p.id === id) ?? null;
 }
 
+/** Cards obtained per pack opening. */
+export const PACK_DRAWS = 3;
+
 /**
  * Draws one prize card from a pack: rares join the pool only when the
  * caller has the rare-boosting digi-part equipped (future mechanic).
@@ -214,4 +217,16 @@ export function drawFromPack(pack: PrizePack, opts?: { includeRares?: boolean })
   const pool = opts?.includeRares ? [...pack.rares, ...pack.cards] : pack.cards;
   const number = pool[Math.floor(Math.random() * pool.length)] as string;
   return CARD_BY_NUMBER.get(number) as MasterCard;
+}
+
+/**
+ * Opens a pack: {@link PACK_DRAWS} random cards from the pool, drawn WITH
+ * replacement (duplicates are possible). Per the guide, rares can only
+ * occupy a pack's FIRST position — so only the first draw sees the rare
+ * pool (and only when the rare-boosting digi-part is equipped).
+ */
+export function openPack(pack: PrizePack, opts?: { includeRares?: boolean }): MasterCard[] {
+  return Array.from({ length: PACK_DRAWS }, (_, i) =>
+    drawFromPack(pack, { includeRares: i === 0 && opts?.includeRares }),
+  );
 }
