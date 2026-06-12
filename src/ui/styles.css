@@ -1224,6 +1224,27 @@ button.primary:hover:not(:disabled) {
   font-size: 1.4rem;
 }
 
+/* Battle rewards: big EXP figure and the prize-card row. */
+.reward-exp {
+  font-family: "Audiowide", sans-serif;
+  font-size: 2.4rem;
+  color: #ffd75e;
+  margin: 18px 0;
+}
+
+.reward-exp-label {
+  font-size: 1.1rem;
+  color: #9aa3c7;
+}
+
+.reward-cards {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 10px 0;
+  text-align: left;
+}
+
 .modal-verdict {
   font-family: "Audiowide", sans-serif;
   font-size: 1.25rem;

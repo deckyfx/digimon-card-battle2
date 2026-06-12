@@ -22,6 +22,8 @@ export interface PlayerProfile {
   bag: Record<string, number>;
   /** Built decks (max {@link MAX_DECKS}); same shape as custom decks. */
   decks: CustomDeck[];
+  /** Accumulated experience points (earned by defeating duelists). */
+  exp: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -96,7 +98,9 @@ export class ProfileStore {
     if (!raw) return [];
     try {
       const profiles = JSON.parse(raw) as PlayerProfile[];
-      return Array.isArray(profiles) ? profiles : [];
+      if (!Array.isArray(profiles)) return [];
+      // Migrate pre-exp profiles.
+      return profiles.map((p) => ({ ...p, exp: p.exp ?? 0 }));
     } catch {
       return [];
     }
@@ -142,6 +146,7 @@ export class ProfileStore {
           updatedAt: now,
         },
       ],
+      exp: 0,
       createdAt: now,
       updatedAt: now,
     };
@@ -160,6 +165,13 @@ export class ProfileStore {
   /** Copies of `cardNumber` the profile owns. */
   owned(profile: PlayerProfile, cardNumber: string): number {
     return profile.bag[cardNumber] ?? 0;
+  }
+
+  /** Adds experience points to the profile's running total. */
+  addExp(profileId: string, amount: number): PlayerProfile {
+    const profile = this.require(profileId);
+    profile.exp = (profile.exp ?? 0) + Math.max(0, amount);
+    return this.update(profile);
   }
 
   /** Grants cards to the bag, capped at {@link MAX_BAG_COPIES} copies each. */

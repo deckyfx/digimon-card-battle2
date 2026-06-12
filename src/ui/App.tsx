@@ -4,10 +4,12 @@ import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-en
 import { CpuPlayer } from "@src/ai/cpu-player";
 import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
 import type { PlayerProfile } from "@src/store/profile-store";
+import { MASTER_CARDS } from "@src/data/master-cards";
+import { getPackById, openPack } from "@src/data/prize-packs";
 import { DeckBuilder } from "./DeckBuilder";
 import { ProfilesScreen } from "./ProfilesScreen";
 import { SetupScreen } from "./SetupScreen";
-import { GameOverModal } from "./GameOverModal";
+import { BattleResultModal, type MatchRewards } from "./BattleResultModal";
 import { LogArea } from "./LogArea";
 import { ControlPanel } from "./ControlPanel";
 import { OpponentArea } from "./OpponentArea";
@@ -133,6 +135,7 @@ export function App() {
     );
     eng.log.push(`${eng.players.player.name} [${mine.name}] vs ${eng.players.cpu.name} [${theirs.name}]`);
     eng.setOnChange(() => setVersion((v) => v + 1));
+    rewardClaim = null;
     setCpu(new CpuPlayer(eng));
     setEngine(eng);
     setAttack("c");
@@ -199,6 +202,32 @@ export function App() {
   createEffect(() => {
     if (game()?.phase !== "battle-select" && attackConfirmed()) setAttackConfirmed(false);
   });
+
+  // ── Victory rewards: claimed (and persisted) exactly once per match. ──
+  let rewardClaim: MatchRewards | null = null;
+  function claimRewards(): MatchRewards {
+    if (rewardClaim) return rewardClaim;
+    const actor = cpuActor();
+    const pack = actor.prizePack ? getPackById(actor.prizePack) : null;
+    const cards = pack ? openPack(pack) : [];
+    const bonusCards = (actor.prizeCards ?? [])
+      .map((n) => MASTER_CARDS.find((c) => c.number === n))
+      .filter((c): c is NonNullable<typeof c> => c !== undefined);
+    const prof = profile();
+    if (prof) {
+      profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
+      profileStore.addExp(prof.id, actor.exp);
+      refreshProfile();
+    }
+    rewardClaim = { exp: actor.exp, packName: pack?.name ?? null, cards, bonusCards };
+    return rewardClaim;
+  }
+
+  function backToLobby() {
+    rewardClaim = null;
+    setEngine(null);
+    setView("setup");
+  }
 
   return (
     <div class="layout">
@@ -298,12 +327,12 @@ export function App() {
               confirmBattle={confirmBattle}
             />
             <Show when={game()?.phase === "game-over"}>
-              <GameOverModal
+              <BattleResultModal
                 g={game()!}
                 playerPortrait={playerPortrait()}
                 cpuPortrait={cpuActor().portrait}
-                onPlayAgain={startMatch}
-                onChangeSetup={() => setEngine(null)}
+                claimRewards={claimRewards}
+                onBackToLobby={backToLobby}
               />
             </Show>
           </div>

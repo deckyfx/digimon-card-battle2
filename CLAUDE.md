@@ -91,8 +91,15 @@ Rules that enforce this:
   copies (nor 4), but the same copy can sit in every deck at once. Deck
   rules otherwise unchanged: exactly 30, 15-char names, optional `armors`
   side deck (one per partner in the 30, must be owned, no A-level in the
-  main 30). `grantCards()` is the hook for future rewards/boosters.
-  CustomDeckStore remains only for the CustomDeck type/constants.
+  main 30). CustomDeckStore remains only for the CustomDeck type/constants.
+- **Match rewards**: every actor carries `exp` + `prizePack` (+ optional
+  `prizeCards`, e.g. Apokarimon drops his own #103). Winning claims them
+  ONCE per match (App.claimRewards): `openPack()` draws 3 cards with
+  replacement (rares are first-slot-only, digi-part-gated, future),
+  `grantCards()` adds to the bag (6-copy cap), `addExp()` accumulates on
+  the profile. BattleResultModal walks result → EXP dialog (separate —
+  more gain factors planned) → prize dialog → Back To Lobby; defeat gets
+  only Back To Lobby (no rematch).
 - Card numbers 293–300 are the digivolve option cards (all implemented).
   Deck `armors` arrays hold the prebuilt decks' armor side-deck card
   (42 decks have one); `src/data/armor.ts` maps partner ↔ armor numbers.
