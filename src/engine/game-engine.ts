@@ -1,4 +1,5 @@
 import { CardLevel, CardType, type AttackType, type MasterCard } from "@src/types";
+import { ARMOR_PARTNER } from "@src/data/armor";
 import { createCombatantCtx } from "./battle-context";
 import { BattleResolver, type BattleFx, type BattleOutcome, type BattleSide } from "./battle-resolver";
 import { Rng } from "./rng";
@@ -38,6 +39,13 @@ export interface PlayerState {
   trash: MasterCard[];
   dpSlot: MasterCard[];
   active: ActiveDigimon | null;
+  /**
+   * Hidden armor side deck: at most ONE armor per distinct partner in the
+   * deck (up to 6). Armor cards NEVER go to trash: defeated / devolved /
+   * Downloaded-over armors return here for reuse. An armor currently in
+   * play is absent from this list.
+   */
+  armors: MasterCard[];
   score: number;
 }
 
@@ -65,23 +73,34 @@ const DP_SLOT_LIMIT = 8;
 const DP_VALUE_CAP = 90;
 
 /** Prep-phase digivolve option cards, keyed by master card number. */
-export type DigivolveOptionKind = "download" | "special" | "mutant" | "warp" | "speed" | "devolve";
+export type DigivolveOptionKind =
+  | "download"
+  | "armorcrush"
+  | "special"
+  | "mutant"
+  | "warp"
+  | "dearmor"
+  | "speed"
+  | "devolve";
 
 const DIGIVOLVE_OPTIONS: Record<string, DigivolveOptionKind> = {
   "293": "download",
+  "294": "armorcrush",
   "295": "special",
   "296": "mutant",
   "297": "warp",
+  "298": "dearmor",
   "299": "speed",
   "300": "devolve",
-  // 294 (ArmorCrush) and 298 (De-Armor) await Armor-level support.
 };
 
 const DIGIVOLVE_OPTION_LABEL: Record<DigivolveOptionKind, string> = {
   download: "Download Digivolve",
+  armorcrush: "ArmorCrush Digivolve",
   special: "Special Digivolve",
   mutant: "Mutant Digivolve",
   warp: "Warp Digivolve",
+  dearmor: "De-Armor Digivolve",
   speed: "Speed Digivolve",
   devolve: "Digi-devolve",
 };
@@ -100,10 +119,23 @@ export class GameEngine {
   winner: PlayerId | null = null;
   /** Only one card may be stocked into the DP slot per turn. */
   dpStockedThisTurn = false;
+  /** Only one digivolve option card may be played per turn. */
+  digivolveOptionUsedThisTurn = false;
+  /**
+   * Forced no-Digimon mulligans suffered by the current player this turn
+   * (the UI surfaces these as an informational prompt).
+   */
+  forcedRedraws = 0;
   /** Set once any prep action is taken; voluntary redraw is then locked. */
   private turnActionTaken = false;
   /** The card stocked this turn, while it can still be cancelled. */
   private stockedCardThisTurn: MasterCard | null = null;
+  /**
+   * One-shot Armor Digivolve window: opens when a partner whose armor sits
+   * in the side deck is finalized on deploy, and closes as soon as ANY other
+   * prep action is taken (the choice is only offered on first deploy).
+   */
+  private armorWindowOpen = false;
 
   /** Battle in progress (phase "battle-resolve"), for UI rendering. */
   activeBattle: { ownerId: PlayerId; owner: BattleSide; defender: BattleSide } | null = null;
@@ -123,13 +155,20 @@ export class GameEngine {
     cpuDeck: MasterCard[],
     seed = Date.now(),
     labels?: { playerName?: string; cpuName?: string; playerDeckName?: string; cpuDeckName?: string },
+    sideDecks?: { player?: MasterCard[]; cpu?: MasterCard[] },
   ) {
     this.rng = new Rng(seed);
     this.runner = new ScriptRunner((m) => this.pushLog(m));
     this.resolver = new BattleResolver(this.runner, (m) => this.pushLog(m));
     this.players = {
-      player: this.createPlayer("player", labels?.playerName || "Player", labels?.playerDeckName ?? "", playerDeck),
-      cpu: this.createPlayer("cpu", labels?.cpuName || "CPU", labels?.cpuDeckName ?? "", cpuDeck),
+      player: this.createPlayer(
+        "player",
+        labels?.playerName || "Player",
+        labels?.playerDeckName ?? "",
+        playerDeck,
+        sideDecks?.player ?? [],
+      ),
+      cpu: this.createPlayer("cpu", labels?.cpuName || "CPU", labels?.cpuDeckName ?? "", cpuDeck, sideDecks?.cpu ?? []),
     };
   }
 
@@ -155,8 +194,11 @@ export class GameEngine {
   private beginTurn(): void {
     this.turnCount++;
     this.dpStockedThisTurn = false;
+    this.digivolveOptionUsedThisTurn = false;
+    this.forcedRedraws = 0;
     this.turnActionTaken = false;
     this.stockedCardThisTurn = null;
+    this.armorWindowOpen = false;
     const p = this.current();
     this.pushLog(`— Turn ${this.turnCount}: ${p.name} —`);
     if (!this.drawPhase(p)) return; // mulligan death ends the match
@@ -176,6 +218,7 @@ export class GameEngine {
         return false;
       }
       this.pushLog(`${p.name} has no Digimon in hand — discarding hand and redrawing.`);
+      this.forcedRedraws++;
       p.trash.push(...p.hand.splice(0));
       this.drawToHandSize(p);
     }
@@ -212,6 +255,7 @@ export class GameEngine {
    */
   redrawHand(): boolean {
     if (!this.canRedrawHand()) return false;
+    this.armorWindowOpen = false;
     const p = this.current();
     this.pushLog(`${p.name} trashes the hand (${p.hand.length} cards) and redraws.`);
     p.trash.push(...p.hand.splice(0));
@@ -265,8 +309,59 @@ export class GameEngine {
     this.turnActionTaken = true;
     this.phase = "digivolve";
     this.pushLog(`${p.name} finalizes ${p.active.card.name} on the battlefield.`);
+    // First-deploy Armor offer: partner on the field + its armor in the side deck.
+    this.armorWindowOpen = this.armorForPartner(p, p.active.card) !== null;
+    if (this.armorWindowOpen) {
+      this.pushLog(`${p.name} may Armor Digivolve ${p.active.card.name}!`);
+    }
     this.notify();
     return true;
+  }
+
+  /** The side-deck armor associated with `partner`, if any. */
+  armorForPartner(p: PlayerState, partner: MasterCard): MasterCard | null {
+    if (partner.is_partner !== 1) return null;
+    return p.armors.find((a) => ARMOR_PARTNER[a.number] === partner.number) ?? null;
+  }
+
+  /**
+   * True while the one-shot Armor Digivolve offer is open: the matching
+   * partner was just finalized on deploy and no other action has been taken.
+   */
+  canArmorDigivolve(): boolean {
+    const p = this.current();
+    return (
+      this.phase === "digivolve" &&
+      this.armorWindowOpen &&
+      p.active !== null &&
+      this.armorForPartner(p, p.active.card) !== null
+    );
+  }
+
+  /**
+   * Armor Digivolve: the partner's side-deck armor stacks on top of the
+   * freshly deployed partner. Free (no DP), unpenalized (partners are Rookies).
+   */
+  armorDigivolve(): boolean {
+    if (!this.canArmorDigivolve()) return false;
+    const p = this.current();
+    const prev = p.active as ActiveDigimon;
+    const armor = this.armorForPartner(p, prev.card) as MasterCard;
+    p.armors.splice(p.armors.indexOf(armor), 1);
+    this.armorWindowOpen = false;
+    this.turnActionTaken = true;
+    const hp = Math.round(armor.hp * prev.penalty);
+    p.active = { card: armor, hp, maxHp: hp, penalty: prev.penalty, stack: [...prev.stack, prev.card] };
+    this.pushLog(`${p.name} Armor Digivolves ${prev.card.name} → ${armor.name}! HP ${hp}.`);
+    this.notify();
+    return true;
+  }
+
+  /** Declines the one-shot Armor Digivolve offer (it will not return). */
+  declineArmorDigivolve(): void {
+    if (!this.armorWindowOpen) return;
+    this.armorWindowOpen = false;
+    this.notify();
   }
 
   /** True if the player may stock another DP card (slot not full). */
@@ -283,6 +378,7 @@ export class GameEngine {
 
     this.dpStockedThisTurn = true;
     this.turnActionTaken = true;
+    this.armorWindowOpen = false;
     this.stockedCardThisTurn = card;
     p.hand.splice(handIndex, 1);
     p.dpSlot.push(card);
@@ -331,6 +427,7 @@ export class GameEngine {
 
     const prev = p.active as ActiveDigimon;
     this.turnActionTaken = true;
+    this.armorWindowOpen = false;
     p.hand.splice(handIndex, 1);
     p.trash.push(...p.dpSlot.splice(0)); // DP stock is consumed and reset to 0
 
@@ -348,18 +445,25 @@ export class GameEngine {
     return DIGIVOLVE_OPTIONS[card.number] ?? null;
   }
 
+  /** Digivolve option cards are prep-phase only — never battle supports. */
+  isLegalSupport(card: MasterCard): boolean {
+    return this.digivolveOptionKind(card) === null;
+  }
+
   private nextLevelOf(level: CardLevel): CardLevel | null {
     return level === CardLevel.R ? CardLevel.C : level === CardLevel.C ? CardLevel.U : null;
   }
 
   /**
    * Hand indices eligible as targets for a digivolve option:
-   * - download: any Digimon, no checks (battlefield stack will be trashed).
-   * - special:  next level, any specialty, DP requirement reduced by 20.
-   * - mutant:   same level, same specialty, DP requirement checked.
-   * - warp:     active R → target U, same specialty, DP requirement checked.
-   * - speed:    next level, same specialty, no DP check, active not penalized.
-   * - devolve:  no hand target (pops the evolution stack instead).
+   * - download:    any Digimon, no checks (battlefield stack will be trashed).
+   * - armorcrush:  active Armor → C or U, same specialty, DP checked.
+   * - special:     next level, any specialty, DP requirement reduced by 20.
+   * - mutant:      same level, same specialty, DP requirement checked.
+   * - warp:        active R → target U, same specialty, DP requirement checked.
+   * - speed:       next level, same specialty, no DP check, active not penalized.
+   * - dearmor:     no hand target (returns the armor to the side deck).
+   * - devolve:     no hand target (pops the evolution stack instead).
    */
   digivolveOptionTargets(p: PlayerState, kind: DigivolveOptionKind): number[] {
     const active = p.active;
@@ -374,6 +478,13 @@ export class GameEngine {
         switch (kind) {
           case "download":
             return true;
+          case "armorcrush":
+            return (
+              active.card.level === CardLevel.A &&
+              (card.level === CardLevel.C || card.level === CardLevel.U) &&
+              card.specialty === active.card.specialty &&
+              dp >= card.dp_required
+            );
           case "special":
             return card.level === next && dp >= Math.max(0, card.dp_required - 20);
           case "mutant":
@@ -392,6 +503,7 @@ export class GameEngine {
             );
           case "speed":
             return active.penalty >= 1 && card.level === next && card.specialty === active.card.specialty;
+          case "dearmor":
           case "devolve":
             return false;
         }
@@ -404,6 +516,17 @@ export class GameEngine {
     return p.active !== null && p.active.stack.length >= 1;
   }
 
+  /** True if De-Armor can act: an Armor form is active with its partner stacked under it. */
+  canDearmor(p: PlayerState): boolean {
+    return p.active !== null && p.active.card.level === CardLevel.A && p.active.stack.length >= 1;
+  }
+
+  /** Returns an in-play armor card to the owner's hidden side deck. */
+  private returnArmorToSideDeck(p: PlayerState, armor: MasterCard): void {
+    p.armors.push(armor);
+    this.pushLog(`${armor.name} returns to ${p.name}'s armor side deck.`);
+  }
+
   /**
    * Plays a digivolve option from hand during prep. An ineffective play
    * (no valid target / nothing to devolve) still trashes the option card.
@@ -412,24 +535,47 @@ export class GameEngine {
     const p = this.current();
     const option = p.hand[optionIndex];
     const kind = option ? this.digivolveOptionKind(option) : null;
-    if (this.phase !== "digivolve" || !option || !kind) return false;
+    if (this.phase !== "digivolve" || !option || !kind || this.digivolveOptionUsedThisTurn) return false;
 
-    this.turnActionTaken = true;
     const label = DIGIVOLVE_OPTION_LABEL[kind];
+    const noTargetKinds = kind === "devolve" || kind === "dearmor";
 
     // Resolve the target by identity BEFORE the option leaves the hand —
     // removing it first would shift the caller's hand indices.
     const targets = this.digivolveOptionTargets(p, kind);
     // When valid targets exist the player must choose one explicitly —
     // never auto-pick. Without targets the option fizzles (trashed below).
-    if (kind !== "devolve" && targets.length > 0 && (targetIndex === undefined || !targets.includes(targetIndex))) {
+    if (!noTargetKinds && targets.length > 0 && (targetIndex === undefined || !targets.includes(targetIndex))) {
       return false;
     }
+
+    // The play is happening — lock the once-per-turn rules only now (a
+    // refused call above must not consume the turn's option or the redraw).
+    this.turnActionTaken = true;
+    this.armorWindowOpen = false;
+    this.digivolveOptionUsedThisTurn = true;
     const chosen = targetIndex !== undefined && targets.includes(targetIndex) ? targetIndex : undefined;
     const target = chosen !== undefined ? p.hand[chosen] : undefined;
 
     p.hand.splice(p.hand.indexOf(option), 1);
     p.trash.push(option);
+
+    if (kind === "dearmor") {
+      if (!this.canDearmor(p)) {
+        this.pushLog(`${p.name} plays ${label} — no effect (no Armor Digimon). Card trashed.`);
+        this.notify();
+        return true;
+      }
+      const active = p.active as ActiveDigimon;
+      const revealed = active.stack.pop() as MasterCard;
+      this.returnArmorToSideDeck(p, active.card);
+      // The partner underneath is revealed at FULL HP.
+      const hp = Math.round(revealed.hp * active.penalty);
+      p.active = { card: revealed, hp, maxHp: hp, penalty: active.penalty, stack: active.stack };
+      this.pushLog(`${p.name} plays ${label}: ${revealed.name} is revealed at full HP ${hp}!`);
+      this.notify();
+      return true;
+    }
 
     if (kind === "devolve") {
       if (!this.canDevolve(p)) {
@@ -439,7 +585,9 @@ export class GameEngine {
       }
       const active = p.active as ActiveDigimon;
       const revealed = active.stack.pop() as MasterCard;
-      p.trash.push(active.card);
+      // Armor cards never go to trash — they return to the side deck.
+      if (active.card.level === CardLevel.A) this.returnArmorToSideDeck(p, active.card);
+      else p.trash.push(active.card);
       // Revealed Digimon returns with doubled full HP (penalty still applies).
       const hp = Math.round(revealed.hp * active.penalty) * 2;
       p.active = { card: revealed, hp, maxHp: hp, penalty: active.penalty, stack: active.stack };
@@ -459,21 +607,30 @@ export class GameEngine {
 
     let stack: MasterCard[];
     if (kind === "download") {
-      // Whole battlefield is trashed; only the new Digimon remains.
-      p.trash.push(prev.card, ...prev.stack);
+      // Whole battlefield is trashed; only the new Digimon remains —
+      // except an in-play armor card, which returns to the side deck.
+      if (prev.card.level === CardLevel.A) this.returnArmorToSideDeck(p, prev.card);
+      else p.trash.push(prev.card);
+      p.trash.push(...prev.stack);
       stack = [];
+    } else if (kind === "armorcrush") {
+      // The armor returns to the side deck; the partner underneath stays
+      // stacked and the new Digimon goes on top.
+      this.returnArmorToSideDeck(p, prev.card);
+      stack = [...prev.stack];
     } else {
       stack = [...prev.stack, prev.card];
     }
 
     let dpNote = "DP slot kept";
-    if (kind === "special" || kind === "mutant" || kind === "warp") {
+    if (kind === "armorcrush" || kind === "special" || kind === "mutant" || kind === "warp") {
       p.trash.push(...p.dpSlot.splice(0));
       dpNote = "DP stock trashed";
     }
 
     // Download/Mutant/Special remove all penalties. Speed requires an
     // unpenalized Digimon, and Warp only works from R (never penalized).
+    // ArmorCrush lines come from a partner Rookie, so they carry no penalty.
     const removesPenalty = kind === "download" || kind === "mutant" || kind === "special";
     const penalty = removesPenalty ? 1 : prev.penalty;
     const penaltyNote = removesPenalty && prev.penalty < 1 ? " Penalty removed!" : "";
@@ -489,6 +646,7 @@ export class GameEngine {
   endPrep(): boolean {
     const p = this.current();
     if (this.phase !== "digivolve" || !p.active) return false;
+    this.armorWindowOpen = false;
 
     if (!this.opponentOf(p.id).active) {
       this.pushLog(`${this.opponentOf(p.id).name} has no active Digimon — battle skipped.`);
@@ -590,7 +748,12 @@ export class GameEngine {
           : `${p.name} tried to gamble a deck support but the deck is empty!`,
       );
     } else if (choice.supportHandIndex !== null) {
-      support = p.hand.splice(choice.supportHandIndex, 1)[0] ?? null;
+      const chosen = p.hand[choice.supportHandIndex];
+      if (chosen && !this.isLegalSupport(chosen)) {
+        this.pushLog(`${chosen.name} cannot be used as a battle support — ignored.`);
+      } else {
+        support = p.hand.splice(choice.supportHandIndex, 1)[0] ?? null;
+      }
     }
     const ctx = createCombatantCtx({
       hp: active.hp,
@@ -619,8 +782,11 @@ export class GameEngine {
     if (side.support) p.trash.push(side.support); // used supports go to trash
     if (!p.active) return; // effect commands may have already cleared it
     if (koed) {
-      // The entire evolution stack is defeated together.
-      p.trash.push(p.active.card, ...p.active.stack);
+      // The entire evolution stack is defeated together — except an armor
+      // card, which is never trashed: it returns to the hidden side deck.
+      if (p.active.card.level === CardLevel.A) this.returnArmorToSideDeck(p, p.active.card);
+      else p.trash.push(p.active.card);
+      p.trash.push(...p.active.stack);
       p.active = null;
     } else {
       p.active.hp = Math.max(0, Math.round(side.ctx.hp));
@@ -664,8 +830,25 @@ export class GameEngine {
     return PENALTY[card.level] ?? 1;
   }
 
-  private createPlayer(id: PlayerId, name: string, deckName: string, deck: MasterCard[]): PlayerState {
-    return { id, name, deckName, deck: [...deck], hand: [], trash: [], dpSlot: [], active: null, score: 0 };
+  private createPlayer(
+    id: PlayerId,
+    name: string,
+    deckName: string,
+    deck: MasterCard[],
+    armors: MasterCard[],
+  ): PlayerState {
+    return {
+      id,
+      name,
+      deckName,
+      deck: [...deck],
+      hand: [],
+      trash: [],
+      dpSlot: [],
+      active: null,
+      armors: [...armors],
+      score: 0,
+    };
   }
 
   private zoneOps(p: PlayerState): SideZoneOps {

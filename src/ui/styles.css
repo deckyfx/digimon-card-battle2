@@ -755,20 +755,12 @@ button.mini {
   box-shadow: 0 0 8px #3fb95088;
 }
 
-/* DP stacks flanking the battle zone, aligned toward their owner's card. */
+/* DP stacks flanking the battle zone, vertically centered on both sides. */
 .dp-rail {
   justify-content: center;
   border: 1px dashed #3a3f55;
   border-radius: 6px;
   padding: 6px 0;
-}
-
-.dp-rail.dp-player {
-  justify-content: flex-end; /* near the bottom-left player card */
-}
-
-.dp-rail.dp-cpu {
-  justify-content: flex-start; /* near the top-right opponent card */
 }
 
 /* DP card slots: 2 × 4 grid of small boxes, filled as cards are stocked. */
@@ -1044,6 +1036,59 @@ button.primary:hover:not(:disabled) {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* Floating prep-flow prompts: no dimmed overlay (the hand must stay
+   visible/judgeable), anchored over the upper battlefield. */
+.prompt-dock {
+  position: fixed;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+}
+
+.modal.prompt {
+  padding: 16px 26px;
+  max-width: 420px;
+}
+
+.modal.prompt .prompt-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.modal.prompt .armor-name {
+  color: #d4af37;
+  cursor: help;
+}
+
+.modal.prompt .setup-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Battle attack picker: one full-width row per attack, name left / power right. */
+.prompt-attacks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 300px;
+  margin: 6px 0;
+}
+
+.attack-option {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  text-align: left;
+}
+
+.attack-option .attack-pow {
+  font-weight: 700;
 }
 
 .modal h2 {

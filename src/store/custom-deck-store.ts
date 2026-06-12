@@ -1,4 +1,6 @@
 import { MASTER_CARDS } from "@src/data/master-cards";
+import { ARMOR_PARTNER } from "@src/data/armor";
+import { CardLevel } from "@src/types";
 import type { StorageProvider } from "./storage-provider";
 
 /** A user-built deck, persisted via the configured StorageProvider. */
@@ -7,6 +9,12 @@ export interface CustomDeck {
   name: string;
   /** Master card numbers, one entry per copy. */
   cardNumbers: string[];
+  /**
+   * Optional hidden armor side deck: at most ONE armor per distinct partner
+   * Rookie present in the main 30 (so up to 6). One copy each — armors are
+   * reused (they never go to trash).
+   */
+  armors?: string[];
   updatedAt: string;
 }
 
@@ -43,8 +51,10 @@ export class CustomDeckStore {
     const raw = this.provider.get(this.key);
     if (!raw) return [];
     try {
-      const decks = JSON.parse(raw) as CustomDeck[];
-      return Array.isArray(decks) ? decks : [];
+      const decks = JSON.parse(raw) as (CustomDeck & { armor?: string })[];
+      if (!Array.isArray(decks)) return [];
+      // Migrate the short-lived single-`armor` schema to `armors[]`.
+      return decks.map(({ armor, ...d }) => (armor && !d.armors ? { ...d, armors: [armor] } : d));
     } catch {
       return [];
     }
@@ -59,7 +69,7 @@ export class CustomDeckStore {
    * Validates a deck list. Returns human-readable problems; an empty array
    * means the deck is legal.
    */
-  validate(cardNumbers: string[]): string[] {
+  validate(cardNumbers: string[], armors?: string[]): string[] {
     const errors: string[] = [];
     if (cardNumbers.length !== DECK_SIZE) {
       errors.push(`Deck must have exactly ${DECK_SIZE} cards (currently ${cardNumbers.length}).`);
@@ -71,12 +81,38 @@ export class CustomDeckStore {
         errors.push(`Unknown card number: ${n}`);
         continue;
       }
+      const card = MASTER_CARDS.find((c) => c.number === n);
+      if (card?.level === CardLevel.A) {
+        errors.push(`${card.name} is an Armor card — it can only be the hidden side deck, not a main-deck card.`);
+        continue;
+      }
       copies.set(n, (copies.get(n) ?? 0) + 1);
     }
     for (const [n, count] of copies) {
       if (count > MAX_COPIES) {
         const name = MASTER_CARDS.find((c) => c.number === n)?.name ?? n;
         errors.push(`Max ${MAX_COPIES} copies of the same card — ${name} has ${count}.`);
+      }
+    }
+
+    const armorsByPartner = new Map<string, string>();
+    for (const armor of armors ?? []) {
+      const partner = ARMOR_PARTNER[armor];
+      const armorName = MASTER_CARDS.find((c) => c.number === armor)?.name ?? armor;
+      if (!partner) {
+        errors.push(`${armorName} is not a valid armor side-deck card.`);
+        continue;
+      }
+      if (!cardNumbers.includes(partner)) {
+        const partnerName = MASTER_CARDS.find((c) => c.number === partner)?.name ?? partner;
+        errors.push(`Armor ${armorName} requires its partner ${partnerName} in the deck.`);
+      }
+      const clashArmor = armorsByPartner.get(partner);
+      if (clashArmor) {
+        const partnerName = MASTER_CARDS.find((c) => c.number === partner)?.name ?? partner;
+        errors.push(`Only one armor per partner — ${partnerName} cannot bring two.`);
+      } else {
+        armorsByPartner.set(partner, armor);
       }
     }
     return errors;
@@ -86,11 +122,11 @@ export class CustomDeckStore {
    * Creates or updates a deck (upsert by id). Throws on validation failure
    * or empty name — callers should validate first for friendly UX.
    */
-  save(deck: { id?: string; name: string; cardNumbers: string[] }): CustomDeck {
+  save(deck: { id?: string; name: string; cardNumbers: string[]; armors?: string[] }): CustomDeck {
     const name = deck.name.trim();
     if (!name) throw new Error("Deck name is required.");
     if (name.length > MAX_NAME_LENGTH) throw new Error(`Deck name must be ${MAX_NAME_LENGTH} characters or fewer.`);
-    const errors = this.validate(deck.cardNumbers);
+    const errors = this.validate(deck.cardNumbers, deck.armors);
     if (errors.length > 0) throw new Error(errors.join(" "));
 
     const decks = this.list();
@@ -100,6 +136,7 @@ export class CustomDeckStore {
       id: deck.id ?? generateId(),
       name,
       cardNumbers: [...deck.cardNumbers],
+      ...(deck.armors && deck.armors.length > 0 ? { armors: [...deck.armors] } : {}),
       updatedAt: new Date().toISOString(),
     };
     const idx = decks.findIndex((d) => d.id === saved.id);

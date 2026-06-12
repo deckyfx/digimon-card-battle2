@@ -52,9 +52,21 @@ Rules that enforce this:
   (`ActiveDigimon.stack`); the whole stack trashes together on KO;
   Digi-devolve pops it. Penalty (1 / 0.5 / 0.25) is inherited by natural
   digivolution; Download/Mutant/Special remove it; Speed requires unpenalized.
+- **Partner/Armor (level A)**: the hidden armor side deck holds at most ONE
+  armor per distinct partner Rookie in the main 30 (up to 6;
+  `PlayerState.armors`; associations in `src/data/armor.ts`). When a partner
+  is finalized on deploy, a one-shot Armor Digivolve offer opens for ITS armor
+  (`canArmorDigivolve`/`armorDigivolve`/`declineArmorDigivolve`) and closes on
+  any other prep action. The armor card NEVER goes to trash — KO, Digi-devolve,
+  De-Armor and Download all return it to the side deck (partner/stack still
+  trashes on KO). ArmorCrush (#294): A → C/U, specialty + DP checked, DP
+  trashed, armor back to side deck, partner stays stacked. De-Armor (#298):
+  reveals the partner at full HP (not doubled). A-level cards are never
+  deployable or main-deck legal.
 - **Turn flow**: draw (auto, with mulligan rules) → deploy phase (only when
   field empty; cancel/switch until finalized) → digivolve phase (1 DP stock
-  per turn, undoable; digivolve options; redraw before first action) →
+  per turn, undoable; max 1 digivolve option per turn; redraw before first
+  action) →
   battle-select → battle-resolve (stepped) → end turn. First to 3 points.
 - DP slot: max 8 cards, value capped at 90.
 
@@ -66,10 +78,12 @@ Rules that enforce this:
   removed to prevent accidental reseeds. Hand-edit with care; every deck
   is verified legal (exactly 30 cards, max 4 copies per card).
 - Custom decks live in localStorage via src/store/ (CustomDeckStore +
-  pluggable StorageProvider); same 30-card / 4-copy rules, 15-char names.
-- Card numbers 293–300 are the digivolve option cards; 294/298 (Armor)
-  are intentionally unimplemented until Armor level exists. Deck `armors`
-  arrays hold armor side-deck card numbers for that future feature.
+  pluggable StorageProvider); same 30-card / 4-copy rules, 15-char names,
+  optional `armors` side-deck numbers (one per partner present in the 30,
+  A-level cards rejected from the main 30).
+- Card numbers 293–300 are the digivolve option cards (all implemented).
+  Deck `armors` arrays hold the prebuilt decks' armor side-deck card
+  (42 decks have one); `src/data/armor.ts` maps partner ↔ armor numbers.
 
 ## Commands
 

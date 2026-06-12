@@ -1,7 +1,8 @@
 import { CardLevel, CardType, type AttackType, type MasterCard } from "@src/types";
 import type { BattleChoice, GameEngine, PlayerId, PlayerState } from "@src/engine/game-engine";
 
-const LEVEL_ORDER: Record<string, number> = { R: 0, C: 1, U: 2, A: 3, None: 9 };
+// Armor sits between Rookie and Champion in practical strength.
+const LEVEL_ORDER: Record<string, number> = { R: 0, A: 0.5, C: 1, U: 2, None: 9 };
 
 /**
  * Rule-based CPU opponent (MVP).
@@ -31,6 +32,9 @@ export class CpuPlayer {
       }
       this.deployBest(cpu);
       this.engine.finalizeDeploy();
+      // First-deploy Armor offer: always take it — the armor form is a free,
+      // reusable upgrade over the partner Rookie.
+      if (this.engine.canArmorDigivolve()) this.engine.armorDigivolve();
     }
 
     if (this.engine.phase !== "digivolve") return;
@@ -151,7 +155,7 @@ export class CpuPlayer {
    */
   private tryDigivolveOptions(cpu: PlayerState): boolean {
     const active = cpu.active;
-    if (!active) return false;
+    if (!active || this.engine.digivolveOptionUsedThisTurn) return false;
 
     for (let index = 0; index < cpu.hand.length; index++) {
       const card = cpu.hand[index] as MasterCard;
@@ -166,6 +170,15 @@ export class CpuPlayer {
         return this.engine.useDigivolveOption(index);
       }
 
+      if (kind === "dearmor") {
+        // Emergency reset: a battered armor trades for a full-HP partner,
+        // and the armor card returns to the side deck for reuse.
+        if (!this.engine.canDearmor(cpu) || active.hp > active.maxHp * 0.25) continue;
+        const under = active.stack[active.stack.length - 1] as MasterCard;
+        if (Math.round(under.hp * active.penalty) <= active.hp) continue;
+        return this.engine.useDigivolveOption(index);
+      }
+
       const targets = this.engine.digivolveOptionTargets(cpu, kind);
       if (targets.length === 0) continue;
       const best = [...targets].sort((a, b) => (cpu.hand[b]?.hp ?? 0) - (cpu.hand[a]?.hp ?? 0))[0] as number;
@@ -175,6 +188,8 @@ export class CpuPlayer {
       const penalized = active.penalty < 1; // download/mutant/special cure this
       if (kind === "download" && levelGain <= 0 && !penalized) continue;
       if (kind === "mutant" && target.hp <= active.card.hp && !penalized) continue;
+      // ArmorCrush recycles the armor, so any sturdier C/U is a clean upgrade.
+      if (kind === "armorcrush" && target.hp <= active.hp) continue;
 
       return this.engine.useDigivolveOption(index, best);
     }
@@ -211,7 +226,7 @@ export class CpuPlayer {
   }
 
   private supportScore(cpu: PlayerState, card: MasterCard): number {
-    if (!card.support_script) return 0;
+    if (!card.support_script || !this.engine.isLegalSupport(card)) return 0;
     if (card.type === CardType.Option) return 100 + card.support_speed;
     const digimonInHand = cpu.hand.filter((c) => c.type === CardType.Digimon).length;
     if (digimonInHand <= 1) return 0; // keep a deployable Digimon in reserve

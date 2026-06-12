@@ -1,8 +1,9 @@
 import { For, Index, Show, createEffect, createSignal, onCleanup, untrack } from "solid-js";
-import type { AttackType, MasterCard } from "@src/types";
+import { CardLevel, type AttackType, type MasterCard } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
 import { cardsByNumbers, getDeckById } from "@src/data/prebuilt-decks";
+import { armorCardsByNumbers } from "@src/data/armor";
 import { OPPONENT_ACTORS, PLAYER_ACTORS, getActorById } from "@src/data/actors";
 import { CustomDeckStore } from "@src/store/custom-deck-store";
 import { LocalStorageProvider } from "@src/store/storage-provider";
@@ -19,6 +20,13 @@ export const customDeckStore = new CustomDeckStore(new LocalStorageProvider());
 
 const CPU_DELAY_MS = 600;
 const BATTLE_STEP_MS = 1000;
+
+/**
+ * Pending "use an ineffective digivolve option anyway?" confirmation —
+ * module-scope signal (like inspectedCard) so the hand balloons can raise
+ * it and PromptDialogs can render it.
+ */
+const [fizzleConfirm, setFizzleConfirm] = createSignal<MasterCard | null>(null);
 
 export function App() {
   const [engine, setEngine] = createSignal<GameEngine | null>(null);
@@ -54,25 +62,44 @@ export function App() {
   });
 
   /** Resolves a deck selection value ("deck:<id>" prebuilt or "custom:<uuid>"). */
-  const resolveDeck = (value: string): { name: string; cards: ReturnType<typeof cardsByNumbers> } => {
+  const resolveDeck = (
+    value: string,
+  ): { name: string; cards: ReturnType<typeof cardsByNumbers>; armors: MasterCard[] } => {
     if (value.startsWith(CUSTOM_PREFIX)) {
       const deck = customDeckStore.get(value.slice(CUSTOM_PREFIX.length));
-      if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers) };
+      if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers), armors: armorCardsByNumbers(deck.armors) };
     }
     if (value.startsWith(PREBUILT_PREFIX)) {
       const deck = getDeckById(parseInt(value.slice(PREBUILT_PREFIX.length), 10));
-      if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers) };
+      if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers), armors: armorCardsByNumbers(deck.armors) };
     }
     const fallback = getDeckById(1);
-    return { name: fallback?.name ?? "", cards: cardsByNumbers(fallback?.cardNumbers ?? []) };
+    return {
+      name: fallback?.name ?? "",
+      cards: cardsByNumbers(fallback?.cardNumbers ?? []),
+      armors: armorCardsByNumbers(fallback?.armors),
+    };
   };
+  /** Armor side-deck names of the player's currently selected custom deck. */
+  const playerArmorNames = (): string | null => {
+    const deck = customDecks().find((d) => `custom:${d.id}` === playerDeck());
+    const names = armorCardsByNumbers(deck?.armors).map((c) => c.name);
+    return names.length > 0 ? names.join(", ") : null;
+  };
+
   // Dynamic visibility rule: revealed vs CPU for now; PvP will set this false.
   const [revealOpponentHand, setRevealOpponentHand] = createSignal(true);
   const [firstPlayer, setFirstPlayer] = createSignal<PlayerId | "random">("random");
   const [playerName, setPlayerName] = createSignal("Player");
 
+  // Per-turn prompt acknowledgements (keyed by engine turnCount).
+  const [handOkTurn, setHandOkTurn] = createSignal(0);
+  const [forcedAckTurn, setForcedAckTurn] = createSignal(0);
+
   // Battle-select inputs for the human player.
   const [attack, setAttack] = createSignal<AttackType>("c");
+  // Two-step battle prompt: pick the attack first, then support / fight.
+  const [attackConfirmed, setAttackConfirmed] = createSignal(false);
   // Delay between battle steps (ms) — pacing only, not animation speed.
   const [battleSpeed, setBattleSpeed] = createSignal(
     parseInt(localStorage.getItem("battleStepMs") ?? "", 10) || BATTLE_STEP_MS,
@@ -90,11 +117,12 @@ export function App() {
   };
 
   /** Final legality check — guards against hand-edited localStorage decks. */
-  const deckIllegal = (cards: { number: string }[]): string | null => {
+  const deckIllegal = (cards: MasterCard[]): string | null => {
     if (cards.length !== 30) return `deck has ${cards.length} cards (must be exactly 30)`;
     const counts = new Map<string, number>();
     for (const c of cards) counts.set(c.number, (counts.get(c.number) ?? 0) + 1);
     if ([...counts.values()].some((n) => n > 4)) return "deck has more than 4 copies of a card";
+    if (cards.some((c) => c.level === CardLevel.A)) return "Armor cards belong in the side deck, not the main 30";
     return null;
   };
 
@@ -129,18 +157,26 @@ export function App() {
       cpuDeckValue = `deck:${cpuDeckId}`;
     }
     const theirs = resolveDeck(cpuDeckValue);
-    const eng = new GameEngine(mine.cards, theirs.cards, Date.now(), {
-      playerName: playerName().trim(),
-      cpuName: actor.name,
-      playerDeckName: mine.name,
-      cpuDeckName: theirs.name,
-    });
+    const eng = new GameEngine(
+      mine.cards,
+      theirs.cards,
+      Date.now(),
+      {
+        playerName: playerName().trim(),
+        cpuName: actor.name,
+        playerDeckName: mine.name,
+        cpuDeckName: theirs.name,
+      },
+      { player: mine.armors, cpu: theirs.armors },
+    );
     eng.log.push(`${eng.players.player.name} [${mine.name}] vs ${eng.players.cpu.name} [${theirs.name}]`);
     eng.setOnChange(() => setVersion((v) => v + 1));
     setCpu(new CpuPlayer(eng));
     setEngine(eng);
     setAttack("c");
     setSupportIdx(null);
+    setHandOkTurn(0);
+    setForcedAckTurn(0);
     eng.startMatch(firstPlayer());
   }
 
@@ -194,7 +230,13 @@ export function App() {
     }
     setAttack("c");
     setSupportIdx(null);
+    setAttackConfirmed(false);
   }
+
+  // Leaving battle-select resets the two-step prompt state.
+  createEffect(() => {
+    if (game()?.phase !== "battle-select" && attackConfirmed()) setAttackConfirmed(false);
+  });
 
   return (
     <div class="layout">
@@ -255,6 +297,9 @@ export function App() {
                     </For>
                   </select>
                   <DeckColorBar cardNumbers={selectedNumbers(playerDeck())} />
+                  <Show when={playerArmorNames()}>
+                    <div class="tag">🛡 Armor side deck: {playerArmorNames()}</div>
+                  </Show>
                 </Show>
               </div>
 
@@ -358,14 +403,7 @@ export function App() {
         <div class="columns">
           <div class="column">
             <LogArea g={game()!} />
-            <ControlPanel
-              g={game()!}
-              attack={attack()}
-              setAttack={setAttack}
-              supportIdx={supportIdx()}
-              setSupportIdx={setSupportIdx}
-              confirmBattle={confirmBattle}
-            />
+            <ControlPanel g={game()!} />
           </div>
           <div class="column-center">
             <OpponentArea p={game()!.players.cpu} g={game()!} revealHand={revealOpponentHand()} portrait={cpuActor().portrait} />
@@ -389,6 +427,22 @@ export function App() {
                   ? (supportIdx() as number)
                   : null
               }
+              supportPick={game()!.phase === "battle-select" && attackConfirmed()}
+              setSupportIdx={setSupportIdx}
+            />
+            <PromptDialogs
+              g={game()!}
+              handOkTurn={handOkTurn()}
+              setHandOkTurn={setHandOkTurn}
+              forcedAckTurn={forcedAckTurn()}
+              setForcedAckTurn={setForcedAckTurn}
+              attack={attack()}
+              setAttack={setAttack}
+              attackConfirmed={attackConfirmed()}
+              setAttackConfirmed={setAttackConfirmed}
+              supportIdx={supportIdx()}
+              setSupportIdx={setSupportIdx}
+              confirmBattle={confirmBattle}
             />
             <Show when={game()!.phase === "game-over"}>
               {/* Match-settled dialog with the final scoreboard. */}
@@ -643,16 +697,235 @@ function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand: boolea
   );
 }
 
-/** Left-column control panel: all phase actions + battle selection. */
-function ControlPanel(props: {
+/**
+ * Floating decision prompts for the human player's prep flow. Non-blocking
+ * (no dimmed overlay) so the hand and battlefield stay visible while
+ * deciding. All conditions derive from engine state; the two per-turn
+ * acknowledgements (hand OK / forced-redraw notice) are keyed by turnCount.
+ */
+function PromptDialogs(props: {
   g: GameEngine;
+  handOkTurn: number;
+  setHandOkTurn: (n: number) => void;
+  forcedAckTurn: number;
+  setForcedAckTurn: (n: number) => void;
   attack: AttackType;
   setAttack: (a: AttackType) => void;
+  attackConfirmed: boolean;
+  setAttackConfirmed: (b: boolean) => void;
   supportIdx: number | "deck" | null;
   setSupportIdx: (i: number | "deck" | null) => void;
   confirmBattle: () => void;
 }) {
   const p = () => props.g.players.player;
+  const myPrep = () =>
+    props.g.turn === "player" && (props.g.phase === "deploy" || props.g.phase === "digivolve");
+
+  // Precedence: forced-redraw notice → hand check → finalize → armor offer.
+  const showForced = () => myPrep() && props.g.forcedRedraws > 0 && props.forcedAckTurn !== props.g.turnCount;
+  const showHandOk = () =>
+    myPrep() && !showForced() && props.g.canRedrawHand() && props.handOkTurn !== props.g.turnCount;
+  const showFinalize = () =>
+    props.g.turn === "player" && props.g.phase === "deploy" && p().active !== null && !showForced();
+  const showArmor = () => props.g.turn === "player" && props.g.canArmorDigivolve();
+  const offeredArmor = () => (p().active ? props.g.armorForPartner(p(), p().active!.card) : null);
+
+  // A pending fizzle confirmation dies with the phase it was raised in.
+  createEffect(() => {
+    if (fizzleConfirm() && (props.g.phase !== "digivolve" || props.g.turn !== "player")) setFizzleConfirm(null);
+  });
+
+  // ── Battle-select prompts (two steps: attack, then support/fight) ──────
+  const isBattleSelect = () => props.g.phase === "battle-select";
+  /** Effective (penalty-adjusted) power of one of the active's attacks. */
+  const attackPow = (t: AttackType) => {
+    const act = p().active;
+    if (!act) return 0;
+    return Math.round({ c: act.card.c_pow, t: act.card.t_pow, x: act.card.x_pow }[t] * act.penalty);
+  };
+  const attackName = (t: AttackType) => {
+    const act = p().active;
+    if (!act) return "";
+    return { c: act.card.c_attack, t: act.card.t_attack, x: act.card.x_attack }[t];
+  };
+  const ATTACK_GLYPH: Record<AttackType, string> = { c: "○", t: "△", x: "✕" };
+  const supportLabel = () => {
+    if (props.supportIdx === "deck") return "🎲 Top of deck (mystery)";
+    if (typeof props.supportIdx === "number") return p().hand[props.supportIdx]?.name ?? null;
+    return null;
+  };
+
+  return (
+    <>
+      <Show when={showForced()}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">Since your hand has no Digimon, you had to redraw.</div>
+            <div class="setup-actions">
+              <button class="primary" onClick={() => props.setForcedAckTurn(props.g.turnCount)}>
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      <Show when={showHandOk()}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">Is this hand OK?</div>
+            <div class="setup-actions">
+              <button onClick={() => props.g.redrawHand()}>No, Redraw</button>
+              <button class="primary" onClick={() => props.setHandOkTurn(props.g.turnCount)}>
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      <Show when={showFinalize()}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">
+              Finalize deployment of {p().active?.card.name}?
+              <Show when={(p().active?.penalty ?? 1) < 1}>
+                <span class="warn"> ⚠ ×{p().active?.penalty} penalty</span>
+              </Show>
+            </div>
+            <div class="tag">…or click another Digimon in your hand to switch.</div>
+            <div class="setup-actions">
+              <button onClick={() => props.g.cancelDeploy()}>No, Cancel</button>
+              <button class="primary" onClick={() => props.g.finalizeDeploy()}>
+                Yes, Finalize
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      <Show when={props.g.turn === "player" && props.g.phase === "digivolve" && fizzleConfirm()}>
+        {(card) => (
+          <div class="prompt-dock">
+            <div class="modal prompt">
+              <div class="prompt-text">
+                {card().name} has no valid target right now — it will do nothing and be discarded. Use it
+                anyway?
+              </div>
+              <div class="setup-actions">
+                <button onClick={() => setFizzleConfirm(null)}>Cancel</button>
+                <button
+                  class="primary"
+                  onClick={() => {
+                    // Re-resolve the hand index at confirm time — the hand
+                    // may have shifted since the balloon was clicked.
+                    const idx = p().hand.indexOf(card());
+                    if (idx >= 0) props.g.useDigivolveOption(idx);
+                    setFizzleConfirm(null);
+                  }}
+                >
+                  Yes, Discard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </Show>
+
+      <Show when={showArmor()}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">
+              Do you want to Armor Digivolve {p().active?.card.name} →{" "}
+              <span
+                class="armor-name"
+                onMouseEnter={() => offeredArmor() && setInspectedCard(offeredArmor() as MasterCard)}
+              >
+                🛡 {offeredArmor()?.name}
+              </span>
+              ?
+            </div>
+            <div class="tag">Now or never — any other action skips it.</div>
+            <div class="setup-actions">
+              <button onClick={() => props.g.declineArmorDigivolve()}>No</button>
+              <button class="primary" onClick={() => props.g.armorDigivolve()}>
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      {/* Battle step 1: pick the attack. */}
+      <Show when={isBattleSelect() && !props.attackConfirmed && p().active}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">{p().active?.card.name} — choose your attack</div>
+            <div class="prompt-attacks">
+              <For each={["c", "t", "x"] as AttackType[]}>
+                {(t) => (
+                  <button
+                    class="attack-option"
+                    onClick={() => {
+                      props.setAttack(t);
+                      props.setAttackConfirmed(true);
+                    }}
+                  >
+                    <span>
+                      {ATTACK_GLYPH[t]} {attackName(t)}
+                    </span>
+                    <span class="attack-pow">{attackPow(t)}</span>
+                  </button>
+                )}
+              </For>
+            </div>
+            <Show when={p().active?.card.x_effect}>
+              <div class="tag">✕ effect: {p().active?.card.x_effect}</div>
+            </Show>
+          </div>
+        </div>
+      </Show>
+
+      {/* Battle step 2: pick a support (hand bubbles / deck gamble) or fight. */}
+      <Show when={isBattleSelect() && props.attackConfirmed && props.supportIdx === null}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">
+              {ATTACK_GLYPH[props.attack]} {attackName(props.attack)} ({attackPow(props.attack)}) — support?
+            </div>
+            <div class="tag">💬 Click "Support" on a hand card, gamble the deck, or fight without one.</div>
+            <div class="setup-actions">
+              <Show when={p().deck.length > 0}>
+                <button onClick={() => props.setSupportIdx("deck")}>🎲 Top of deck</button>
+              </Show>
+              <button class="primary" onClick={props.confirmBattle}>
+                ⚔ Fight!
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      {/* Battle step 3: confirm the chosen support or go back and reselect. */}
+      <Show when={isBattleSelect() && props.attackConfirmed && props.supportIdx !== null}>
+        <div class="prompt-dock">
+          <div class="modal prompt">
+            <div class="prompt-text">Use {supportLabel()} as support?</div>
+            <div class="setup-actions">
+              <button onClick={() => props.setSupportIdx(null)}>No, Reselect</button>
+              <button class="primary" onClick={props.confirmBattle}>
+                ⚔ Yes, Fight!
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
+    </>
+  );
+}
+
+/** Left-column control panel: all phase actions + battle selection. */
+function ControlPanel(props: { g: GameEngine }) {
   const isMyTurn = () => props.g.turn === "player";
   const isMyDeploy = () => props.g.phase === "deploy" && isMyTurn();
   const isMyDigivolve = () => props.g.phase === "digivolve" && isMyTurn();
@@ -662,75 +935,23 @@ function ControlPanel(props: {
     <div class="area controls">
       <h2>Controls</h2>
 
+      {/* Deploy/redraw/finalize/armor decisions live in the floating
+          prompt dialogs — the panel only hints during the deploy phase. */}
       <Show when={isMyDeploy()}>
-        <button class="primary" disabled={!p().active} onClick={() => props.g.finalizeDeploy()}>
-          Finalize Deploy → Digivolve
-        </button>
-        <Show when={p().active}>
-          <button onClick={() => props.g.cancelDeploy()}>Cancel Deploy</button>
-        </Show>
-        <Show when={props.g.canRedrawHand()}>
-          <button onClick={() => props.g.redrawHand()}>Trash Hand & Redraw</button>
-        </Show>
+        <div class="tag">Deploy a Digimon from your hand.</div>
       </Show>
 
       <Show when={isMyDigivolve()}>
         <button class="primary" onClick={() => props.g.endPrep()}>
           {props.g.opponentOf("player").active ? "To Battle" : "Pass Turn"}
         </button>
-        <Show when={props.g.canRedrawHand()}>
-          <button onClick={() => props.g.redrawHand()}>Trash Hand & Redraw</button>
-        </Show>
         <Show when={props.g.canCancelStockDp()}>
           <button onClick={() => props.g.cancelStockDp()}>Undo DP Stock</button>
         </Show>
       </Show>
 
       <Show when={isBattleSelect()}>
-        <div class="tag">Choose attack &amp; support</div>
-        <div class="attack-row">
-          <For each={["c", "t", "x"] as AttackType[]}>
-            {(t) => {
-              const label = { c: "○", t: "△", x: "✕" }[t];
-              const pow = () => {
-                const act = p().active;
-                if (!act) return 0;
-                const base = { c: act.card.c_pow, t: act.card.t_pow, x: act.card.x_pow }[t];
-                return Math.round(base * act.penalty);
-              };
-              return (
-                <button classList={{ primary: props.attack === t }} onClick={() => props.setAttack(t)}>
-                  {label} {pow()}
-                </button>
-              );
-            }}
-          </For>
-        </div>
-        <select
-          onChange={(e) => {
-            const v = e.currentTarget.value;
-            props.setSupportIdx(v === "" ? null : v === "deck" ? "deck" : parseInt(v, 10));
-          }}
-        >
-          <option value="" selected={props.supportIdx === null}>
-            No support
-          </option>
-          <Show when={p().deck.length > 0}>
-            <option value="deck" selected={props.supportIdx === "deck"}>
-              🎲 Gamble: top of deck ({p().deck.length} left)
-            </option>
-          </Show>
-          <For each={p().hand}>
-            {(card, i) => (
-              <option value={i()} selected={props.supportIdx === i()}>
-                Support: {card.name}
-              </option>
-            )}
-          </For>
-        </select>
-        <button class="primary" onClick={props.confirmBattle}>
-          Fight!
-        </button>
+        <div class="tag">⚔ Battle — answer the prompt.</div>
       </Show>
 
       <Show when={props.g.phase === "battle-resolve"}>
@@ -744,7 +965,8 @@ function ControlPanel(props: {
   );
 }
 
-/** DP stack readout flanking the battle zone. */
+/** DP stack readout flanking the battle zone. (The armor side deck stays
+    hidden — it is not rendered on the battle board.) */
 function DpRail(props: { p: PlayerState; g: GameEngine; side: PlayerId }) {
   return (
     <div class={`rail dp-rail dp-${props.side}`}>
@@ -972,7 +1194,14 @@ function LogArea(props: { g: GameEngine }) {
   );
 }
 
-function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?: string }) {
+function PlayerArea(props: {
+  g: GameEngine;
+  supportIdx: number | null;
+  portrait?: string;
+  /** Battle support picking active: hand cards grow a "Support" bubble. */
+  supportPick: boolean;
+  setSupportIdx: (i: number | "deck" | null) => void;
+}) {
   const p = () => props.g.players.player;
   const slots = createStableHand(() => p().hand);
 
@@ -999,24 +1228,33 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?
   const isMyDeploy = () => props.g.phase === "deploy" && isMyTurn();
   const isMyDigivolve = () => props.g.phase === "digivolve" && isMyTurn();
   const isMyPrep = () => isMyDeploy() || isMyDigivolve();
+  /** True while a digivolve option may still be played this turn. */
+  const optionPlayable = () => !props.g.digivolveOptionUsedThisTurn;
+
   /** Digivolve option cards currently in hand: [handIndex, kind, eligible target indices]. */
   const digiOptions = () =>
     p()
-      .hand.map((card, index) => ({ index, kind: props.g.digivolveOptionKind(card) }))
+      .hand.map((card, index) => ({ index, kind: optionPlayable() ? props.g.digivolveOptionKind(card) : null }))
       .filter((o): o is { index: number; kind: NonNullable<ReturnType<typeof props.g.digivolveOptionKind>> } => o.kind !== null)
       .map((o) => ({ ...o, targets: props.g.digivolveOptionTargets(p(), o.kind) }));
 
   const optionLabel: Record<string, string> = {
     download: "Download",
+    armorcrush: "ArmorCrush",
     special: "Special",
     mutant: "Mutant",
     warp: "Warp",
+    dearmor: "De-Armor",
     speed: "Speed",
     devolve: "Devolve",
   };
 
   const optionEffective = (o: { kind: string; targets: number[] }) =>
-    o.kind === "devolve" ? props.g.canDevolve(p()) : o.targets.length > 0;
+    o.kind === "devolve"
+      ? props.g.canDevolve(p())
+      : o.kind === "dearmor"
+        ? props.g.canDearmor(p())
+        : o.targets.length > 0;
 
   return (
     <div class="area">
@@ -1037,7 +1275,7 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?
                   (isMyDigivolve() &&
                     ((props.g.isDeployable(card()) && !props.g.dpStockedThisTurn && props.g.canStockMoreDp(p())) ||
                       props.g.canEvolve(p(), card()) ||
-                      props.g.digivolveOptionKind(card()) !== null ||
+                      (optionPlayable() && props.g.digivolveOptionKind(card()) !== null) ||
                       targetOptions().length > 0));
                 return (
                   <Show
@@ -1047,6 +1285,15 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?
                     }
                   >
                     <CardView card={card()}>
+                      {/* Battle support pick: legal supports offer themselves
+                          (digivolve option cards are prep-phase only). */}
+                      <Show when={props.supportPick && props.g.isLegalSupport(card())}>
+                        <div class="bubbles">
+                          <button title={`Use ${card().name} as support`} onClick={() => props.setSupportIdx(hi())}>
+                            Support
+                          </button>
+                        </div>
+                      </Show>
                       <Show when={isMyPrep() && hasActions()}>
                         {/* Manga balloon with action icons over the card's head. */}
                         <div class="bubbles">
@@ -1084,15 +1331,19 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?
                             </button>
                           </Show>
                           {/* "Use" a digivolve option card (ineffective use trashes it). */}
-                          <Show when={isMyDigivolve() && props.g.digivolveOptionKind(card())}>
+                          <Show when={isMyDigivolve() && optionPlayable() && props.g.digivolveOptionKind(card())}>
                             {(kind) => {
                               const opt = () => digiOptions().find((o) => o.index === hi());
                               const hasTargets = () => (opt()?.targets.length ?? 0) > 0;
                               const effective = () =>
-                                kind() === "devolve" ? props.g.canDevolve(p()) : hasTargets();
+                                kind() === "devolve"
+                                  ? props.g.canDevolve(p())
+                                  : kind() === "dearmor"
+                                    ? props.g.canDearmor(p())
+                                    : hasTargets();
                               return (
                                 <Show
-                                  when={kind() === "devolve" || !hasTargets()}
+                                  when={kind() === "devolve" || kind() === "dearmor" || !hasTargets()}
                                   fallback={
                                     <span class="bubble-hint" title="Click Digivolve on the target card">
                                       Pick target →
@@ -1102,7 +1353,12 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?
                                   <button
                                     classList={{ fizzle: !effective() }}
                                     title={`Use ${optionLabel[kind()]}${effective() ? "" : " — no valid target, card will be trashed"}`}
-                                    onClick={() => props.g.useDigivolveOption(hi())}
+                                    onClick={() => {
+                                      // Ineffective play still trashes the card — confirm first
+                                      // via the floating prompt dialog.
+                                      if (!effective()) setFizzleConfirm(card());
+                                      else props.g.useDigivolveOption(hi());
+                                    }}
                                   >
                                     Use
                                   </button>

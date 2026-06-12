@@ -1,6 +1,7 @@
-import { For, Show, createMemo, createSignal } from "solid-js";
+import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
 import { CardLevel, CardSpecialty, CardType, type MasterCard } from "@src/types";
 import { MASTER_CARDS } from "@src/data/master-cards";
+import { ARMOR_PARTNER, PARTNER_ARMORS, partnersIn } from "@src/data/armor";
 import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck, type CustomDeckStore } from "@src/store/custom-deck-store";
 import { DECK_LISTS } from "@src/data/deck-lists";
 import { CardInspector } from "./App";
@@ -20,7 +21,31 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
   const [editingId, setEditingId] = createSignal<string | null>(null);
   const [deckName, setDeckName] = createSignal("My Deck");
   const [numbers, setNumbers] = createSignal<string[]>([]);
+  /** Hidden armor side deck: at most one armor number per partner in the 30. */
+  const [armors, setArmors] = createSignal<string[]>([]);
   const [message, setMessage] = createSignal("");
+
+  /** Distinct partner Rookies currently in the deck list. */
+  const partners = createMemo(() => partnersIn(numbers()));
+
+  // Removing a partner invalidates its selected armor — prune it.
+  createEffect(() => {
+    const eligible = new Set(partners());
+    const pruned = armors().filter((a) => eligible.has(ARMOR_PARTNER[a] as string));
+    if (pruned.length !== armors().length) setArmors(pruned);
+  });
+
+  /** The armor currently selected for `partner` (null = none). */
+  const armorOf = (partner: string): string | null =>
+    armors().find((a) => ARMOR_PARTNER[a] === partner) ?? null;
+
+  /** Sets/clears the single armor slot bound to `partner`. */
+  const setArmorOf = (partner: string, armor: string | null): void => {
+    const rest = armors().filter((a) => ARMOR_PARTNER[a] !== partner);
+    setArmors(armor ? [...rest, armor] : rest);
+  };
+
+  const cardName = (n: string) => MASTER_CARDS.find((c) => c.number === n)?.name ?? n;
 
   // Pool filters
   const [search, setSearch] = createSignal("");
@@ -59,6 +84,10 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
   });
 
   const addCard = (c: MasterCard): void => {
+    if (c.level === CardLevel.A) {
+      setMessage(`${c.name} is an Armor card — pick it as the side deck below (needs its partner in the 30).`);
+      return;
+    }
     if (numbers().length >= DECK_SIZE) {
       setMessage(`Deck is full (${DECK_SIZE} cards).`);
       return;
@@ -83,6 +112,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setEditingId(null);
     setDeckName("My Deck");
     setNumbers([]);
+    setArmors([]);
     setMessage("");
   };
 
@@ -90,18 +120,24 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setEditingId(d.id);
     setDeckName(d.name);
     setNumbers([...d.cardNumbers]);
+    setArmors([...(d.armors ?? [])]);
     setMessage("");
   };
 
   const saveDeck = (): void => {
-    const errors = props.store.validate(numbers());
+    const errors = props.store.validate(numbers(), armors());
     if (!deckName().trim()) errors.unshift("Deck name is required.");
     if (errors.length > 0) {
       setMessage(errors.join(" "));
       return;
     }
     try {
-      const saved = props.store.save({ id: editingId() ?? undefined, name: deckName(), cardNumbers: numbers() });
+      const saved = props.store.save({
+        id: editingId() ?? undefined,
+        name: deckName(),
+        cardNumbers: numbers(),
+        armors: armors(),
+      });
       setEditingId(saved.id);
       setDecks(props.store.list());
       setMessage(`Saved "${saved.name}" ✅`);
@@ -117,6 +153,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setEditingId(null); // saving creates a NEW deck, never overwrites
     setDeckName(tpl.name.replace(/\s*Deck$/i, "").slice(0, MAX_NAME_LENGTH));
     setNumbers([...tpl.cardNumbers]);
+    setArmors([...tpl.armors]);
     setMessage(`Copied template "${tpl.name}" (${tpl.owner}) — rename and save as your own.`);
   };
 
@@ -125,6 +162,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setEditingId(null); // saving creates a NEW deck
     setDeckName(`${d.name} copy`.slice(0, MAX_NAME_LENGTH));
     setNumbers([...d.cardNumbers]);
+    setArmors([...(d.armors ?? [])]);
     setMessage(`Copied "${d.name}" — rename and save as a new deck.`);
   };
 
@@ -219,6 +257,36 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           <button onClick={props.onBack}>← Back</button>
         </div>
         <DeckColorBar cardNumbers={numbers()} />
+        {/* Armor side deck: one optional armor per partner Rookie in the 30. */}
+        <Show
+          when={partners().length > 0}
+          fallback={<div class="tag">🛡 Armor side deck — add a partner Rookie to unlock.</div>}
+        >
+          <div class="builder-stack">
+            <For each={partners()}>
+              {(partner) => (
+                <select
+                  onChange={(e) => setArmorOf(partner, e.currentTarget.value || null)}
+                  onMouseOver={(e) => {
+                    const card = MASTER_CARDS.find((c) => c.number === (e.target as HTMLOptionElement).value);
+                    if (card) setInspectedCard(card);
+                  }}
+                >
+                  <option value="" selected={armorOf(partner) === null}>
+                    🛡 {cardName(partner)} armor: none
+                  </option>
+                  <For each={PARTNER_ARMORS[partner] ?? []}>
+                    {(n) => (
+                      <option value={n} selected={armorOf(partner) === n}>
+                        🛡 {cardName(partner)} → {cardName(n)}
+                      </option>
+                    )}
+                  </For>
+                </select>
+              )}
+            </For>
+          </div>
+        </Show>
         <Show when={message()}>
           <div class="warn">{message()}</div>
         </Show>
@@ -246,7 +314,12 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           {(d) => (
             <div class="saved-deck">
               <div class="pool-row">
-                <span class="pool-name">{d.name}</span>
+                <span class="pool-name">
+                  {d.name}
+                  <Show when={d.armors && d.armors.length > 0}>
+                    <span class="tag"> 🛡 {(d.armors ?? []).map(cardName).join(", ")}</span>
+                  </Show>
+                </span>
                 <button onClick={() => edit(d)}>Edit</button>
                 <button onClick={() => copyCustom(d)}>Copy</button>
                 <button onClick={() => deleteDeck(d)}>🗑</button>
