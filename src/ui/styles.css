@@ -449,6 +449,21 @@ body {
   border-color: #d4a017;
 }
 
+/* Saved deck entry: name + buttons row, colour bar beneath. */
+.saved-deck {
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.saved-deck:hover {
+  background: #232842;
+}
+
+.saved-deck .deck-colors {
+  margin: 0 0 4px;
+  padding-left: 2px;
+}
+
 /* Deck colour composition bar */
 .deck-colors {
   display: flex;

@@ -244,12 +244,14 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
         <h2 style={{ "margin-top": "12px" }}>Saved Decks</h2>
         <For each={decks()} fallback={<div class="tag">No custom decks yet.</div>}>
           {(d) => (
-            <div class="pool-row">
-              <span class="pool-name">{d.name}</span>
+            <div class="saved-deck">
+              <div class="pool-row">
+                <span class="pool-name">{d.name}</span>
+                <button onClick={() => edit(d)}>Edit</button>
+                <button onClick={() => copyCustom(d)}>Copy</button>
+                <button onClick={() => deleteDeck(d)}>🗑</button>
+              </div>
               <DeckColorBar cardNumbers={d.cardNumbers} />
-              <button onClick={() => edit(d)}>Edit</button>
-              <button onClick={() => copyCustom(d)}>Copy</button>
-              <button onClick={() => deleteDeck(d)}>🗑</button>
             </div>
           )}
         </For>

@@ -46,6 +46,13 @@ export function App() {
     return customDeckStore.list();
   };
 
+  // Auto-select the first custom deck — a listbox highlights its first row
+  // without firing onChange, so an explicit default keeps state truthful.
+  createEffect(() => {
+    const decks = customDecks();
+    if (playerDeck() === "" && decks[0]) setPlayerDeck(`custom:${decks[0].id}`);
+  });
+
   /** Resolves a deck selection value ("deck:<id>" prebuilt or "custom:<uuid>"). */
   const resolveDeck = (value: string): { name: string; cards: ReturnType<typeof cardsByNumbers> } => {
     if (value.startsWith(CUSTOM_PREFIX)) {
