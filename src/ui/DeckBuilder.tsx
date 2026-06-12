@@ -98,13 +98,13 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
   };
 
   /** Copy a prebuilt template into the editor as a new (unsaved) deck. */
-  const copyTemplate = (templateName: string) => {
-    const tpl = DECK_LISTS.find((d) => d.name === templateName);
+  const copyTemplate = (templateId: number) => {
+    const tpl = DECK_LISTS.find((d) => d.id === templateId);
     if (!tpl) return;
     setEditingId(null); // saving creates a NEW deck, never overwrites
-    setDeckName(templateName.replace(/\s*Deck$/i, "").slice(0, MAX_NAME_LENGTH));
+    setDeckName(tpl.name.replace(/\s*Deck$/i, "").slice(0, MAX_NAME_LENGTH));
     setNumbers([...tpl.cardNumbers]);
-    setMessage(`Copied template "${templateName}" — rename and save as your own.`);
+    setMessage(`Copied template "${tpl.name}" (${tpl.owner}) — rename and save as your own.`);
   };
 
   const deleteDeck = (d: CustomDeck) => {
@@ -163,12 +163,18 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
         <div class="builder-filters">
           <select
             onChange={(e) => {
-              if (e.currentTarget.value) copyTemplate(e.currentTarget.value);
+              if (e.currentTarget.value) copyTemplate(parseInt(e.currentTarget.value, 10));
               e.currentTarget.value = "";
             }}
           >
             <option value="">📋 Copy from template…</option>
-            <For each={DECK_LISTS}>{(d) => <option value={d.name}>{d.name}</option>}</For>
+            <For each={DECK_LISTS}>
+              {(d) => (
+                <option value={d.id}>
+                  {d.name} — {d.owner}
+                </option>
+              )}
+            </For>
           </select>
         </div>
         <div class="builder-filters">

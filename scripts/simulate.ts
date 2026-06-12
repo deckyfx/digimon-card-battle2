@@ -4,7 +4,7 @@
  */
 import { GameEngine } from "../src/engine/game-engine";
 import { CpuPlayer } from "../src/ai/cpu-player";
-import { DECK_NAMES, buildDeck } from "../src/data/prebuilt-decks";
+import { PREBUILT_DECKS, cardsByNumbers } from "../src/data/prebuilt-decks";
 
 const matches = parseInt(Bun.argv[2] ?? "20", 10);
 const MAX_STEPS = 2000;
@@ -12,9 +12,11 @@ let completed = 0;
 let scriptWarnings = 0;
 
 for (let m = 0; m < matches; m++) {
-  const deckA = DECK_NAMES[Math.floor(Math.random() * DECK_NAMES.length)] as string;
-  const deckB = DECK_NAMES[Math.floor(Math.random() * DECK_NAMES.length)] as string;
-  const engine = new GameEngine(buildDeck(deckA), buildDeck(deckB), 1000 + m);
+  const a = PREBUILT_DECKS[Math.floor(Math.random() * PREBUILT_DECKS.length)]!;
+  const b = PREBUILT_DECKS[Math.floor(Math.random() * PREBUILT_DECKS.length)]!;
+  const deckA = a.name;
+  const deckB = b.name;
+  const engine = new GameEngine(cardsByNumbers(a.cardNumbers), cardsByNumbers(b.cardNumbers), 1000 + m);
   const ais = { player: new CpuPlayer(engine, "player"), cpu: new CpuPlayer(engine, "cpu") };
 
   engine.startMatch();

@@ -2,7 +2,7 @@ import { For, Index, Show, createEffect, createSignal, onCleanup, untrack } from
 import type { AttackType, MasterCard } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
-import { DECK_NAMES, buildDeck, cardsByNumbers, randomDeckName } from "@src/data/prebuilt-decks";
+import { PREBUILT_DECKS, cardsByNumbers, getDeckById, randomDeckId } from "@src/data/prebuilt-decks";
 import { CustomDeckStore } from "@src/store/custom-deck-store";
 import { LocalStorageProvider } from "@src/store/storage-provider";
 import { DeckBuilder } from "./DeckBuilder";
@@ -10,6 +10,7 @@ import { CardView, setInspectedCard, inspectedCard, specialtyClass } from "./Car
 
 const RANDOM_DECK = "__random__";
 const CUSTOM_PREFIX = "custom:";
+const PREBUILT_PREFIX = "deck:";
 
 /** Persistent custom decks (browser localStorage provider for now). */
 export const customDeckStore = new CustomDeckStore(new LocalStorageProvider());
@@ -21,7 +22,7 @@ export function App() {
   const [engine, setEngine] = createSignal<GameEngine | null>(null);
   const [cpu, setCpu] = createSignal<CpuPlayer | null>(null);
   const [version, setVersion] = createSignal(0);
-  const [playerDeck, setPlayerDeck] = createSignal<string>(DECK_NAMES[0] ?? "Tutorial Deck");
+  const [playerDeck, setPlayerDeck] = createSignal<string>("deck:1");
   const [cpuDeck, setCpuDeck] = createSignal<string>(RANDOM_DECK);
   const [view, setView] = createSignal<"menu" | "builder">("menu");
 
@@ -31,13 +32,18 @@ export function App() {
     return customDeckStore.list();
   };
 
-  /** Resolves a deck selection value (prebuilt name or custom:<id>). */
-  const resolveDeck = (value: string): { name: string; cards: ReturnType<typeof buildDeck> } => {
+  /** Resolves a deck selection value ("deck:<id>" prebuilt or "custom:<uuid>"). */
+  const resolveDeck = (value: string): { name: string; cards: ReturnType<typeof cardsByNumbers> } => {
     if (value.startsWith(CUSTOM_PREFIX)) {
       const deck = customDeckStore.get(value.slice(CUSTOM_PREFIX.length));
       if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers) };
     }
-    return { name: value, cards: buildDeck(value) };
+    if (value.startsWith(PREBUILT_PREFIX)) {
+      const deck = getDeckById(parseInt(value.slice(PREBUILT_PREFIX.length), 10));
+      if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers) };
+    }
+    const fallback = getDeckById(1);
+    return { name: fallback?.name ?? "", cards: cardsByNumbers(fallback?.cardNumbers ?? []) };
   };
   // Dynamic visibility rule: revealed vs CPU for now; PvP will set this false.
   const [revealOpponentHand, setRevealOpponentHand] = createSignal(true);
@@ -65,7 +71,7 @@ export function App() {
 
   function startMatch() {
     const mine = resolveDeck(playerDeck());
-    const theirs = resolveDeck(cpuDeck() === RANDOM_DECK ? randomDeckName() : cpuDeck());
+    const theirs = resolveDeck(cpuDeck() === RANDOM_DECK ? `deck:${randomDeckId()}` : cpuDeck());
     const eng = new GameEngine(mine.cards, theirs.cards, Date.now(), {
       playerName: playerName().trim(),
       cpuName: cpuName().trim(),
@@ -621,7 +627,11 @@ function DeckPicker(props: {
   const customMatches = () =>
     props.decks.filter((d) => d.name.toLowerCase().includes(query().toLowerCase()));
   const prebuiltMatches = () =>
-    DECK_NAMES.filter((n) => n.toLowerCase().includes(query().toLowerCase()));
+    PREBUILT_DECKS.filter(
+      (d) =>
+        d.name.toLowerCase().includes(query().toLowerCase()) ||
+        d.owner.toLowerCase().includes(query().toLowerCase()),
+    );
 
   /** Keep the selection visible even when the filter excludes it. */
   const sizeFor = () => Math.min(8, Math.max(3, customMatches().length + prebuiltMatches().length + 1));
@@ -653,9 +663,9 @@ function DeckPicker(props: {
         </Show>
         <optgroup label="Prebuilt Decks">
           <For each={prebuiltMatches()}>
-            {(name) => (
-              <option value={name} selected={name === props.value}>
-                {name}
+            {(d) => (
+              <option value={`deck:${d.id}`} selected={`deck:${d.id}` === props.value}>
+                {d.name} — {d.owner}
               </option>
             )}
           </For>
