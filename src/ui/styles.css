@@ -1004,6 +1004,106 @@ button.primary:hover:not(:disabled) {
   margin-top: 3px;
 }
 
+/* Match-settled dialog */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #14161fd0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: modal-fade 0.3s ease;
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: #1c1f2e;
+  border: 2px solid #3a3f55;
+  border-radius: 14px;
+  padding: 26px 40px;
+  text-align: center;
+  box-shadow: 0 10px 40px #000000aa;
+  animation: modal-pop 0.35s ease;
+}
+
+@keyframes modal-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal h2 {
+  font-family: "Audiowide", sans-serif;
+  color: #9aa3c7;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0 0 18px;
+}
+
+.scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  margin-bottom: 14px;
+}
+
+.score-side {
+  opacity: 0.6;
+}
+
+.score-side.winner {
+  opacity: 1;
+}
+
+.score-side.winner .portrait {
+  border-color: #ffc66d;
+  box-shadow: 0 0 12px #ffc66d88;
+}
+
+.score-side .portrait {
+  width: 84px;
+  height: 74px;
+  cursor: default;
+}
+
+.score-name {
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.score-points {
+  font-family: "Audiowide", sans-serif;
+  font-size: 2rem;
+  color: #ffc66d;
+}
+
+.score-vs {
+  color: #666e90;
+  font-size: 1.4rem;
+}
+
+.modal-verdict {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1.25rem;
+  color: #ffc66d;
+  margin-bottom: 18px;
+}
+
 .banner {
   text-align: center;
   font-size: 1.3rem;

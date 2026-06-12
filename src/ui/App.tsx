@@ -391,13 +391,33 @@ export function App() {
               }
             />
             <Show when={game()!.phase === "game-over"}>
-              <div class="area banner">
-                {game()!.winner === "player"
-                  ? `🏆 ${game()!.players.player.name} wins!`
-                  : `💀 ${game()!.players.cpu.name} wins!`}{" "}
-                <button class="primary" onClick={startMatch}>
-                  Play Again
-                </button>
+              {/* Match-settled dialog with the final scoreboard. */}
+              <div class="modal-overlay">
+                <div class="modal">
+                  <h2>Match Settled</h2>
+                  <div class="scoreboard">
+                    <div class="score-side" classList={{ winner: game()!.winner === "player" }}>
+                      <img class="portrait" src={playerActor().portrait} alt={game()!.players.player.name} />
+                      <div class="score-name">{game()!.players.player.name}</div>
+                      <div class="score-points">{game()!.players.player.score}</div>
+                    </div>
+                    <div class="score-vs">—</div>
+                    <div class="score-side" classList={{ winner: game()!.winner === "cpu" }}>
+                      <img class="portrait" src={cpuActor().portrait} alt={game()!.players.cpu.name} />
+                      <div class="score-name">{game()!.players.cpu.name}</div>
+                      <div class="score-points">{game()!.players.cpu.score}</div>
+                    </div>
+                  </div>
+                  <div class="modal-verdict">
+                    🏆 {game()!.players[game()!.winner ?? "player"].name} Wins!
+                  </div>
+                  <div class="setup-actions">
+                    <button class="primary" onClick={startMatch}>
+                      ▶ Play Again
+                    </button>
+                    <button onClick={() => setEngine(null)}>Change Setup</button>
+                  </div>
+                </div>
               </div>
             </Show>
           </div>
