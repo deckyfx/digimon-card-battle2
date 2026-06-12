@@ -181,7 +181,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
         <h2>
           Deck — {numbers().length}/{DECK_SIZE}
         </h2>
-        <div class="builder-filters">
+        <div class="builder-stack">
           <input
             type="text"
             placeholder="🔍 Search templates (name or owner)…"

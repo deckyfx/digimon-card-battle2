@@ -621,6 +621,19 @@ body {
   min-width: 120px;
 }
 
+/* Always-vertical control group: stable while the select's width shifts. */
+.builder-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.builder-stack input[type="text"],
+.builder-stack select {
+  width: 100%;
+}
+
 .pool-list {
   max-height: calc(100vh - 220px);
   overflow-y: auto;

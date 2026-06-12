@@ -426,8 +426,10 @@ export function App() {
  * Animated number: eases the displayed value toward the target so counters
  * (HP, DP, deck, trash) visibly step up/down instead of jumping.
  */
-function createTicker(target: () => number, durationMs = 600): () => number {
-  const [display, setDisplay] = createSignal(target());
+function createTicker(target: () => number, durationMs = 600, fromZero = false): () => number {
+  // fromZero starts the very first render at 0 so freshly mounted counters
+  // (a deployed/digivolved battler card) visibly count up to their stats.
+  const [display, setDisplay] = createSignal(fromZero ? 0 : target());
   createEffect(() => {
     const to = target();
     const from = untrack(display);
@@ -447,8 +449,8 @@ function createTicker(target: () => number, durationMs = 600): () => number {
 }
 
 /** Renders a number that animates toward its new value. */
-function Ticker(props: { value: number }) {
-  const display = createTicker(() => props.value);
+function Ticker(props: { value: number; fromZero?: boolean }) {
+  const display = createTicker(() => props.value, 600, props.fromZero ?? false);
   return <>{display()}</>;
 }
 
@@ -556,7 +558,7 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
           <span class="lvl">{a()!.card.level}</span>
         </div>
         <div>
-          HP: <Ticker value={a()!.hp} />/{a()!.maxHp}
+          HP: <Ticker value={a()!.hp} fromZero />/<Ticker value={a()!.maxHp} fromZero />
           {a()!.penalty < 1 ? ` · ×${a()!.penalty}` : ""}
         </div>
         <div class="hp-bar">
@@ -564,14 +566,14 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
         </div>
         <div class="stat-split">
           <span>
-            ○ <Ticker value={pow("c")} />
+            ○ <Ticker value={pow("c")} fromZero />
           </span>
           <span>
-            △ <Ticker value={pow("t")} />
+            △ <Ticker value={pow("t")} fromZero />
           </span>
         </div>
         <div>
-          ✕ <Ticker value={pow("x")} />
+          ✕ <Ticker value={pow("x")} fromZero />
         </div>
         <Show when={a()!.card.x_effect}>
           <div class="effect">✕: {a()!.card.x_effect}</div>
