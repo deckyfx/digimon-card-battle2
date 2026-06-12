@@ -399,23 +399,31 @@ export function App() {
       >
         {/* Read game() directly in every expression: the engine object is
             mutated in place, so reactivity must flow through the version
-            signal, not through Show's equality-memoized accessor. */}
+            signal, not through Show's equality-memoized accessor.
+            IMPORTANT: use game()?. (never game()!.) — these expressions can
+            re-evaluate with null while the Show tears down after
+            setEngine(null) (e.g. "Change Setup"). */}
         <div class="columns">
           <div class="column">
             <LogArea g={game()!} />
             <ControlPanel g={game()!} />
           </div>
           <div class="column-center">
-            <OpponentArea p={game()!.players.cpu} g={game()!} revealHand={revealOpponentHand()} portrait={cpuActor().portrait} />
+            <OpponentArea
+              p={game()?.players.cpu as PlayerState}
+              g={game()!}
+              revealHand={revealOpponentHand()}
+              portrait={cpuActor().portrait}
+            />
             <Battlefield
               g={game()!}
               support={
-                game()!.phase !== "battle-select"
+                game()?.phase !== "battle-select"
                   ? null
                   : supportIdx() === "deck"
                     ? "deck"
                     : typeof supportIdx() === "number"
-                      ? (game()!.players.player.hand[supportIdx() as number] ?? null)
+                      ? (game()?.players.player.hand[supportIdx() as number] ?? null)
                       : null
               }
             />
@@ -423,11 +431,11 @@ export function App() {
               g={game()!}
               portrait={playerActor().portrait}
               supportIdx={
-                game()!.phase === "battle-select" && typeof supportIdx() === "number"
+                game()?.phase === "battle-select" && typeof supportIdx() === "number"
                   ? (supportIdx() as number)
                   : null
               }
-              supportPick={game()!.phase === "battle-select" && attackConfirmed()}
+              supportPick={game()?.phase === "battle-select" && attackConfirmed()}
               setSupportIdx={setSupportIdx}
             />
             <PromptDialogs
@@ -444,26 +452,26 @@ export function App() {
               setSupportIdx={setSupportIdx}
               confirmBattle={confirmBattle}
             />
-            <Show when={game()!.phase === "game-over"}>
+            <Show when={game()?.phase === "game-over"}>
               {/* Match-settled dialog with the final scoreboard. */}
               <div class="modal-overlay">
                 <div class="modal">
                   <h2>Match Settled</h2>
                   <div class="scoreboard">
-                    <div class="score-side" classList={{ winner: game()!.winner === "player" }}>
-                      <img class="portrait" src={playerActor().portrait} alt={game()!.players.player.name} />
-                      <div class="score-name">{game()!.players.player.name}</div>
-                      <div class="score-points">{game()!.players.player.score}</div>
+                    <div class="score-side" classList={{ winner: game()?.winner === "player" }}>
+                      <img class="portrait" src={playerActor().portrait} alt={game()?.players.player.name} />
+                      <div class="score-name">{game()?.players.player.name}</div>
+                      <div class="score-points">{game()?.players.player.score}</div>
                     </div>
                     <div class="score-vs">—</div>
-                    <div class="score-side" classList={{ winner: game()!.winner === "cpu" }}>
-                      <img class="portrait" src={cpuActor().portrait} alt={game()!.players.cpu.name} />
-                      <div class="score-name">{game()!.players.cpu.name}</div>
-                      <div class="score-points">{game()!.players.cpu.score}</div>
+                    <div class="score-side" classList={{ winner: game()?.winner === "cpu" }}>
+                      <img class="portrait" src={cpuActor().portrait} alt={game()?.players.cpu.name} />
+                      <div class="score-name">{game()?.players.cpu.name}</div>
+                      <div class="score-points">{game()?.players.cpu.score}</div>
                     </div>
                   </div>
                   <div class="modal-verdict">
-                    🏆 {game()!.players[game()!.winner ?? "player"].name} Wins!
+                    🏆 {game()?.players[game()?.winner ?? "player"].name} Wins!
                   </div>
                   <div class="setup-actions">
                     <button class="primary" onClick={startMatch}>
