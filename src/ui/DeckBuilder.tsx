@@ -23,6 +23,14 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
 
   // Pool filters
   const [search, setSearch] = createSignal("");
+  const [templateSearch, setTemplateSearch] = createSignal("");
+
+  const templateMatches = () =>
+    DECK_LISTS.filter(
+      (d) =>
+        d.name.toLowerCase().includes(templateSearch().toLowerCase()) ||
+        d.owner.toLowerCase().includes(templateSearch().toLowerCase()),
+    );
   const [typeFilter, setTypeFilter] = createSignal(ALL);
   const [specFilter, setSpecFilter] = createSignal(ALL);
   const [levelFilter, setLevelFilter] = createSignal(ALL);
@@ -91,10 +99,14 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
       setMessage(errors.join(" "));
       return;
     }
-    const saved = props.store.save({ id: editingId() ?? undefined, name: deckName(), cardNumbers: numbers() });
-    setEditingId(saved.id);
-    setDecks(props.store.list());
-    setMessage(`Saved "${saved.name}" ✅`);
+    try {
+      const saved = props.store.save({ id: editingId() ?? undefined, name: deckName(), cardNumbers: numbers() });
+      setEditingId(saved.id);
+      setDecks(props.store.list());
+      setMessage(`Saved "${saved.name}" ✅`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    }
   };
 
   /** Copy a prebuilt template into the editor as a new (unsaved) deck. */
@@ -161,14 +173,20 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           Deck — {numbers().length}/{DECK_SIZE}
         </h2>
         <div class="builder-filters">
+          <input
+            type="text"
+            placeholder="🔍 Search templates (name or owner)…"
+            value={templateSearch()}
+            onInput={(e) => setTemplateSearch(e.currentTarget.value)}
+          />
           <select
             onChange={(e) => {
               if (e.currentTarget.value) copyTemplate(parseInt(e.currentTarget.value, 10));
               e.currentTarget.value = "";
             }}
           >
-            <option value="">📋 Copy from template…</option>
-            <For each={DECK_LISTS}>
+            <option value="">📋 Copy from template… ({templateMatches().length})</option>
+            <For each={templateMatches()}>
               {(d) => (
                 <option value={d.id}>
                   {d.name} — {d.owner}

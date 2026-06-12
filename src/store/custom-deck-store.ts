@@ -20,6 +20,14 @@ export const MAX_NAME_LENGTH = 15;
 const KNOWN_NUMBERS = new Set(MASTER_CARDS.map((c) => c.number));
 
 /**
+ * Unique-enough deck id. crypto.randomUUID is unavailable outside secure
+ * contexts (e.g. when served over LAN http), so roll our own.
+ */
+function generateId(): string {
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+
+/**
  * CRUD + validation for custom decks. Pure logic — persistence goes through
  * the injected {@link StorageProvider}, so the engine/UI never touch
  * browser APIs directly.
@@ -87,7 +95,7 @@ export class CustomDeckStore {
 
     const decks = this.list();
     const saved: CustomDeck = {
-      id: deck.id ?? crypto.randomUUID(),
+      id: deck.id ?? generateId(),
       name,
       cardNumbers: [...deck.cardNumbers],
       updatedAt: new Date().toISOString(),
