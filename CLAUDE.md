@@ -92,6 +92,15 @@ Rules that enforce this:
   rules otherwise unchanged: exactly 30, 15-char names, optional `armors`
   side deck (one per partner in the 30, must be owned, no A-level in the
   main 30). CustomDeckStore remains only for the CustomDeck type/constants.
+- **Scenario** (src/data/cities.ts): 12 cities, each with a Battle Cafe
+  (single duels vs `cafeActorIds`) and a Battle Arena (gauntlets — future).
+  Linear unlock chain via `unlockedBy`: a city opens when its predecessor's
+  cafe residents are all defeated once (profile.defeated, recorded by
+  recordWin on victory). Beginner City roster is canon; the rest are
+  DRAFTED from exp-list groupings — edit freely. Flow: world map → city →
+  locked-opponent setup → battle → rewards → back to the city. Free Battle
+  keeps the unrestricted picker. City images sliced from the sheet
+  (rows = cities, cols = overview/cafe/arena, 256×128 cells).
 - **Match rewards**: every actor carries `exp` + `prizePack` (+ optional
   `prizeCards`, e.g. Apokarimon drops his own #103). Winning claims them
   ONCE per match (App.claimRewards): `openPack()` draws 3 cards with

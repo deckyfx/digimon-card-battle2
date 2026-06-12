@@ -6,9 +6,12 @@ import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
 import type { PlayerProfile } from "@src/store/profile-store";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { getPackById, openPack } from "@src/data/prize-packs";
+import { getCityById, type City } from "@src/data/cities";
 import { DeckBuilder } from "./DeckBuilder";
 import { ProfilesScreen } from "./ProfilesScreen";
 import { SetupScreen } from "./SetupScreen";
+import { WorldMapScreen } from "./WorldMapScreen";
+import { CityScreen } from "./CityScreen";
 import { BattleResultModal, type MatchRewards } from "./BattleResultModal";
 import { LogArea } from "./LogArea";
 import { ControlPanel } from "./ControlPanel";
@@ -37,15 +40,29 @@ export function App() {
   const [cpuDeck, setCpuDeck] = createSignal<string>(RANDOM_DECK);
   const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
   const [setupError, setSetupError] = createSignal("");
-  // App always opens on profile management; battle setup follows selection.
-  const [view, setView] = createSignal<"profiles" | "setup" | "builder">("profiles");
+  // App opens on profile management; the world map is the scenario hub.
+  const [view, setView] = createSignal<"profiles" | "world" | "city" | "setup" | "builder">("profiles");
   const [profile, setProfile] = createSignal<PlayerProfile | null>(null);
+  /** City currently being visited (view "city" / scenario duels). */
+  const [activeCityId, setActiveCityId] = createSignal<string | null>(null);
+  /** Where a battle was launched from — decides where the lobby is. */
+  const [battleOrigin, setBattleOrigin] = createSignal<"free" | string>("free");
+  /** Where the builder was opened from, to return there on Back. */
+  let builderOrigin: "world" | "setup" = "world";
 
   const playerPortrait = () => getActorById(profile()?.avatarActorId ?? 0)?.portrait;
 
   const selectProfile = (p: PlayerProfile) => {
     setProfile(p);
     setPlayerDeck(p.decks[0] ? `${CUSTOM_PREFIX}${p.decks[0].id}` : "");
+    setView("world");
+  };
+
+  /** Enter a city resident duel: opponent locked, lobby = the city. */
+  const fightResident = (cityId: string, actorId: number) => {
+    setCpuActorId(actorId);
+    setCpuDeck(RANDOM_DECK);
+    setBattleOrigin(cityId);
     setView("setup");
   };
 
@@ -217,6 +234,7 @@ export function App() {
     if (prof) {
       profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
       profileStore.addExp(prof.id, actor.exp);
+      profileStore.recordWin(prof.id, actor.id);
       refreshProfile();
     }
     rewardClaim = { exp: actor.exp, packName: pack?.name ?? null, cards, bonusCards };
@@ -226,7 +244,13 @@ export function App() {
   function backToLobby() {
     rewardClaim = null;
     setEngine(null);
-    setView("setup");
+    // Scenario duels return to their city; free battles to the setup screen.
+    if (battleOrigin() !== "free" && getCityById(battleOrigin())) {
+      setActiveCityId(battleOrigin());
+      setView("city");
+    } else {
+      setView("setup");
+    }
   }
 
   return (
@@ -237,6 +261,32 @@ export function App() {
           <>
             <Show when={view() === "profiles"}>
               <ProfilesScreen store={profileStore} onSelect={selectProfile} />
+            </Show>
+            <Show when={view() === "world" && profile()}>
+              <WorldMapScreen
+                profile={profile() as PlayerProfile}
+                onEnterCity={(city: City) => {
+                  setActiveCityId(city.id);
+                  setView("city");
+                }}
+                onFreeBattle={() => {
+                  setBattleOrigin("free");
+                  setView("setup");
+                }}
+                onChangeProfile={() => setView("profiles")}
+                onOpenBuilder={() => {
+                  builderOrigin = "world";
+                  setView("builder");
+                }}
+              />
+            </Show>
+            <Show when={view() === "city" && profile() && getCityById(activeCityId() ?? "")}>
+              <CityScreen
+                city={getCityById(activeCityId() ?? "") as City}
+                profile={profile() as PlayerProfile}
+                onFight={(actorId) => fightResident(activeCityId() as string, actorId)}
+                onBack={() => setView("world")}
+              />
             </Show>
             <Show when={view() === "setup" && profile()}>
               <SetupScreen
@@ -252,7 +302,19 @@ export function App() {
                 revealOpponentHand={revealOpponentHand()}
                 setRevealOpponentHand={setRevealOpponentHand}
                 setupError={setupError()}
-                onOpenBuilder={() => setView("builder")}
+                lockedOpponent={battleOrigin() !== "free"}
+                onBack={() => {
+                  if (battleOrigin() !== "free" && getCityById(battleOrigin())) {
+                    setActiveCityId(battleOrigin());
+                    setView("city");
+                  } else {
+                    setView("world");
+                  }
+                }}
+                onOpenBuilder={() => {
+                  builderOrigin = "setup";
+                  setView("builder");
+                }}
                 onChangeProfile={() => setView("profiles")}
                 onStart={startMatch}
               />
@@ -263,7 +325,7 @@ export function App() {
                 profileId={(profile() as PlayerProfile).id}
                 onBack={() => {
                   refreshProfile();
-                  setView("setup");
+                  setView(builderOrigin === "setup" ? "setup" : "world");
                 }}
               />
             </Show>

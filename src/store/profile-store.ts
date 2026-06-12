@@ -24,6 +24,8 @@ export interface PlayerProfile {
   decks: CustomDeck[];
   /** Accumulated experience points (earned by defeating duelists). */
   exp: number;
+  /** Victory counts per defeated actor id (drives city unlocks). */
+  defeated: Record<number, number>;
   createdAt: string;
   updatedAt: string;
 }
@@ -99,8 +101,8 @@ export class ProfileStore {
     try {
       const profiles = JSON.parse(raw) as PlayerProfile[];
       if (!Array.isArray(profiles)) return [];
-      // Migrate pre-exp profiles.
-      return profiles.map((p) => ({ ...p, exp: p.exp ?? 0 }));
+      // Migrate profiles from before exp / defeat tracking.
+      return profiles.map((p) => ({ ...p, exp: p.exp ?? 0, defeated: p.defeated ?? {} }));
     } catch {
       return [];
     }
@@ -147,6 +149,7 @@ export class ProfileStore {
         },
       ],
       exp: 0,
+      defeated: {},
       createdAt: now,
       updatedAt: now,
     };
@@ -165,6 +168,13 @@ export class ProfileStore {
   /** Copies of `cardNumber` the profile owns. */
   owned(profile: PlayerProfile, cardNumber: string): number {
     return profile.bag[cardNumber] ?? 0;
+  }
+
+  /** Records a victory over an actor (drives city unlock progression). */
+  recordWin(profileId: string, actorId: number): PlayerProfile {
+    const profile = this.require(profileId);
+    profile.defeated[actorId] = (profile.defeated[actorId] ?? 0) + 1;
+    return this.update(profile);
   }
 
   /** Adds experience points to the profile's running total. */

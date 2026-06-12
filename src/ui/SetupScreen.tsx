@@ -22,6 +22,9 @@ export function SetupScreen(props: {
   revealOpponentHand: boolean;
   setRevealOpponentHand: (value: boolean) => void;
   setupError: string;
+  /** Scenario duel: the opponent is fixed — no actor picker. */
+  lockedOpponent?: boolean;
+  onBack?: () => void;
   onOpenBuilder: () => void;
   onChangeProfile: () => void;
   onStart: () => void;
@@ -80,13 +83,23 @@ export function SetupScreen(props: {
 
         <div class="setup-side">
           <h3>Opponent</h3>
-          <ActorPicker
-            selectedId={props.cpuActorId}
-            onPick={(id) => {
-              props.setCpuActorId(id);
-              props.setCpuDeck(RANDOM_DECK);
-            }}
-          />
+          <Show
+            when={!props.lockedOpponent}
+            fallback={
+              <div class="actor-selected">
+                <img class="portrait selected" src={cpuActor()?.portrait} alt={cpuActor()?.name} />
+                <span class="actor-name">{cpuActor()?.name}</span>
+              </div>
+            }
+          >
+            <ActorPicker
+              selectedId={props.cpuActorId}
+              onPick={(id) => {
+                props.setCpuActorId(id);
+                props.setCpuDeck(RANDOM_DECK);
+              }}
+            />
+          </Show>
           <label>Their deck</label>
           <Show
             when={!cpuActor()?.isPlayer}
@@ -164,6 +177,9 @@ export function SetupScreen(props: {
         </div>
       </Show>
       <div class="setup-actions">
+        <Show when={props.onBack}>
+          <button onClick={props.onBack}>← Back</button>
+        </Show>
         <button class="primary" onClick={props.onStart}>
           ▶ START MATCH
         </button>
