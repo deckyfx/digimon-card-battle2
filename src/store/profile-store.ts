@@ -1,0 +1,252 @@
+import { MASTER_CARDS } from "@src/data/master-cards";
+import { ARMOR_PARTNER } from "@src/data/armor";
+import { DECK_LISTS } from "@src/data/deck-lists";
+import { CardLevel } from "@src/types";
+import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck } from "./custom-deck-store";
+import type { StorageProvider } from "./storage-provider";
+
+/** A player profile: identity + owned cards + up to 3 built decks. */
+export interface PlayerProfile {
+  id: string;
+  /** Display name (max 20 chars). */
+  name: string;
+  /** Actor id whose portrait is this profile's avatar. */
+  avatarActorId: number;
+  /**
+   * The card bag — every card the player owns, as card number → copy
+   * count (max {@link MAX_BAG_COPIES} each). Bag cards are SHADOW-CLONED
+   * into decks: a deck reserves nothing, it just may not use more copies
+   * of a card than the bag owns — so 1 owned Agumon can appear once in
+   * every saved deck simultaneously.
+   */
+  bag: Record<string, number>;
+  /** Built decks (max {@link MAX_DECKS}); same shape as custom decks. */
+  decks: CustomDeck[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** A profile may keep at most this many built decks. */
+export const MAX_DECKS = 3;
+/** The bag holds at most this many copies of each card. */
+export const MAX_BAG_COPIES = 6;
+/** Profile names are short labels. */
+export const MAX_PROFILE_NAME = 20;
+
+const CARD_BY_NUMBER = new Map(MASTER_CARDS.map((c) => [c.number, c]));
+
+/** Prebuilt decks selectable as a new profile's starter (note-tagged). */
+export function starterDecks() {
+  return DECK_LISTS.filter((d) => /starting deck/i.test(d.note));
+}
+
+/** Unique-enough id (crypto.randomUUID is unavailable over LAN http). */
+function generateId(): string {
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+
+const cardName = (n: string) => CARD_BY_NUMBER.get(n)?.name ?? n;
+
+/**
+ * CRUD + rules for player profiles. Pure logic — persistence goes through
+ * the injected {@link StorageProvider}. Replaces free-form deck building:
+ * every deck must be assembled from the profile's owned card bag.
+ */
+export class ProfileStore {
+  constructor(
+    private readonly provider: StorageProvider,
+    private readonly key = "dcb:profiles",
+  ) {}
+
+  /** All profiles, newest first. */
+  list(): PlayerProfile[] {
+    const raw = this.provider.get(this.key);
+    if (!raw) return [];
+    try {
+      const profiles = JSON.parse(raw) as PlayerProfile[];
+      return Array.isArray(profiles) ? profiles : [];
+    } catch {
+      return [];
+    }
+  }
+
+  get(id: string): PlayerProfile | null {
+    return this.list().find((p) => p.id === id) ?? null;
+  }
+
+  /**
+   * Creates a profile: the chosen starter deck's 30 cards are granted to
+   * the bag and assembled as the profile's first deck.
+   */
+  create(input: { name: string; avatarActorId: number; starterDeckId: number }): PlayerProfile {
+    const name = input.name.trim();
+    if (!name) throw new Error("Profile name is required.");
+    if (name.length > MAX_PROFILE_NAME) throw new Error(`Profile name must be ${MAX_PROFILE_NAME} characters or fewer.`);
+    const clash = this.list().find((p) => p.name.toLowerCase() === name.toLowerCase());
+    if (clash) throw new Error(`A profile named "${clash.name}" already exists.`);
+
+    const starter = starterDecks().find((d) => d.id === input.starterDeckId);
+    if (!starter) throw new Error("Pick a starter deck.");
+
+    const bag: Record<string, number> = {};
+    for (const n of [...starter.cardNumbers, ...starter.armors]) {
+      bag[n] = Math.min(MAX_BAG_COPIES, (bag[n] ?? 0) + 1);
+    }
+
+    const now = new Date().toISOString();
+    const profile: PlayerProfile = {
+      id: generateId(),
+      name,
+      avatarActorId: input.avatarActorId,
+      bag,
+      decks: [
+        {
+          id: generateId(),
+          name: starter.name.slice(0, MAX_NAME_LENGTH),
+          cardNumbers: [...starter.cardNumbers],
+          ...(starter.armors.length > 0 ? { armors: [...starter.armors] } : {}),
+          updatedAt: now,
+        },
+      ],
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.persist([profile, ...this.list()]);
+    return profile;
+  }
+
+  delete(id: string): boolean {
+    const profiles = this.list();
+    const next = profiles.filter((p) => p.id !== id);
+    if (next.length === profiles.length) return false;
+    this.persist(next);
+    return true;
+  }
+
+  /** Copies of `cardNumber` the profile owns. */
+  owned(profile: PlayerProfile, cardNumber: string): number {
+    return profile.bag[cardNumber] ?? 0;
+  }
+
+  /** Grants cards to the bag, capped at {@link MAX_BAG_COPIES} copies each. */
+  grantCards(profileId: string, cardNumbers: string[]): PlayerProfile {
+    const profile = this.require(profileId);
+    for (const n of cardNumbers) {
+      if (!CARD_BY_NUMBER.has(n)) continue;
+      profile.bag[n] = Math.min(MAX_BAG_COPIES, (profile.bag[n] ?? 0) + 1);
+    }
+    return this.update(profile);
+  }
+
+  /**
+   * Validates a deck against the global rules AND the profile's bag.
+   * Returns human-readable problems; an empty array means legal.
+   */
+  validateDeck(profile: PlayerProfile, cardNumbers: string[], armors?: string[]): string[] {
+    const errors: string[] = [];
+    if (cardNumbers.length !== DECK_SIZE) {
+      errors.push(`Deck must have exactly ${DECK_SIZE} cards (currently ${cardNumbers.length}).`);
+    }
+
+    const copies = new Map<string, number>();
+    for (const n of cardNumbers) {
+      const card = CARD_BY_NUMBER.get(n);
+      if (!card) {
+        errors.push(`Unknown card number: ${n}`);
+        continue;
+      }
+      if (card.level === CardLevel.A) {
+        errors.push(`${card.name} is an Armor card — it can only be the hidden side deck, not a main-deck card.`);
+        continue;
+      }
+      copies.set(n, (copies.get(n) ?? 0) + 1);
+    }
+    for (const [n, count] of copies) {
+      if (count > MAX_COPIES) {
+        errors.push(`Max ${MAX_COPIES} copies of the same card — ${cardName(n)} has ${count}.`);
+      }
+      if (count > this.owned(profile, n)) {
+        errors.push(`You only own ${this.owned(profile, n)}× ${cardName(n)} (deck uses ${count}).`);
+      }
+    }
+
+    const armorsByPartner = new Map<string, string>();
+    for (const armor of armors ?? []) {
+      const partner = ARMOR_PARTNER[armor];
+      if (!partner) {
+        errors.push(`${cardName(armor)} is not a valid armor side-deck card.`);
+        continue;
+      }
+      if (this.owned(profile, armor) < 1) {
+        errors.push(`You do not own ${cardName(armor)}.`);
+      }
+      if (!cardNumbers.includes(partner)) {
+        errors.push(`Armor ${cardName(armor)} requires its partner ${cardName(partner)} in the deck.`);
+      }
+      if (armorsByPartner.has(partner)) {
+        errors.push(`Only one armor per partner — ${cardName(partner)} cannot bring two.`);
+      } else {
+        armorsByPartner.set(partner, armor);
+      }
+    }
+    return errors;
+  }
+
+  /** Creates or updates one of the profile's decks (upsert by deck id). */
+  saveDeck(
+    profileId: string,
+    deck: { id?: string; name: string; cardNumbers: string[]; armors?: string[] },
+  ): PlayerProfile {
+    const profile = this.require(profileId);
+    const name = deck.name.trim();
+    if (!name) throw new Error("Deck name is required.");
+    if (name.length > MAX_NAME_LENGTH) throw new Error(`Deck name must be ${MAX_NAME_LENGTH} characters or fewer.`);
+    const errors = this.validateDeck(profile, deck.cardNumbers, deck.armors);
+    if (errors.length > 0) throw new Error(errors.join(" "));
+
+    const isNew = !deck.id || !profile.decks.some((d) => d.id === deck.id);
+    if (isNew && profile.decks.length >= MAX_DECKS) {
+      throw new Error(`A profile keeps at most ${MAX_DECKS} decks — delete one first.`);
+    }
+    const clash = profile.decks.find((d) => d.id !== deck.id && d.name.toLowerCase() === name.toLowerCase());
+    if (clash) throw new Error(`A deck named "${clash.name}" already exists.`);
+
+    const saved: CustomDeck = {
+      id: deck.id ?? generateId(),
+      name,
+      cardNumbers: [...deck.cardNumbers],
+      ...(deck.armors && deck.armors.length > 0 ? { armors: [...deck.armors] } : {}),
+      updatedAt: new Date().toISOString(),
+    };
+    const idx = profile.decks.findIndex((d) => d.id === saved.id);
+    if (idx >= 0) profile.decks[idx] = saved;
+    else profile.decks.push(saved);
+    return this.update(profile);
+  }
+
+  deleteDeck(profileId: string, deckId: string): PlayerProfile {
+    const profile = this.require(profileId);
+    profile.decks = profile.decks.filter((d) => d.id !== deckId);
+    return this.update(profile);
+  }
+
+  private require(id: string): PlayerProfile {
+    const profile = this.get(id);
+    if (!profile) throw new Error("Profile not found.");
+    return profile;
+  }
+
+  private update(profile: PlayerProfile): PlayerProfile {
+    profile.updatedAt = new Date().toISOString();
+    const profiles = this.list();
+    const idx = profiles.findIndex((p) => p.id === profile.id);
+    if (idx >= 0) profiles[idx] = profile;
+    else profiles.unshift(profile);
+    this.persist(profiles);
+    return profile;
+  }
+
+  private persist(profiles: PlayerProfile[]): void {
+    this.provider.set(this.key, JSON.stringify(profiles));
+  }
+}

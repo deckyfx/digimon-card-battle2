@@ -2,8 +2,8 @@ import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
 import { CardLevel, CardSpecialty, CardType, type MasterCard } from "@src/types";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { ARMOR_PARTNER, PARTNER_ARMORS, partnersIn } from "@src/data/armor";
-import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck, type CustomDeckStore } from "@src/store/custom-deck-store";
-import { DECK_LISTS } from "@src/data/deck-lists";
+import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck } from "@src/store/custom-deck-store";
+import { MAX_DECKS, type PlayerProfile, type ProfileStore } from "@src/store/profile-store";
 import { CardInspector } from "./CardInspector";
 import { DeckColorBar } from "./DeckColorBar";
 import { setInspectedCard } from "./CardView";
@@ -11,11 +11,13 @@ import { setInspectedCard } from "./CardView";
 const ALL = "All";
 
 /**
- * Custom deck builder: browse the 301-card pool, assemble exactly 30 cards
- * (max 4 copies per card), persist via the CustomDeckStore.
+ * Profile deck builder: assemble up to {@link MAX_DECKS} decks of exactly
+ * 30 cards from the profile's OWNED card bag. Bag copies are shadow-cloned
+ * into decks — a deck may not use more copies of a card than the bag owns
+ * (and never more than 4), but the same copy may appear in every deck.
  */
-export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void }) {
-  const [decks, setDecks] = createSignal<CustomDeck[]>(props.store.list());
+export function DeckBuilder(props: { store: ProfileStore; profileId: string; onBack: () => void }) {
+  const [profile, setProfile] = createSignal<PlayerProfile>(props.store.get(props.profileId) as PlayerProfile);
 
   // Editor state
   const [editingId, setEditingId] = createSignal<string | null>(null);
@@ -25,8 +27,21 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
   const [armors, setArmors] = createSignal<string[]>([]);
   const [message, setMessage] = createSignal("");
 
+  // Pool filters
+  const [search, setSearch] = createSignal("");
+  const [typeFilter, setTypeFilter] = createSignal(ALL);
+  const [specFilter, setSpecFilter] = createSignal(ALL);
+  const [levelFilter, setLevelFilter] = createSignal(ALL);
+
+  const owned = (n: string) => profile().bag[n] ?? 0;
+  const copiesOf = (n: string) => numbers().filter((x) => x === n).length;
+  /** Per-deck ceiling for a card: 4-copy rule AND owned count. */
+  const maxCopiesOf = (n: string) => Math.min(MAX_COPIES, owned(n));
+
   /** Distinct partner Rookies currently in the deck list. */
   const partners = createMemo(() => partnersIn(numbers()));
+  /** Owned armors selectable for `partner`. */
+  const ownedArmorsOf = (partner: string) => (PARTNER_ARMORS[partner] ?? []).filter((a) => owned(a) > 0);
 
   // Removing a partner invalidates its selected armor — prune it.
   createEffect(() => {
@@ -46,26 +61,13 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
   };
 
   const cardName = (n: string) => MASTER_CARDS.find((c) => c.number === n)?.name ?? n;
+  const bagTotal = () => Object.values(profile().bag).reduce((a, b) => a + b, 0);
 
-  // Pool filters
-  const [search, setSearch] = createSignal("");
-  const [templateSearch, setTemplateSearch] = createSignal("");
-
-  const templateMatches = () =>
-    DECK_LISTS.filter(
-      (d) =>
-        d.name.toLowerCase().includes(templateSearch().toLowerCase()) ||
-        d.owner.toLowerCase().includes(templateSearch().toLowerCase()),
-    );
-  const [typeFilter, setTypeFilter] = createSignal(ALL);
-  const [specFilter, setSpecFilter] = createSignal(ALL);
-  const [levelFilter, setLevelFilter] = createSignal(ALL);
-
-  const copiesOf = (n: string) => numbers().filter((x) => x === n).length;
-
+  /** The pool shows ONLY owned cards (the bag), with filters applied. */
   const pool = createMemo(() => {
     const q = search().toLowerCase();
     return MASTER_CARDS.filter((c) => {
+      if (owned(c.number) === 0) return false;
       if (typeFilter() !== ALL && c.type !== typeFilter()) return false;
       if (specFilter() !== ALL && c.specialty !== specFilter()) return false;
       if (levelFilter() !== ALL && c.level !== levelFilter()) return false;
@@ -92,8 +94,12 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
       setMessage(`Deck is full (${DECK_SIZE} cards).`);
       return;
     }
-    if (copiesOf(c.number) >= MAX_COPIES) {
-      setMessage(`Max ${MAX_COPIES} copies of ${c.name}.`);
+    if (copiesOf(c.number) >= maxCopiesOf(c.number)) {
+      setMessage(
+        copiesOf(c.number) >= MAX_COPIES
+          ? `Max ${MAX_COPIES} copies of ${c.name}.`
+          : `You only own ${owned(c.number)}× ${c.name}.`,
+      );
       return;
     }
     setNumbers([...numbers(), c.number]);
@@ -124,41 +130,8 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setMessage("");
   };
 
-  const saveDeck = (): void => {
-    const errors = props.store.validate(numbers(), armors());
-    if (!deckName().trim()) errors.unshift("Deck name is required.");
-    if (errors.length > 0) {
-      setMessage(errors.join(" "));
-      return;
-    }
-    try {
-      const saved = props.store.save({
-        id: editingId() ?? undefined,
-        name: deckName(),
-        cardNumbers: numbers(),
-        armors: armors(),
-      });
-      setEditingId(saved.id);
-      setDecks(props.store.list());
-      setMessage(`Saved "${saved.name}" ✅`);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : String(error));
-    }
-  };
-
-  /** Copy a prebuilt template into the editor as a new (unsaved) deck. */
-  const copyTemplate = (templateId: number) => {
-    const tpl = DECK_LISTS.find((d) => d.id === templateId);
-    if (!tpl) return;
-    setEditingId(null); // saving creates a NEW deck, never overwrites
-    setDeckName(tpl.name.replace(/\s*Deck$/i, "").slice(0, MAX_NAME_LENGTH));
-    setNumbers([...tpl.cardNumbers]);
-    setArmors([...tpl.armors]);
-    setMessage(`Copied template "${tpl.name}" (${tpl.owner}) — rename and save as your own.`);
-  };
-
-  /** Copy a saved custom deck into the editor as a new (unsaved) deck. */
-  const copyCustom = (d: CustomDeck) => {
+  /** Copy a saved deck into the editor as a new (unsaved) deck. */
+  const copyDeck = (d: CustomDeck) => {
     setEditingId(null); // saving creates a NEW deck
     setDeckName(`${d.name} copy`.slice(0, MAX_NAME_LENGTH));
     setNumbers([...d.cardNumbers]);
@@ -166,17 +139,35 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setMessage(`Copied "${d.name}" — rename and save as a new deck.`);
   };
 
+  const saveDeck = (): void => {
+    try {
+      const updated = props.store.saveDeck(props.profileId, {
+        id: editingId() ?? undefined,
+        name: deckName(),
+        cardNumbers: numbers(),
+        armors: armors(),
+      });
+      setProfile(updated);
+      const saved = updated.decks.find((d) => d.name.toLowerCase() === deckName().trim().toLowerCase());
+      if (saved) setEditingId(saved.id);
+      setMessage(`Saved "${deckName().trim()}" ✅`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    }
+  };
+
   const deleteDeck = (d: CustomDeck) => {
-    props.store.delete(d.id);
-    setDecks(props.store.list());
+    setProfile(props.store.deleteDeck(props.profileId, d.id));
     if (editingId() === d.id) startNew();
   };
 
   return (
     <div class="builder-columns">
-      {/* ── Card pool ───────────────────────────────────────────── */}
+      {/* ── Card bag (owned pool) ───────────────────────────────── */}
       <div class="area">
-        <h2>Card Pool ({pool().length})</h2>
+        <h2>
+          Card Bag ({pool().length} kinds · {bagTotal()} cards)
+        </h2>
         <div class="builder-filters">
           <input type="text" placeholder="Search name…" value={search()} onInput={(e) => setSearch(e.currentTarget.value)} />
           <select onChange={(e) => setTypeFilter(e.currentTarget.value)}>
@@ -192,18 +183,22 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           </select>
         </div>
         <div class="pool-list">
-          <For each={pool()}>
+          <For each={pool()} fallback={<div class="tag">No owned cards match the filters.</div>}>
             {(c) => (
               <div class="pool-row" onMouseEnter={() => setInspectedCard(c)}>
                 <span class="pool-name">
                   #{c.number} {c.name}
                 </span>
                 <span class="pool-meta">
-                  {c.type === CardType.Digimon ? `${c.level}/${c.specialty} HP${c.hp}` : "Option"}
+                  {c.type === CardType.Digimon ? `${c.level}/${c.specialty}` : "Option"} · own {owned(c.number)}
                 </span>
                 <span class="pool-copies">{copiesOf(c.number) || ""}</span>
                 <button
-                  disabled={copiesOf(c.number) >= MAX_COPIES || numbers().length >= DECK_SIZE}
+                  disabled={
+                    c.level === CardLevel.A ||
+                    copiesOf(c.number) >= maxCopiesOf(c.number) ||
+                    numbers().length >= DECK_SIZE
+                  }
                   onClick={() => addCard(c)}
                 >
                   +
@@ -219,29 +214,6 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
         <h2>
           Deck — {numbers().length}/{DECK_SIZE}
         </h2>
-        <div class="builder-stack">
-          <input
-            type="text"
-            placeholder="🔍 Search templates (name or owner)…"
-            value={templateSearch()}
-            onInput={(e) => setTemplateSearch(e.currentTarget.value)}
-          />
-          <select
-            onChange={(e) => {
-              if (e.currentTarget.value) copyTemplate(parseInt(e.currentTarget.value, 10));
-              e.currentTarget.value = "";
-            }}
-          >
-            <option value="">📋 Copy from template… ({templateMatches().length})</option>
-            <For each={templateMatches()}>
-              {(d) => (
-                <option value={d.id}>
-                  {d.name} — {d.owner}
-                </option>
-              )}
-            </For>
-          </select>
-        </div>
         <div class="builder-filters">
           <input
             type="text"
@@ -253,11 +225,13 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           <button class="primary" onClick={saveDeck}>
             Save
           </button>
-          <button onClick={startNew}>New</button>
+          <button disabled={profile().decks.length >= MAX_DECKS && editingId() === null} onClick={startNew}>
+            New
+          </button>
           <button onClick={props.onBack}>← Back</button>
         </div>
         <DeckColorBar cardNumbers={numbers()} />
-        {/* Armor side deck: one optional armor per partner Rookie in the 30. */}
+        {/* Armor side deck: one optional OWNED armor per partner in the 30. */}
         <Show
           when={partners().length > 0}
           fallback={<div class="tag">🛡 Armor side deck — add a partner Rookie to unlock.</div>}
@@ -265,24 +239,29 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           <div class="builder-stack">
             <For each={partners()}>
               {(partner) => (
-                <select
-                  onChange={(e) => setArmorOf(partner, e.currentTarget.value || null)}
-                  onMouseOver={(e) => {
-                    const card = MASTER_CARDS.find((c) => c.number === (e.target as HTMLOptionElement).value);
-                    if (card) setInspectedCard(card);
-                  }}
+                <Show
+                  when={ownedArmorsOf(partner).length > 0}
+                  fallback={<div class="tag">🛡 {cardName(partner)}: no armor owned yet.</div>}
                 >
-                  <option value="" selected={armorOf(partner) === null}>
-                    🛡 {cardName(partner)} armor: none
-                  </option>
-                  <For each={PARTNER_ARMORS[partner] ?? []}>
-                    {(n) => (
-                      <option value={n} selected={armorOf(partner) === n}>
-                        🛡 {cardName(partner)} → {cardName(n)}
-                      </option>
-                    )}
-                  </For>
-                </select>
+                  <select
+                    onChange={(e) => setArmorOf(partner, e.currentTarget.value || null)}
+                    onMouseOver={(e) => {
+                      const card = MASTER_CARDS.find((c) => c.number === (e.target as HTMLOptionElement).value);
+                      if (card) setInspectedCard(card);
+                    }}
+                  >
+                    <option value="" selected={armorOf(partner) === null}>
+                      🛡 {cardName(partner)} armor: none
+                    </option>
+                    <For each={ownedArmorsOf(partner)}>
+                      {(n) => (
+                        <option value={n} selected={armorOf(partner) === n}>
+                          🛡 {cardName(partner)} → {cardName(n)}
+                        </option>
+                      )}
+                    </For>
+                  </select>
+                </Show>
               )}
             </For>
           </div>
@@ -291,17 +270,21 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           <div class="warn">{message()}</div>
         </Show>
         <div class="pool-list">
-          <For each={grouped()} fallback={<div class="tag">Add cards from the pool.</div>}>
+          <For each={grouped()} fallback={<div class="tag">Add cards from your bag.</div>}>
             {(e) => (
               <div class="pool-row" onMouseEnter={() => setInspectedCard(e.card)}>
                 <span class="pool-name">
                   {e.count}× {e.card.name}
                 </span>
                 <span class="pool-meta">
-                  {e.card.type === CardType.Digimon ? `${e.card.level}/${e.card.specialty}` : "Option"}
+                  {e.card.type === CardType.Digimon ? `${e.card.level}/${e.card.specialty}` : "Option"} · own{" "}
+                  {owned(e.card.number)}
                 </span>
                 <button onClick={() => removeCard(e.card.number)}>−</button>
-                <button disabled={e.count >= MAX_COPIES || numbers().length >= DECK_SIZE} onClick={() => addCard(e.card)}>
+                <button
+                  disabled={e.count >= maxCopiesOf(e.card.number) || numbers().length >= DECK_SIZE}
+                  onClick={() => addCard(e.card)}
+                >
                   +
                 </button>
               </div>
@@ -309,8 +292,10 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           </For>
         </div>
 
-        <h2 style={{ "margin-top": "12px" }}>Saved Decks</h2>
-        <For each={decks()} fallback={<div class="tag">No custom decks yet.</div>}>
+        <h2 style={{ "margin-top": "12px" }}>
+          Saved Decks ({profile().decks.length}/{MAX_DECKS})
+        </h2>
+        <For each={profile().decks} fallback={<div class="tag">No decks yet.</div>}>
           {(d) => (
             <div class="saved-deck">
               <div class="pool-row">
@@ -321,7 +306,9 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
                   </Show>
                 </span>
                 <button onClick={() => edit(d)}>Edit</button>
-                <button onClick={() => copyCustom(d)}>Copy</button>
+                <button disabled={profile().decks.length >= MAX_DECKS} onClick={() => copyDeck(d)}>
+                  Copy
+                </button>
                 <button onClick={() => deleteDeck(d)}>🗑</button>
               </div>
               <DeckColorBar cardNumbers={d.cardNumbers} />

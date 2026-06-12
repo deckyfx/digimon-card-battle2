@@ -82,10 +82,17 @@ Rules that enforce this:
   **sole source of truth** — all seed files/scripts were deliberately
   removed to prevent accidental reseeds. Hand-edit with care; every deck
   is verified legal (exactly 30 cards, max 4 copies per card).
-- Custom decks live in localStorage via src/store/ (CustomDeckStore +
-  pluggable StorageProvider); same 30-card / 4-copy rules, 15-char names,
-  optional `armors` side-deck numbers (one per partner present in the 30,
-  A-level cards rejected from the main 30).
+- **Player profiles** (src/store/profile-store.ts, localStorage via the
+  pluggable StorageProvider): the app opens on profile management. A new
+  profile picks name + avatar + one of the 3 note-tagged "Starting Deck"s
+  (Red/Green/Yellow, ids 121–123) whose 30 cards seed the profile's **card
+  bag** (max 6 copies of a card). Decks (max 3 per profile) are built ONLY
+  from the bag; bag copies are SHADOW-CLONED — a deck may not exceed owned
+  copies (nor 4), but the same copy can sit in every deck at once. Deck
+  rules otherwise unchanged: exactly 30, 15-char names, optional `armors`
+  side deck (one per partner in the 30, must be owned, no A-level in the
+  main 30). `grantCards()` is the hook for future rewards/boosters.
+  CustomDeckStore remains only for the CustomDeck type/constants.
 - Card numbers 293–300 are the digivolve option cards (all implemented).
   Deck `armors` arrays hold the prebuilt decks' armor side-deck card
   (42 decks have one); `src/data/armor.ts` maps partner ↔ armor numbers.

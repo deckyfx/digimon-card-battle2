@@ -2,8 +2,10 @@ import { Show, createEffect, createSignal } from "solid-js";
 import type { AttackType } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
-import { OPPONENT_ACTORS, PLAYER_ACTORS, getActorById } from "@src/data/actors";
+import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
+import type { PlayerProfile } from "@src/store/profile-store";
 import { DeckBuilder } from "./DeckBuilder";
+import { ProfilesScreen } from "./ProfilesScreen";
 import { SetupScreen } from "./SetupScreen";
 import { GameOverModal } from "./GameOverModal";
 import { LogArea } from "./LogArea";
@@ -14,45 +16,51 @@ import { Battlefield } from "./Battlefield";
 import { PromptDialogs } from "./PromptDialogs";
 import { TurnInfo } from "./TurnInfo";
 import { CardInspector } from "./CardInspector";
-import { CUSTOM_PREFIX, PREBUILT_PREFIX, RANDOM_DECK, customDeckStore, deckIllegal, resolveDeck } from "./deck-select";
+import { CUSTOM_PREFIX, PREBUILT_PREFIX, RANDOM_DECK, deckIllegal, profileStore, resolveDeck } from "./deck-select";
 
 const CPU_DELAY_MS = 600;
 const BATTLE_STEP_MS = 1000;
 
 /**
- * Top-level app: match/setup state, the CPU and battle-step drivers, and
- * layout composition. All visual pieces live in their own modules.
+ * Top-level app: profile selection → battle setup → match. Holds match
+ * state and the CPU/battle-step drivers; all visual pieces live in their
+ * own modules.
  */
 export function App() {
   const [engine, setEngine] = createSignal<GameEngine | null>(null);
   const [cpu, setCpu] = createSignal<CpuPlayer | null>(null);
   const [version, setVersion] = createSignal(0);
   const [playerDeck, setPlayerDeck] = createSignal<string>("");
-  const [playerActorId, setPlayerActorId] = createSignal(0);
   const [cpuActorId, setCpuActorId] = createSignal(OPPONENT_ACTORS[0]?.id ?? 2);
   const [cpuDeck, setCpuDeck] = createSignal<string>(RANDOM_DECK);
   const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
-  const playerActor = () => getActorById(playerActorId()) ?? PLAYER_ACTORS[0]!;
   const [setupError, setSetupError] = createSignal("");
-  const [view, setView] = createSignal<"menu" | "builder">("menu");
+  // App always opens on profile management; battle setup follows selection.
+  const [view, setView] = createSignal<"profiles" | "setup" | "builder">("profiles");
+  const [profile, setProfile] = createSignal<PlayerProfile | null>(null);
 
-  /** Custom decks re-read whenever we return from the builder. */
-  const customDecks = () => {
-    view();
-    return customDeckStore.list();
+  const playerPortrait = () => getActorById(profile()?.avatarActorId ?? 0)?.portrait;
+
+  const selectProfile = (p: PlayerProfile) => {
+    setProfile(p);
+    setPlayerDeck(p.decks[0] ? `${CUSTOM_PREFIX}${p.decks[0].id}` : "");
+    setView("setup");
   };
 
-  // Auto-select the first custom deck — a listbox highlights its first row
-  // without firing onChange, so an explicit default keeps state truthful.
-  createEffect(() => {
-    const decks = customDecks();
-    if (playerDeck() === "" && decks[0]) setPlayerDeck(`custom:${decks[0].id}`);
-  });
+  /** Re-reads the active profile from the store (after builder edits). */
+  const refreshProfile = () => {
+    const id = profile()?.id;
+    if (!id) return;
+    const fresh = profileStore.get(id);
+    setProfile(fresh);
+    if (fresh && !fresh.decks.some((d) => `${CUSTOM_PREFIX}${d.id}` === playerDeck())) {
+      setPlayerDeck(fresh.decks[0] ? `${CUSTOM_PREFIX}${fresh.decks[0].id}` : "");
+    }
+  };
 
   // Dynamic visibility rule: revealed vs CPU for now; PvP will set this false.
   const [revealOpponentHand, setRevealOpponentHand] = createSignal(true);
   const [firstPlayer, setFirstPlayer] = createSignal<PlayerId | "random">("random");
-  const [playerName, setPlayerName] = createSignal("Player");
 
   // Per-turn prompt acknowledgements (keyed by engine turnCount).
   const [handOkTurn, setHandOkTurn] = createSignal(0);
@@ -81,7 +89,9 @@ export function App() {
 
   function startMatch() {
     setSetupError("");
-    const mine = resolveDeck(playerDeck());
+    const prof = profile();
+    if (!prof) return;
+    const mine = resolveDeck(playerDeck(), prof);
     if (mine.cards.length === 0) {
       setSetupError("Pick your deck first.");
       return;
@@ -94,13 +104,12 @@ export function App() {
     const actor = cpuActor();
     let cpuDeckValue: string;
     if (actor.isPlayer) {
-      // Mirror match: the opponent plays the user's custom decks.
-      const customs = customDecks();
-      if (customs.length === 0) return;
-      const valid = customs.some((d) => `custom:${d.id}` === cpuDeck());
+      // Mirror match: the opponent plays one of the profile's decks.
+      if (prof.decks.length === 0) return;
+      const valid = prof.decks.some((d) => `${CUSTOM_PREFIX}${d.id}` === cpuDeck());
       cpuDeckValue = valid
         ? cpuDeck()
-        : `${CUSTOM_PREFIX}${customs[Math.floor(Math.random() * customs.length)]!.id}`;
+        : `${CUSTOM_PREFIX}${prof.decks[Math.floor(Math.random() * prof.decks.length)]!.id}`;
     } else {
       const ownedIds = actor.deckIds;
       const cpuDeckId =
@@ -109,13 +118,13 @@ export function App() {
           : parseInt(cpuDeck().slice(PREBUILT_PREFIX.length), 10);
       cpuDeckValue = `${PREBUILT_PREFIX}${cpuDeckId}`;
     }
-    const theirs = resolveDeck(cpuDeckValue);
+    const theirs = resolveDeck(cpuDeckValue, prof);
     const eng = new GameEngine(
       mine.cards,
       theirs.cards,
       Date.now(),
       {
-        playerName: playerName().trim(),
+        playerName: prof.name,
         cpuName: actor.name,
         playerDeckName: mine.name,
         cpuDeckName: theirs.name,
@@ -196,31 +205,40 @@ export function App() {
       <Show
         when={game()}
         fallback={
-          <Show
-            when={view() === "menu"}
-            fallback={<DeckBuilder store={customDeckStore} onBack={() => setView("menu")} />}
-          >
-            <SetupScreen
-              customDecks={customDecks()}
-              playerActorId={playerActorId()}
-              setPlayerActorId={setPlayerActorId}
-              playerName={playerName()}
-              setPlayerName={setPlayerName}
-              playerDeck={playerDeck()}
-              setPlayerDeck={setPlayerDeck}
-              cpuActorId={cpuActorId()}
-              setCpuActorId={setCpuActorId}
-              cpuDeck={cpuDeck()}
-              setCpuDeck={setCpuDeck}
-              firstPlayer={firstPlayer()}
-              setFirstPlayer={setFirstPlayer}
-              revealOpponentHand={revealOpponentHand()}
-              setRevealOpponentHand={setRevealOpponentHand}
-              setupError={setupError()}
-              onOpenBuilder={() => setView("builder")}
-              onStart={startMatch}
-            />
-          </Show>
+          <>
+            <Show when={view() === "profiles"}>
+              <ProfilesScreen store={profileStore} onSelect={selectProfile} />
+            </Show>
+            <Show when={view() === "setup" && profile()}>
+              <SetupScreen
+                profile={profile() as PlayerProfile}
+                playerDeck={playerDeck()}
+                setPlayerDeck={setPlayerDeck}
+                cpuActorId={cpuActorId()}
+                setCpuActorId={setCpuActorId}
+                cpuDeck={cpuDeck()}
+                setCpuDeck={setCpuDeck}
+                firstPlayer={firstPlayer()}
+                setFirstPlayer={setFirstPlayer}
+                revealOpponentHand={revealOpponentHand()}
+                setRevealOpponentHand={setRevealOpponentHand}
+                setupError={setupError()}
+                onOpenBuilder={() => setView("builder")}
+                onChangeProfile={() => setView("profiles")}
+                onStart={startMatch}
+              />
+            </Show>
+            <Show when={view() === "builder" && profile()}>
+              <DeckBuilder
+                store={profileStore}
+                profileId={(profile() as PlayerProfile).id}
+                onBack={() => {
+                  refreshProfile();
+                  setView("setup");
+                }}
+              />
+            </Show>
+          </>
         }
       >
         {/* Read game() directly in every expression: the engine object is
@@ -256,7 +274,7 @@ export function App() {
             />
             <PlayerArea
               g={game()!}
-              portrait={playerActor().portrait}
+              portrait={playerPortrait()}
               supportIdx={
                 game()?.phase === "battle-select" && typeof supportIdx() === "number"
                   ? (supportIdx() as number)
@@ -282,7 +300,7 @@ export function App() {
             <Show when={game()?.phase === "game-over"}>
               <GameOverModal
                 g={game()!}
-                playerPortrait={playerActor().portrait}
+                playerPortrait={playerPortrait()}
                 cpuPortrait={cpuActor().portrait}
                 onPlayAgain={startMatch}
                 onChangeSetup={() => setEngine(null)}

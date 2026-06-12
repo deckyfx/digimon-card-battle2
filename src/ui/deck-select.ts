@@ -1,7 +1,7 @@
 import { CardLevel, type MasterCard } from "@src/types";
 import { cardsByNumbers, getDeckById } from "@src/data/prebuilt-decks";
 import { armorCardsByNumbers } from "@src/data/armor";
-import { CustomDeckStore } from "@src/store/custom-deck-store";
+import { ProfileStore, type PlayerProfile } from "@src/store/profile-store";
 import { LocalStorageProvider } from "@src/store/storage-provider";
 
 /** Deck selection value prefixes/sentinels shared by setup UI and App. */
@@ -9,12 +9,17 @@ export const RANDOM_DECK = "__random__";
 export const CUSTOM_PREFIX = "custom:";
 export const PREBUILT_PREFIX = "deck:";
 
-/** Persistent custom decks (browser localStorage provider for now). */
-export const customDeckStore = new CustomDeckStore(new LocalStorageProvider());
+/** Persistent player profiles (browser localStorage provider for now). */
+export const profileStore = new ProfileStore(new LocalStorageProvider());
 
-/** Card numbers of the currently selected deck for a side ([] if unresolved). */
-export function selectedNumbers(value: string): string[] {
-  if (value.startsWith(CUSTOM_PREFIX)) return customDeckStore.get(value.slice(CUSTOM_PREFIX.length))?.cardNumbers ?? [];
+/**
+ * Card numbers of the currently selected deck for a side ([] if unresolved).
+ * "custom:<deckId>" values resolve against the given profile's decks.
+ */
+export function selectedNumbers(value: string, profile: PlayerProfile | null): string[] {
+  if (value.startsWith(CUSTOM_PREFIX)) {
+    return profile?.decks.find((d) => d.id === value.slice(CUSTOM_PREFIX.length))?.cardNumbers ?? [];
+  }
   if (value.startsWith(PREBUILT_PREFIX)) return getDeckById(parseInt(value.slice(PREBUILT_PREFIX.length), 10))?.cardNumbers ?? [];
   return [];
 }
@@ -25,22 +30,17 @@ export interface ResolvedDeck {
   armors: MasterCard[];
 }
 
-/** Resolves a deck selection value ("deck:<id>" prebuilt or "custom:<uuid>"). */
-export function resolveDeck(value: string): ResolvedDeck {
+/** Resolves a deck selection value ("deck:<id>" prebuilt or "custom:<deckId>" from the profile). */
+export function resolveDeck(value: string, profile: PlayerProfile | null): ResolvedDeck {
   if (value.startsWith(CUSTOM_PREFIX)) {
-    const deck = customDeckStore.get(value.slice(CUSTOM_PREFIX.length));
+    const deck = profile?.decks.find((d) => d.id === value.slice(CUSTOM_PREFIX.length));
     if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers), armors: armorCardsByNumbers(deck.armors) };
   }
   if (value.startsWith(PREBUILT_PREFIX)) {
     const deck = getDeckById(parseInt(value.slice(PREBUILT_PREFIX.length), 10));
     if (deck) return { name: deck.name, cards: cardsByNumbers(deck.cardNumbers), armors: armorCardsByNumbers(deck.armors) };
   }
-  const fallback = getDeckById(1);
-  return {
-    name: fallback?.name ?? "",
-    cards: cardsByNumbers(fallback?.cardNumbers ?? []),
-    armors: armorCardsByNumbers(fallback?.armors),
-  };
+  return { name: "", cards: [], armors: [] };
 }
 
 /** Final legality check — guards against hand-edited localStorage decks. */
