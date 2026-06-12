@@ -1,66 +1,69 @@
-Beginner City:
-#260 - Greymon: Option Pack
-#261 - WarGreymon: Option Pack
-#262 - Tai: S-Option Pack
-Flame City:
-#263 - Raidramon: Red Pack
-#264 - Paildramon: Red Pack
-#265 - Magnamon: S-Red Pack
-x - Imperialdramon: S-Red Pack (skip this since you've beaten him many times before)
-???:
-#266 - Apokarimon (look at my 96.9 notes for possible spawning location)
-Flame City:
-#267 - Garudamon: S-Red Pack
-#268 - Sora: S-Red Pack
-Jungle City:
-#269 - HerculesKabuterimon: S-Green Pack
-#270 - Halsemon: Green Pack (there is text glitch when displaying the name; for a split second you can see "hat day" and the text then goes blank)
-#271 - Shurimon: Green Pack
-#272 - Sylphymon: S-Green Pack
-#273 - Valkyrimon: S-Green Pack
-#274 - Lillymon: S-Green Pack
-#275 - Mimi: S-Green Pack
-Igloo City:
-#276 - MetalGarurumon: S-Blue Pack
-???:
-#277 - Apokarimon (look at my 96.9 notes for possible spawning location)
-Igloo City:
-#278 - Matt: S-Blue Pack
-#279 - BKMetalGarurumon: S-Blue Pack
-#280 - Digmon: Yellow Pack
-#281 - Submarimon: Yellow Pack
-#282 - Shakkoumon: S-Yellow Pack
-#283 - Vikemon: S-Blue Pack
-Junk City:
-#284 - SuperStarmon: S-Yellow Pack
-#285 - Zudomon: S-Blue Pack
-#286 - Joe: S-Blue Pack
-Desert Island:
-#287 - Myotismon: S-Black Pack
-???:
-#288 - Apokarimon (look at my 96.9 notes for possible spawning location)
-Dark City:
-#289 - Myotismon: S-Black Pack
-#290 - MegaKabuterimon: S-Green Pack
-#291 - Izzy: S-Green Pack
-Pyramid City:
-#292 - Pegasusmon: Green Pack
-#293 - MagnaAngemon: Green Pack
-x - Seraphimon: S-Green Pack (skip this since you've beaten him many times before)
-Sky City:
-#294 - Tylomon: Green Pack
-#295 - Angewomon: Green Pack
-#296 - Magnadramon: S-Green Pack
-Steep Road:
-x - GranKuwagamon: S-Black Pack (skip this since you've beaten him many times before)
-x - Ken: S-Black Pack (skip this since you've beaten him many times before)
-Infinity Tower:
-#297 - VenomMyotismon: S-Black Pack
-x - Piedmon: S-Black Pack (skip this since you've beaten him many times before)
-#298 - Infermon: S-Black Pack
-???:
-#299 - Apokarimon (look at my 96.9 notes for possible spawning location)
-Infinity Tower:
-#300 - Diaboromon: S-Black Pack
 
-#301 - Omnimon: S-Option Pack.
+Greymon:OptionPack
+WarGreymon:OptionPack
+Tai:S-OptionPack
+Raidramon:RedPack
+Paildramon:RedPack
+Magnamon:S-RedPack
+Imperialdramon:S-RedPack
+Garudamon:S-RedPack
+Sora:S-RedPack
+HerculesKabuterimon:S-GreenPack
+Halsemon:GreenPack
+Sylphymon:S-GreenPack
+Valkyrimon:S-GreenPack
+Lillymon:S-GreenPack
+Mimi:S-GreenPack
+MetalGarurumon:S-BluePack
+Matt:S-BluePack
+BKMetalGarurumon:S-BluePack
+Digmon:YellowPack
+Submarimon:YellowPack
+Shakkoumon:S-YellowPack
+Vikemon:S-BluePack
+SuperStarmon:S-YellowPack
+Zudomon:S-BluePack
+Joe:S-BluePack
+Myotismon:S-BlackPack
+Apokarimon
+Myotismon:S-BlackPack
+MegaKabuterimon:S-GreenPack
+Izzy:S-GreenPack
+Pegasusmon:GreenPack
+MagnaAngemon:GreenPack
+Seraphimon:S-GreenPack
+Tylomon:GreenPack
+Angewomon:GreenPack
+Magnadramon:S-GreenPack
+GranKuwagamon:S-BlackPack
+Ken:S-BlackPack
+VenomMyotismon:S-BlackPack
+Piedmon:S-BlackPack
+Infermon:S-BlackPack
+Diaboromon:S-BlackPack
+Omnimon:S-OptionPack.
+BKMetalGarurumon:S-BluePack
+Apokarimon:S-BlackPackand103Apokarimon
+Piximon:S-GreenPack
+Izzy:S-GreenPack
+MegaKabuterimon:S-GreenPack
+Joe:S-BluePack
+Zudomon:S-BluePack
+Matt:S-BluePack
+MetalGarurumon:S-BluePack
+Mimi:S-GreenPack
+Lillymon:S-GreenPack
+Sora:S-RedPack
+Garudamon:S-RedPack
+Tai:S-OptionPack
+Rosemon:S-OptionPack
+GranKuwagamon:S-BlackPack
+Ken:S-BlackPack
+Piedmon:S-BlackPack
+Imperialdramon:S-RedPack
+Kari:GreenPack
+T.K.:GreenPack
+Cody:BluePack
+Keely:GreenPack
+Davis:RedPack
+Nanimon:S-OptionPack
