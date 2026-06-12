@@ -77,12 +77,24 @@ export function App() {
     const mine = resolveDeck(playerDeck());
     if (mine.cards.length === 0) return; // no deck selected yet
     const actor = cpuActor();
-    const ownedIds = actor.deckIds;
-    const cpuDeckId =
-      cpuDeck() === RANDOM_DECK || !ownedIds.some((id) => `deck:${id}` === cpuDeck())
-        ? (ownedIds[Math.floor(Math.random() * ownedIds.length)] ?? 1)
-        : parseInt(cpuDeck().slice(PREBUILT_PREFIX.length), 10);
-    const theirs = resolveDeck(`deck:${cpuDeckId}`);
+    let cpuDeckValue: string;
+    if (actor.isPlayer) {
+      // Mirror match: the opponent plays the user's custom decks.
+      const customs = customDecks();
+      if (customs.length === 0) return;
+      const valid = customs.some((d) => `custom:${d.id}` === cpuDeck());
+      cpuDeckValue = valid
+        ? cpuDeck()
+        : `custom:${customs[Math.floor(Math.random() * customs.length)]!.id}`;
+    } else {
+      const ownedIds = actor.deckIds;
+      const cpuDeckId =
+        cpuDeck() === RANDOM_DECK || !ownedIds.some((id) => `deck:${id}` === cpuDeck())
+          ? (ownedIds[Math.floor(Math.random() * ownedIds.length)] ?? 1)
+          : parseInt(cpuDeck().slice(PREBUILT_PREFIX.length), 10);
+      cpuDeckValue = `deck:${cpuDeckId}`;
+    }
+    const theirs = resolveDeck(cpuDeckValue);
     const eng = new GameEngine(mine.cards, theirs.cards, Date.now(), {
       playerName: playerName().trim(),
       cpuName: actor.name,
@@ -218,22 +230,45 @@ export function App() {
                   }}
                 />
                 <label>Their deck</label>
-                <select onChange={(e) => setCpuDeck(e.currentTarget.value)}>
-                  <option value={RANDOM_DECK} selected={cpuDeck() === RANDOM_DECK}>
-                    🎲 Random ({cpuActor().deckIds.length} deck{cpuActor().deckIds.length > 1 ? "s" : ""})
-                  </option>
-                  <For each={cpuActor().deckIds}>
-                    {(id) => {
-                      const deck = getDeckById(id);
-                      return (
-                        <option value={`deck:${id}`} selected={`deck:${id}` === cpuDeck()}>
-                          {deck?.name}
-                          {deck?.note ? ` (${deck.note})` : ""}
+                <Show
+                  when={!cpuActor().isPlayer}
+                  fallback={
+                    <Show
+                      when={customDecks().length > 0}
+                      fallback={<div class="tag">Mirror match needs a custom deck — build one first.</div>}
+                    >
+                      <select onChange={(e) => setCpuDeck(e.currentTarget.value)}>
+                        <option value={RANDOM_DECK} selected={cpuDeck() === RANDOM_DECK}>
+                          🎲 Random ({customDecks().length} custom deck{customDecks().length > 1 ? "s" : ""})
                         </option>
-                      );
-                    }}
-                  </For>
-                </select>
+                        <For each={customDecks()}>
+                          {(d) => (
+                            <option value={`custom:${d.id}`} selected={`custom:${d.id}` === cpuDeck()}>
+                              {d.name}
+                            </option>
+                          )}
+                        </For>
+                      </select>
+                    </Show>
+                  }
+                >
+                  <select onChange={(e) => setCpuDeck(e.currentTarget.value)}>
+                    <option value={RANDOM_DECK} selected={cpuDeck() === RANDOM_DECK}>
+                      🎲 Random ({cpuActor().deckIds.length} deck{cpuActor().deckIds.length > 1 ? "s" : ""})
+                    </option>
+                    <For each={cpuActor().deckIds}>
+                      {(id) => {
+                        const deck = getDeckById(id);
+                        return (
+                          <option value={`deck:${id}`} selected={`deck:${id}` === cpuDeck()}>
+                            {deck?.name}
+                            {deck?.note ? ` (${deck.note})` : ""}
+                          </option>
+                        );
+                      }}
+                    </For>
+                  </select>
+                </Show>
               </div>
             </div>
 
@@ -678,8 +713,11 @@ function TurnTab(props: { on: boolean }) {
 /** Opponent picker: search actors, click a portrait to choose. */
 function ActorPicker(props: { selectedId: number; onPick: (id: number) => void }) {
   const [query, setQuery] = createSignal("");
+  // Player actors are selectable too — they bring the user's custom decks.
   const matches = () =>
-    OPPONENT_ACTORS.filter((a) => a.name.toLowerCase().includes(query().toLowerCase()));
+    [...PLAYER_ACTORS, ...OPPONENT_ACTORS].filter((a) =>
+      a.name.toLowerCase().includes(query().toLowerCase()),
+    );
   const selected = () => getActorById(props.selectedId);
   return (
     <div>
