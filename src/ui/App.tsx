@@ -2,7 +2,8 @@ import { For, Index, Show, createEffect, createSignal, onCleanup, untrack } from
 import type { AttackType, MasterCard } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
-import { PREBUILT_DECKS, cardsByNumbers, getDeckById, randomDeckId } from "@src/data/prebuilt-decks";
+import { cardsByNumbers, getDeckById } from "@src/data/prebuilt-decks";
+import { OPPONENT_ACTORS, PLAYER_ACTORS, getActorById } from "@src/data/actors";
 import { CustomDeckStore } from "@src/store/custom-deck-store";
 import { LocalStorageProvider } from "@src/store/storage-provider";
 import { DeckBuilder } from "./DeckBuilder";
@@ -22,8 +23,12 @@ export function App() {
   const [engine, setEngine] = createSignal<GameEngine | null>(null);
   const [cpu, setCpu] = createSignal<CpuPlayer | null>(null);
   const [version, setVersion] = createSignal(0);
-  const [playerDeck, setPlayerDeck] = createSignal<string>("deck:1");
+  const [playerDeck, setPlayerDeck] = createSignal<string>("");
+  const [playerActorId, setPlayerActorId] = createSignal(0);
+  const [cpuActorId, setCpuActorId] = createSignal(OPPONENT_ACTORS[0]?.id ?? 2);
   const [cpuDeck, setCpuDeck] = createSignal<string>(RANDOM_DECK);
+  const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
+  const playerActor = () => getActorById(playerActorId()) ?? PLAYER_ACTORS[0]!;
   const [view, setView] = createSignal<"menu" | "builder">("menu");
 
   /** Custom decks re-read whenever we return from the builder. */
@@ -49,7 +54,6 @@ export function App() {
   const [revealOpponentHand, setRevealOpponentHand] = createSignal(true);
   const [firstPlayer, setFirstPlayer] = createSignal<PlayerId | "random">("random");
   const [playerName, setPlayerName] = createSignal("Player");
-  const [cpuName, setCpuName] = createSignal("CPU");
 
   // Battle-select inputs for the human player.
   const [attack, setAttack] = createSignal<AttackType>("c");
@@ -71,10 +75,17 @@ export function App() {
 
   function startMatch() {
     const mine = resolveDeck(playerDeck());
-    const theirs = resolveDeck(cpuDeck() === RANDOM_DECK ? `deck:${randomDeckId()}` : cpuDeck());
+    if (mine.cards.length === 0) return; // no deck selected yet
+    const actor = cpuActor();
+    const ownedIds = actor.deckIds;
+    const cpuDeckId =
+      cpuDeck() === RANDOM_DECK || !ownedIds.some((id) => `deck:${id}` === cpuDeck())
+        ? (ownedIds[Math.floor(Math.random() * ownedIds.length)] ?? 1)
+        : parseInt(cpuDeck().slice(PREBUILT_PREFIX.length), 10);
+    const theirs = resolveDeck(`deck:${cpuDeckId}`);
     const eng = new GameEngine(mine.cards, theirs.cards, Date.now(), {
       playerName: playerName().trim(),
-      cpuName: cpuName().trim(),
+      cpuName: actor.name,
       playerDeckName: mine.name,
       cpuDeckName: theirs.name,
     });
@@ -155,6 +166,19 @@ export function App() {
             <div class="setup-grid">
               <div class="setup-side">
                 <h3>You</h3>
+                <div class="portrait-row">
+                  <For each={PLAYER_ACTORS}>
+                    {(a) => (
+                      <img
+                        class="portrait"
+                        classList={{ selected: playerActorId() === a.id }}
+                        src={a.portrait}
+                        alt={a.name}
+                        onClick={() => setPlayerActorId(a.id)}
+                      />
+                    )}
+                  </For>
+                </div>
                 <label>Name</label>
                 <input
                   type="text"
@@ -162,21 +186,54 @@ export function App() {
                   onInput={(e) => setPlayerName(e.currentTarget.value)}
                   maxLength={20}
                 />
-                <label>Deck</label>
-                <DeckPicker
-                  decks={customDecks()}
-                  value={playerDeck()}
-                  onPick={setPlayerDeck}
-                  allowRandom={false}
-                />
+                <label>Deck (your custom decks)</label>
+                <Show
+                  when={customDecks().length > 0}
+                  fallback={
+                    <div class="tag">
+                      No custom decks yet — build one!{" "}
+                      <button onClick={() => setView("builder")}>🛠 Open Builder</button>
+                    </div>
+                  }
+                >
+                  <select size={Math.min(6, Math.max(3, customDecks().length))} onChange={(e) => setPlayerDeck(e.currentTarget.value)}>
+                    <For each={customDecks()}>
+                      {(d) => (
+                        <option value={`custom:${d.id}`} selected={`custom:${d.id}` === playerDeck()}>
+                          {d.name}
+                        </option>
+                      )}
+                    </For>
+                  </select>
+                </Show>
               </div>
 
               <div class="setup-side">
-                <h3>CPU</h3>
-                <label>Name</label>
-                <input type="text" value={cpuName()} onInput={(e) => setCpuName(e.currentTarget.value)} maxLength={20} />
-                <label>Deck</label>
-                <DeckPicker decks={customDecks()} value={cpuDeck()} onPick={setCpuDeck} allowRandom={true} />
+                <h3>Opponent</h3>
+                <ActorPicker
+                  selectedId={cpuActorId()}
+                  onPick={(id) => {
+                    setCpuActorId(id);
+                    setCpuDeck(RANDOM_DECK);
+                  }}
+                />
+                <label>Their deck</label>
+                <select onChange={(e) => setCpuDeck(e.currentTarget.value)}>
+                  <option value={RANDOM_DECK} selected={cpuDeck() === RANDOM_DECK}>
+                    🎲 Random ({cpuActor().deckIds.length} deck{cpuActor().deckIds.length > 1 ? "s" : ""})
+                  </option>
+                  <For each={cpuActor().deckIds}>
+                    {(id) => {
+                      const deck = getDeckById(id);
+                      return (
+                        <option value={`deck:${id}`} selected={`deck:${id}` === cpuDeck()}>
+                          {deck?.name}
+                          {deck?.note ? ` (${deck.note})` : ""}
+                        </option>
+                      );
+                    }}
+                  </For>
+                </select>
               </div>
             </div>
 
@@ -231,7 +288,7 @@ export function App() {
             />
           </div>
           <div class="column-center">
-            <OpponentArea p={game()!.players.cpu} g={game()!} revealHand={revealOpponentHand()} />
+            <OpponentArea p={game()!.players.cpu} g={game()!} revealHand={revealOpponentHand()} portrait={cpuActor().portrait} />
             <Battlefield
               g={game()!}
               support={
@@ -246,6 +303,7 @@ export function App() {
             />
             <PlayerArea
               g={game()!}
+              portrait={playerActor().portrait}
               supportIdx={
                 game()!.phase === "battle-select" && typeof supportIdx() === "number"
                   ? (supportIdx() as number)
@@ -448,12 +506,17 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
   );
 }
 
-function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand: boolean }) {
+function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand: boolean; portrait?: string }) {
   const slots = createStableHand(() => props.p.hand);
   return (
     <div class="area">
       <h2 class="split-head">
-        <span>{props.p.name}</span>
+        <span class="head-id">
+          <Show when={props.portrait}>
+            <img class="portrait small" src={props.portrait} alt={props.p.name} />
+          </Show>
+          {props.p.name}
+        </span>
         <span>{props.p.deckName}</span>
       </h2>
       {/* Side rail + hand; active Digimon lives in the battlefield below. */}
@@ -612,65 +675,38 @@ function TurnTab(props: { on: boolean }) {
   );
 }
 
-/**
- * Deck picker with search: filters custom + prebuilt decks as you type,
- * so picking from 125+ decks doesn't mean scrolling a giant dropdown.
- */
-function DeckPicker(props: {
-  decks: { id: string; name: string }[];
-  value: string;
-  onPick: (v: string) => void;
-  allowRandom: boolean;
-}) {
+/** Opponent picker: search actors, click a portrait to choose. */
+function ActorPicker(props: { selectedId: number; onPick: (id: number) => void }) {
   const [query, setQuery] = createSignal("");
-
-  const customMatches = () =>
-    props.decks.filter((d) => d.name.toLowerCase().includes(query().toLowerCase()));
-  const prebuiltMatches = () =>
-    PREBUILT_DECKS.filter(
-      (d) =>
-        d.name.toLowerCase().includes(query().toLowerCase()) ||
-        d.owner.toLowerCase().includes(query().toLowerCase()),
-    );
-
-  /** Keep the selection visible even when the filter excludes it. */
-  const sizeFor = () => Math.min(8, Math.max(3, customMatches().length + prebuiltMatches().length + 1));
-
+  const matches = () =>
+    OPPONENT_ACTORS.filter((a) => a.name.toLowerCase().includes(query().toLowerCase()));
+  const selected = () => getActorById(props.selectedId);
   return (
-    <div class="deck-picker">
+    <div>
+      <div class="actor-selected">
+        <img class="portrait selected" src={selected()?.portrait} alt={selected()?.name} />
+        <span class="actor-name">{selected()?.name}</span>
+      </div>
       <input
         type="text"
-        placeholder="🔍 Search decks…"
+        placeholder="🔍 Search opponents…"
         value={query()}
         onInput={(e) => setQuery(e.currentTarget.value)}
       />
-      <select size={sizeFor()} onChange={(e) => props.onPick(e.currentTarget.value)}>
-        <Show when={props.allowRandom}>
-          <option value={RANDOM_DECK} selected={props.value === RANDOM_DECK}>
-            🎲 Random Deck
-          </option>
-        </Show>
-        <Show when={customMatches().length > 0}>
-          <optgroup label="Custom Decks">
-            <For each={customMatches()}>
-              {(d) => (
-                <option value={`custom:${d.id}`} selected={`custom:${d.id}` === props.value}>
-                  {d.name}
-                </option>
-              )}
-            </For>
-          </optgroup>
-        </Show>
-        <optgroup label="Prebuilt Decks">
-          <For each={prebuiltMatches()}>
-            {(d) => (
-              <option value={`deck:${d.id}`} selected={`deck:${d.id}` === props.value}>
-                {d.name} — {d.owner}
-              </option>
-            )}
-          </For>
-        </optgroup>
-      </select>
+      <div class="actor-grid">
+        <For each={matches()}>
+          {(a) => (
+            <img
+              class="portrait"
+              classList={{ selected: props.selectedId === a.id }}
+              src={a.portrait}
+              alt={a.name}
+              title={a.name}
+              onClick={() => props.onPick(a.id)}
+            />
+          )}
+        </For>
+      </div>
     </div>
   );
 }
@@ -831,7 +867,7 @@ function LogArea(props: { g: GameEngine }) {
   );
 }
 
-function PlayerArea(props: { g: GameEngine; supportIdx: number | null }) {
+function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?: string }) {
   const p = () => props.g.players.player;
   const slots = createStableHand(() => p().hand);
 
@@ -983,7 +1019,12 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null }) {
 
       {/* Identity + stats at the bottom, mirroring the opponent layout. */}
       <h2 class="split-head" style={{ "margin-top": "10px" }}>
-        <span>{p().name}</span>
+        <span class="head-id">
+          <Show when={props.portrait}>
+            <img class="portrait small" src={props.portrait} alt={p().name} />
+          </Show>
+          {p().name}
+        </span>
         <span>{p().deckName}</span>
       </h2>
     </div>

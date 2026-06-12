@@ -1,0 +1,119 @@
+Player
+player Variant
+Betamon
+Agumon
+Penguinmon
+Babamon
+Meramon
+Phoenixmon
+Veemon
+Vegiemon
+Ninjamon
+VeeDramon
+Wormon
+Frigimon
+Whamon
+Garurumon
+Stingmon
+Hagurumon
+Numemon
+King Sukamon
+Shadramon
+Quetzalmon
+Digimon Emperor
+Cetarumon
+Tyranomon
+Angemon
+Davis
+Kelly
+Cody
+T.K
+Wizardmon
+Aero VeeDramon
+Gatomon
+Kari
+Goburimon
+Demi Devimon
+Megadramon
+Gigadramon
+Togemon
+Kabuterimon
+Ikkakumon
+Birdramon
+Were Garurumon
+Metal Greymon
+Tuskmon
+Phantomon
+Mega Seadramon
+Vemom Myotismon
+Leomon
+Devimon
+Metal Etemon
+Myotismon
+Greymon
+X VeeMon
+Flamedramon
+Rairdramon
+Hawkmon
+Quilamon
+Halsmon
+Armadilomon
+Antylomon
+Digmon
+Boltmon
+Metal Mamemon
+Super Starmon
+Bakemon
+Devimon (Variant)
+Skull Greymon
+Myotismon (Variant)
+Patamon
+Baronmon
+Pegasmon
+Gatomon (Variant)
+Nefertimon
+Tylomon
+Kuwagamon
+Hercules Kabuterimon
+Wargreymon
+Tai
+Paildramon
+Shurimon
+Submarimon
+Magna Angemon
+Angewomon
+Gran Kuwagamon
+Ken
+Garudamon
+Sora
+Lilymon
+Mimi
+Metal Garurumon
+Matt
+Zudomon
+Joe
+Atlur Kabuterimon
+Izzy
+Metal SeadramonPuppetmon
+Machinedramon
+Lady Devimon
+Piedmon
+Magnamon
+Sylphmon
+Shakkoumon
+Sheraphimo
+Magnadramon
+Infermon
+Diaboromon
+Imperialdramon
+Valkeryemon
+Omnimon
+Vikemon
+Apokarimon
+Apokarimon (variant)
+Black Wargreymon
+Black Metal Garurumon
+Rosemon
+Nanimon
+Piximon
+A

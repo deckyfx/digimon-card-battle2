@@ -449,6 +449,70 @@ body {
   border-color: #d4a017;
 }
 
+/* Actor portraits */
+.portrait {
+  width: 64px;
+  height: 56px;
+  border-radius: 6px;
+  border: 2px solid #3a3f55;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.portrait:hover {
+  border-color: #9aa3c7;
+}
+
+.portrait.selected {
+  border-color: #ffc66d;
+  box-shadow: 0 0 8px #ffc66d66;
+}
+
+.portrait.small {
+  width: 36px;
+  height: 32px;
+  cursor: default;
+  vertical-align: middle;
+}
+
+.portrait-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.actor-selected {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.actor-selected .actor-name {
+  font-family: "Audiowide", sans-serif;
+  color: #ffc66d;
+}
+
+.actor-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 6px;
+}
+
+.actor-grid .portrait {
+  width: 48px;
+  height: 42px;
+}
+
+.head-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Searchable deck picker (setup screen). */
 .deck-picker input[type="text"] {
   margin-bottom: 4px;
