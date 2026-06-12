@@ -190,6 +190,24 @@ body {
   font-size: 0.9rem;
 }
 
+/* Label with an inline action on the right (e.g. Deck Builder shortcut). */
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.label-row label {
+  margin: 8px 0 3px;
+}
+
+button.mini {
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  border-radius: 5px;
+}
+
 .setup-options {
   display: flex;
   justify-content: center;

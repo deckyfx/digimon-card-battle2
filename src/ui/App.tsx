@@ -232,7 +232,10 @@ export function App() {
                   onInput={(e) => setPlayerName(e.currentTarget.value)}
                   maxLength={20}
                 />
-                <label>Deck (your custom decks)</label>
+                <div class="label-row">
+                  <label>Deck (your custom decks)</label>
+                  <button class="mini" onClick={() => setView("builder")}>🛠 Deck Builder</button>
+                </div>
                 <Show
                   when={customDecks().length > 0}
                   fallback={
@@ -344,7 +347,6 @@ export function App() {
               <button class="primary" onClick={startMatch}>
                 ▶ START MATCH
               </button>
-              <button onClick={() => setView("builder")}>🛠 Deck Builder</button>
             </div>
           </div>
           </Show>
