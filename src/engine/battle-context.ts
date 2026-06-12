@@ -1,5 +1,19 @@
 import type { AttackType } from "@src/types";
 
+/** All stats live on a base-10 grid, capped at this maximum. */
+export const STAT_MAX = 9990;
+/** Stat granularity — the smallest non-zero stat step. */
+export const STAT_STEP = 10;
+
+/**
+ * Snaps a stat (HP / attack power / damage) onto the base-10 grid:
+ * rounded to the nearest 10 and clamped to 0–9990. Divisions and
+ * multiplier effects must pass through this before being applied.
+ */
+export function quantizeStat(value: number): number {
+  return Math.max(0, Math.min(STAT_MAX, Math.round(value / STAT_STEP) * STAT_STEP));
+}
+
 /**
  * Mutable combatant view exposed to card effect scripts as `own` / `opponent`.
  *

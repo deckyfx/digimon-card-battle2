@@ -57,9 +57,10 @@ Rules that enforce this:
   `PlayerState.armors`; associations in `src/data/armor.ts`). When a partner
   is finalized on deploy, a one-shot Armor Digivolve offer opens for ITS armor
   (`canArmorDigivolve`/`armorDigivolve`/`declineArmorDigivolve`) and closes on
-  any other prep action. The armor card NEVER goes to trash — KO, Digi-devolve,
-  De-Armor and Download all return it to the side deck (partner/stack still
-  trashes on KO). ArmorCrush (#294): A → C/U, specialty + DP checked, DP
+  any other prep action. The armor card NEVER goes to trash — KO, De-Armor,
+  ArmorCrush and Download all return it to the side deck (partner/stack still
+  trashes on KO). Digi-devolve (#300) cannot undo an armor — only De-Armor
+  can. ArmorCrush (#294): A → C/U, specialty + DP checked, DP
   trashed, armor back to side deck, partner stays stacked. De-Armor (#298):
   reveals the partner at full HP (not doubled). A-level cards are never
   deployable or main-deck legal.
@@ -69,6 +70,10 @@ Rules that enforce this:
   action) →
   battle-select → battle-resolve (stepped) → end turn. First to 3 points.
 - DP slot: max 8 cards, value capped at 90.
+- **Base-10 stat grid**: HP / attack powers / damage are multiples of 10,
+  capped at 9990 — every computed stat passes through `quantizeStat()`
+  (battle-context.ts): nearest-10 rounding after penalties, divisions and
+  multiplier effects. UI effective-power displays use the same helper.
 
 ## Data
 

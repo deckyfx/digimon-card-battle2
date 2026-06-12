@@ -1,6 +1,6 @@
 import { CardLevel, CardType, type AttackType, type MasterCard } from "@src/types";
 import { ARMOR_PARTNER } from "@src/data/armor";
-import { createCombatantCtx } from "./battle-context";
+import { createCombatantCtx, quantizeStat } from "./battle-context";
 import { BattleResolver, type BattleFx, type BattleOutcome, type BattleSide } from "./battle-resolver";
 import { Rng } from "./rng";
 import { ScriptRunner, type SideZoneOps, type ZoneName } from "./script-runner";
@@ -282,7 +282,7 @@ export class GameEngine {
 
     const penalty = PENALTY[card.level] ?? 1;
     p.hand.splice(p.hand.indexOf(card), 1);
-    const hp = Math.round(card.hp * penalty);
+    const hp = quantizeStat(card.hp * penalty);
     p.active = { card, hp, maxHp: hp, penalty, stack: [] };
     this.pushLog(
       `${p.name} deploys ${card.name} (${card.level}) with ${hp} HP${penalty < 1 ? ` — ×${penalty} penalty` : ""}.`,
@@ -350,7 +350,7 @@ export class GameEngine {
     p.armors.splice(p.armors.indexOf(armor), 1);
     this.armorWindowOpen = false;
     this.turnActionTaken = true;
-    const hp = Math.round(armor.hp * prev.penalty);
+    const hp = quantizeStat(armor.hp * prev.penalty);
     p.active = { card: armor, hp, maxHp: hp, penalty: prev.penalty, stack: [...prev.stack, prev.card] };
     this.pushLog(`${p.name} Armor Digivolves ${prev.card.name} → ${armor.name}! HP ${hp}.`);
     this.notify();
@@ -432,7 +432,7 @@ export class GameEngine {
     p.trash.push(...p.dpSlot.splice(0)); // DP stock is consumed and reset to 0
 
     const penalty = prev.penalty; // penalty is inherited
-    const hp = Math.round(card.hp * penalty);
+    const hp = quantizeStat(card.hp * penalty);
     // The previous form stays on the battlefield, stacked underneath.
     p.active = { card, hp, maxHp: hp, penalty, stack: [...prev.stack, prev.card] };
     this.pushLog(`${p.name} digivolves ${prev.card.name} → ${card.name}! HP ${hp}. DP stock reset to 0.`);
@@ -511,9 +511,12 @@ export class GameEngine {
       .map(({ index }) => index);
   }
 
-  /** True if Digi-devolve has something to pop (more than one Digimon stacked). */
+  /**
+   * True if Digi-devolve has something to pop (more than one Digimon
+   * stacked). Armor forms are exempt — only De-Armor can undo an armor.
+   */
   canDevolve(p: PlayerState): boolean {
-    return p.active !== null && p.active.stack.length >= 1;
+    return p.active !== null && p.active.stack.length >= 1 && p.active.card.level !== CardLevel.A;
   }
 
   /** True if De-Armor can act: an Armor form is active with its partner stacked under it. */
@@ -570,7 +573,7 @@ export class GameEngine {
       const revealed = active.stack.pop() as MasterCard;
       this.returnArmorToSideDeck(p, active.card);
       // The partner underneath is revealed at FULL HP.
-      const hp = Math.round(revealed.hp * active.penalty);
+      const hp = quantizeStat(revealed.hp * active.penalty);
       p.active = { card: revealed, hp, maxHp: hp, penalty: active.penalty, stack: active.stack };
       this.pushLog(`${p.name} plays ${label}: ${revealed.name} is revealed at full HP ${hp}!`);
       this.notify();
@@ -585,11 +588,9 @@ export class GameEngine {
       }
       const active = p.active as ActiveDigimon;
       const revealed = active.stack.pop() as MasterCard;
-      // Armor cards never go to trash — they return to the side deck.
-      if (active.card.level === CardLevel.A) this.returnArmorToSideDeck(p, active.card);
-      else p.trash.push(active.card);
+      p.trash.push(active.card);
       // Revealed Digimon returns with doubled full HP (penalty still applies).
-      const hp = Math.round(revealed.hp * active.penalty) * 2;
+      const hp = quantizeStat(revealed.hp * active.penalty * 2);
       p.active = { card: revealed, hp, maxHp: hp, penalty: active.penalty, stack: active.stack };
       this.pushLog(`${p.name} plays ${label}: devolves to ${revealed.name} with doubled HP ${hp}! DP slot kept.`);
       this.notify();
@@ -635,7 +636,7 @@ export class GameEngine {
     const penalty = removesPenalty ? 1 : prev.penalty;
     const penaltyNote = removesPenalty && prev.penalty < 1 ? " Penalty removed!" : "";
 
-    const hp = Math.round(target.hp * penalty);
+    const hp = quantizeStat(target.hp * penalty);
     p.active = { card: target, hp, maxHp: hp, penalty, stack };
     this.pushLog(`${p.name} plays ${label}: ${prev.card.name} → ${target.name}! HP ${hp}. ${dpNote}.${penaltyNote}`);
     this.notify();
@@ -686,8 +687,8 @@ export class GameEngine {
     const result = this.battleGen.next();
 
     // Live-sync HP after every step so the UI animates each change.
-    if (ownerP.active) ownerP.active.hp = Math.max(0, Math.round(ab.owner.ctx.hp));
-    if (defenderP.active) defenderP.active.hp = Math.max(0, Math.round(ab.defender.ctx.hp));
+    if (ownerP.active) ownerP.active.hp = quantizeStat(ab.owner.ctx.hp);
+    if (defenderP.active) defenderP.active.hp = quantizeStat(ab.defender.ctx.hp);
 
     if (!result.done) {
       this.currentFx = {
@@ -759,9 +760,9 @@ export class GameEngine {
       hp: active.hp,
       level: active.card.level,
       specialty: active.card.specialty,
-      c_power: Math.round(active.card.c_pow * active.penalty),
-      t_power: Math.round(active.card.t_pow * active.penalty),
-      x_power: Math.round(active.card.x_pow * active.penalty),
+      c_power: quantizeStat(active.card.c_pow * active.penalty),
+      t_power: quantizeStat(active.card.t_pow * active.penalty),
+      x_power: quantizeStat(active.card.x_pow * active.penalty),
       selected_attack: choice.attack,
       dp_count: p.dpSlot.length,
       hand_count: p.hand.length,
@@ -789,7 +790,7 @@ export class GameEngine {
       p.trash.push(...p.active.stack);
       p.active = null;
     } else {
-      p.active.hp = Math.max(0, Math.round(side.ctx.hp));
+      p.active.hp = quantizeStat(side.ctx.hp);
     }
   }
 

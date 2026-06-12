@@ -1,6 +1,7 @@
 import { For, Index, Show, createEffect, createSignal, onCleanup, untrack } from "solid-js";
 import { CardLevel, type AttackType, type MasterCard } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
+import { quantizeStat } from "@src/engine/battle-context";
 import { CpuPlayer } from "@src/ai/cpu-player";
 import { cardsByNumbers, getDeckById } from "@src/data/prebuilt-decks";
 import { armorCardsByNumbers } from "@src/data/armor";
@@ -417,6 +418,7 @@ export function App() {
             />
             <Battlefield
               g={game()!}
+              revealOpponentHand={revealOpponentHand()}
               support={
                 game()?.phase !== "battle-select"
                   ? null
@@ -629,9 +631,9 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
 
   const pow = (t: "c" | "t" | "x") => {
     const sd = side();
-    if (sd) return Math.round(sd.ctx[`${t}_power`]);
+    if (sd) return quantizeStat(sd.ctx[`${t}_power`]);
     const act = a();
-    return act ? Math.round(act.card[`${t}_pow`] * act.penalty) : 0;
+    return act ? quantizeStat(act.card[`${t}_pow`] * act.penalty) : 0;
   };
 
   return (
@@ -660,7 +662,7 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
           ✕ <Ticker value={pow("x")} fromZero />
         </div>
         <Show when={a()!.card.x_effect}>
-          <div class="effect">✕: {a()!.card.x_effect}</div>
+          <div class="effect effect-x">✕: {a()!.card.x_effect}</div>
         </Show>
         <Show when={a()!.stack.length > 0}>
           <div class="tag">Stacked: {a()!.stack.map((c) => c.name).join(" → ")}</div>
@@ -698,6 +700,7 @@ function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand: boolea
               </Index>
             </div>
           </Show>
+          <AttackReveal g={props.g} side="cpu" />
         </div>
         <TurnTab on={props.g.turn === "cpu"} />
       </div>
@@ -749,7 +752,7 @@ function PromptDialogs(props: {
   const attackPow = (t: AttackType) => {
     const act = p().active;
     if (!act) return 0;
-    return Math.round({ c: act.card.c_pow, t: act.card.t_pow, x: act.card.x_pow }[t] * act.penalty);
+    return quantizeStat({ c: act.card.c_pow, t: act.card.t_pow, x: act.card.x_pow }[t] * act.penalty);
   };
   const attackName = (t: AttackType) => {
     const act = p().active;
@@ -993,6 +996,36 @@ function DpRail(props: { p: PlayerState; g: GameEngine; side: PlayerId }) {
   );
 }
 
+const ATTACK_ICON: Record<AttackType, string> = {
+  c: "/assets/boards/attack-circle.png",
+  t: "/assets/boards/attack-triangle.png",
+  x: "/assets/boards/attack-cross.png",
+};
+
+/**
+ * Cinematic attack reveal: each side's chosen attack icon pops in centered
+ * over that player's hand row when the battle starts (before supports
+ * resolve) and stays up until the battle phase ends. Reads the live
+ * selected_attack, so "changes attack" effects update the icon mid-battle.
+ */
+function AttackReveal(props: { g: GameEngine; side: PlayerId }) {
+  const attack = (): AttackType | null => {
+    const b = props.g.activeBattle;
+    if (!b) return null;
+    const s = b.ownerId === props.side ? b.owner : b.defender;
+    return s.ctx.selected_attack;
+  };
+  return (
+    <Show when={attack()}>
+      {(a) => (
+        <div class="attack-reveal">
+          <img src={ATTACK_ICON[a()]} alt={a()} />
+        </div>
+      )}
+    </Show>
+  );
+}
+
 /** Tall TURN tab shown in a hand row's right rail when it is that side's turn. */
 function TurnTab(props: { on: boolean }) {
   return (
@@ -1084,10 +1117,10 @@ export function CardInspector() {
               </div>
             </div>
             <Show when={c()!.x_effect}>
-              <div class="effect">✕ effect: {c()!.x_effect}</div>
+              <div class="effect effect-x">✕ effect: {c()!.x_effect}</div>
             </Show>
           </Show>
-          <div class="effect">Support: {c()!.support || "None"}</div>
+          <div class="effect effect-support">Support: {c()!.support || "None"}</div>
         </div>
       </Show>
     </div>
@@ -1121,7 +1154,12 @@ function TurnInfo(props: { g: GameEngine }) {
 }
 
 /** Shared battle zone: both active Digimon overlapping face-to-face. */
-function Battlefield(props: { g: GameEngine; support: MasterCard | "deck" | null }) {
+function Battlefield(props: {
+  g: GameEngine;
+  support: MasterCard | "deck" | null;
+  /** When true the opponent's hand is open — their hand supports show face-up. */
+  revealOpponentHand: boolean;
+}) {
   const battle = () => props.g.activeBattle;
   const fx = () => props.g.currentFx;
 
@@ -1135,9 +1173,11 @@ function Battlefield(props: { g: GameEngine; support: MasterCard | "deck" | null
     const side = sideFor(id);
     if (side) {
       if (!side.support) return null;
-      // Own hand supports are known; gambles and the CPU's stay facedown
-      // until the resolver reveals them.
-      const faceUp = side.revealed || (id === "player" && !side.fromDeck);
+      // Hand supports are known to their owner — and to the opponent too
+      // when hands are open (vs CPU). Deck gambles stay a mystery "?" for
+      // everyone until the resolver reveals them.
+      const handKnown = id === "player" || props.revealOpponentHand;
+      const faceUp = side.revealed || (!side.fromDeck && handKnown);
       return { card: side.support, faceUp };
     }
     if (id === "player" && props.support) {
@@ -1188,13 +1228,37 @@ function SupportDock(props: { s: { card: MasterCard | null; faceUp: boolean } | 
 }
 
 function LogArea(props: { g: GameEngine }) {
-  // Newest first — no autoscroll needed, the latest line is always on top.
-  const reversed = () => [...props.g.log].reverse();
+  // Sort order is a persisted preference. desc = newest on top (stick to
+  // the top); asc = chronological (stick to the bottom).
+  const [order, setOrder] = createSignal<"asc" | "desc">(
+    localStorage.getItem("logOrder") === "asc" ? "asc" : "desc",
+  );
+  const toggleOrder = () => {
+    const next = order() === "desc" ? "asc" : "desc";
+    setOrder(next);
+    localStorage.setItem("logOrder", next);
+  };
+
+  const lines = () => (order() === "desc" ? [...props.g.log].reverse() : props.g.log);
+
+  let logEl: HTMLDivElement | undefined;
+  // Keep the newest line in view: pin to top for desc, bottom for asc.
+  createEffect(() => {
+    lines(); // track log growth and order changes
+    if (!logEl) return;
+    logEl.scrollTop = order() === "desc" ? 0 : logEl.scrollHeight;
+  });
+
   return (
     <div class="area">
-      <h2>Battle Log</h2>
-      <div class="log">
-        <For each={reversed()}>
+      <h2 class="split-head">
+        <span>Battle Log</span>
+        <button class="mini" title="Toggle sort order" onClick={toggleOrder}>
+          {order() === "desc" ? "↓ newest first" : "↑ oldest first"}
+        </button>
+      </h2>
+      <div class="log" ref={logEl}>
+        <For each={lines()}>
           {(line) => <div classList={{ "turn-marker": line.startsWith("—") }}>{line}</div>}
         </For>
       </div>
@@ -1393,6 +1457,7 @@ function PlayerArea(props: {
               }}
             </Index>
           </div>
+          <AttackReveal g={props.g} side="player" />
         </div>
         <TurnTab on={props.g.turn === "player"} />
       </div>

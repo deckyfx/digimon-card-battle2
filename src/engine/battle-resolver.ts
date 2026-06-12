@@ -1,4 +1,5 @@
 import { CardType, type AttackType, type MasterCard } from "@src/types";
+import { quantizeStat } from "./battle-context";
 import type { CombatantCtx } from "./battle-context";
 import type { ScriptRunner, SideZoneOps } from "./script-runner";
 
@@ -20,11 +21,13 @@ export interface BattleSide {
   zones: SideZoneOps;
   /** Set when this side counters: next strike uses the received damage. */
   counterDamage: number | null;
+  /** True once this side's strike has resolved this battle. */
+  struck?: boolean;
 }
 
 /** Presentation cue yielded between battle steps (for UI animation). */
 export interface BattleFx {
-  kind: "support" | "x-effect" | "strike";
+  kind: "attack-reveal" | "support" | "x-effect" | "strike";
   actor: "owner" | "defender";
 }
 
@@ -56,6 +59,13 @@ export class BattleResolver {
    * mutated, letting the UI pace and animate the battle.
    */
   *resolveSteps(owner: BattleSide, defender: BattleSide): Generator<BattleFx, BattleOutcome> {
+    // 0. Reveal both chosen attacks before anything resolves.
+    const glyph = (a: string) => ({ c: "○", t: "△", x: "✕" })[a] ?? a;
+    this.log(
+      `${owner.name} declares ${glyph(owner.ctx.selected_attack)} — ${defender.name} declares ${glyph(defender.ctx.selected_attack)}!`,
+    );
+    yield { kind: "attack-reveal", actor: "owner" };
+
     // 1. Jamming declared on cards voids the opposing support up front.
     this.applyJamming(owner, defender);
     this.applyJamming(defender, owner);
@@ -164,10 +174,31 @@ export class BattleResolver {
       suffix = " (Crash!)";
     }
 
-    power = Math.max(0, Math.round(power));
-    target.ctx.hp -= power;
-
+    // Damage snaps to the base-10 stat grid (script divisions/multipliers
+    // may have left odd values) and is capped at the 9990 stat maximum.
+    power = quantizeStat(power);
+    attacker.struck = true;
     const attackName = { c: attacker.card.c_attack, t: attacker.card.t_attack, x: attacker.card.x_attack }[type];
+
+    // Effective counter: the incoming attack is VOIDED — the counterer
+    // takes no damage and returns the attacker's own attack power on its
+    // strike (replacing its own power entirely, boosted or 0). A counter
+    // reflection itself cannot be countered again.
+    if (target.ctx.is_countering.includes(type) && attacker.counterDamage === null) {
+      target.counterDamage = power;
+      this.log(
+        `${attacker.name}'s ${attacker.card.name} attacks with ${ATTACK_LABEL[type]} ${attackName} — ` +
+          `${target.card.name} counters! The attack is voided.`,
+      );
+      if (target.struck) {
+        // The counterer already struck this battle — reflect immediately.
+        attacker.ctx.hp -= power;
+        this.log(`${target.card.name} returns ${power} damage to ${attacker.card.name} (Counter!)`);
+      }
+      return;
+    }
+
+    target.ctx.hp -= power;
     this.log(
       `${attacker.name}'s ${attacker.card.name} attacks with ${ATTACK_LABEL[type]} ${attackName} for ${power} damage${suffix}`,
     );
@@ -180,11 +211,6 @@ export class BattleResolver {
     if (attacker.ctx.is_absorbing && power > 0) {
       attacker.ctx.hp += power;
       this.log(`${attacker.card.name} eats up ${power} HP!`);
-    }
-
-    // Surviving counter: the target's next strike returns the damage received.
-    if (target.ctx.hp > 0 && target.ctx.is_countering.includes(type)) {
-      target.counterDamage = power;
     }
   }
 

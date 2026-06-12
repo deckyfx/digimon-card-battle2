@@ -46,21 +46,41 @@ export function CardView(props: { card: MasterCard; children?: import("solid-js"
         </Show>
       </div>
       <Show when={isDigimon()}>
-        <div>HP: {c().hp}</div>
-        <div class="stat-split">
-          <span>DP+: {c().dp_point}</span>
-          <span>DP↑: {c().dp_required}</span>
+        {/* Two-column stat grid: labels left, numbers right-aligned in a
+            fixed 4-digit slot (stats max out at 9990) so rows line up. */}
+        <div class="stat-grid">
+          <span class="stat">
+            <span>HP</span>
+            <span class="num">{c().hp}</span>
+          </span>
+          <span class="stat" />
+          <span class="stat">
+            <span>DP+</span>
+            <span class="num">{c().dp_point}</span>
+          </span>
+          <span class="stat">
+            <span>DP↑</span>
+            <span class="num">{c().dp_required}</span>
+          </span>
+          <span class="stat">
+            <span>○</span>
+            <span class="num">{c().c_pow}</span>
+          </span>
+          <span class="stat">
+            <span>△</span>
+            <span class="num">{c().t_pow}</span>
+          </span>
+          <span class="stat">
+            <span>✕</span>
+            <span class="num">{c().x_pow}</span>
+          </span>
+          <span class="stat" />
         </div>
-        <div class="stat-split">
-          <span>○ {c().c_pow}</span>
-          <span>△ {c().t_pow}</span>
-        </div>
-        <div>✕ {c().x_pow}</div>
         <Show when={c().x_effect}>
-          <div class="effect">✕: {c().x_effect}</div>
+          <div class="effect effect-x">✕: {c().x_effect}</div>
         </Show>
       </Show>
-      <div class="effect">Support: {c().support || "None"}</div>
+      <div class="effect effect-support">Support: {c().support || "None"}</div>
       {props.children}
     </div>
   );

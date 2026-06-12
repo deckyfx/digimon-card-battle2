@@ -416,6 +416,27 @@ button.mini {
 }
 
 /* Two stats sharing a line: spread apart with clear breathing room. */
+/* Aligned card stats: 2-column grid, each cell label-left / number-right.
+   Numbers are tabular and reserve exactly 4 digits (max stat 9990). */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+}
+
+.stat-grid .stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stat-grid .num {
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: right;
+  font-weight: 600;
+}
+
 .stat-split {
   display: flex;
   justify-content: space-between;
@@ -721,6 +742,50 @@ button.mini {
 .rail-main {
   flex: 1;
   min-width: 0;
+  position: relative; /* anchor for the attack-reveal overlay */
+}
+
+/* Cinematic chosen-attack reveal: icon pops in centered over the hand row. */
+.attack-reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.attack-reveal img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px #ffffff66) drop-shadow(0 4px 10px #00000088);
+  animation: attack-reveal-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1), attack-reveal-pulse 1.2s ease-in-out 0.45s infinite;
+}
+
+@keyframes attack-reveal-pop {
+  0% {
+    transform: scale(3) rotate(-20deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.9) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes attack-reveal-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
 }
 
 .rail-stat {
@@ -873,6 +938,23 @@ button.mini {
 .card .effect {
   color: #c9b6ff;
   font-style: italic;
+}
+
+/* Effect lines: separated by a hairline, colour-coded — ✕ effect blueish,
+   support stays purple — so the two are never confused. */
+.card .effect-x,
+.card .effect-support {
+  border-top: 1px solid #3a3f5588;
+  margin-top: 4px;
+  padding-top: 3px;
+}
+
+.card .effect-x {
+  color: #7fb8ff;
+}
+
+.card .effect-support {
+  color: #c9b6ff;
 }
 
 .card button {
