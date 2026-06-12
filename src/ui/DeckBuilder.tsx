@@ -181,7 +181,6 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
         <h2>
           Deck — {numbers().length}/{DECK_SIZE}
         </h2>
-        <DeckColorBar cardNumbers={numbers()} />
         <div class="builder-filters">
           <input
             type="text"
@@ -219,6 +218,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           <button onClick={startNew}>New</button>
           <button onClick={props.onBack}>← Back</button>
         </div>
+        <DeckColorBar cardNumbers={numbers()} />
         <Show when={message()}>
           <div class="warn">{message()}</div>
         </Show>
