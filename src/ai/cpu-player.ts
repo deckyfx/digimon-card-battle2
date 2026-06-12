@@ -108,20 +108,20 @@ export class CpuPlayer {
 
     if (cpu.deck.length < 8) return false;
     const nextLevel = cpu.active.card.level === CardLevel.R ? CardLevel.C : CardLevel.U;
-    const handHasNext = cpu.hand.some((c) => c.type === CardType.Digimon && c.level === nextLevel);
+    const spec = cpu.active.card.specialty;
+    const isNext = (c: MasterCard) => c.type === CardType.Digimon && c.level === nextLevel && c.specialty === spec;
+    const handHasNext = cpu.hand.some(isNext);
 
     // Dig for evolution: DP already covers a next-level Digimon that is known
     // to remain in our own deck, but the hand holds none — redraw to find it.
     if (!handHasNext) {
       const dp = this.engine.dpTotal(cpu);
-      const deckHasAffordableNext = cpu.deck.some(
-        (c) => c.type === CardType.Digimon && c.level === nextLevel && c.dp_required <= dp,
-      );
+      const deckHasAffordableNext = cpu.deck.some((c) => isNext(c) && c.dp_required <= dp);
       if (deckHasAffordableNext) return true;
     }
 
     const hasUseful = cpu.hand.some(
-      (card) => (card.type === CardType.Option && card.support_script !== "") || card.level === nextLevel,
+      (card) => (card.type === CardType.Option && card.support_script !== "") || isNext(card),
     );
     return !hasUseful;
   }
@@ -201,7 +201,9 @@ export class CpuPlayer {
     if (!active) return false;
 
     const nextLevel = active.card.level === CardLevel.R ? CardLevel.C : CardLevel.U;
-    const target = cpu.hand.find((c) => c.type === CardType.Digimon && c.level === nextLevel);
+    const target = cpu.hand.find(
+      (c) => c.type === CardType.Digimon && c.level === nextLevel && c.specialty === active.card.specialty,
+    );
     if (!target) return false;
 
     const needed = target.dp_required - this.engine.dpTotal(cpu);

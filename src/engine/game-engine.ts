@@ -410,13 +410,14 @@ export class GameEngine {
     return true;
   }
 
-  /** True if `card` can naturally digivolve from the player's active Digimon. */
+  /** True if `card` can naturally digivolve from the player's active Digimon:
+      next level up, SAME specialty, and the DP requirement covered. */
   canEvolve(p: PlayerState, card: MasterCard): boolean {
     if (!p.active || card.type !== CardType.Digimon) return false;
     const from = p.active.card.level;
     const valid =
       (from === CardLevel.R && card.level === CardLevel.C) || (from === CardLevel.C && card.level === CardLevel.U);
-    return valid && this.dpTotal(p) >= card.dp_required;
+    return valid && card.specialty === p.active.card.specialty && this.dpTotal(p) >= card.dp_required;
   }
 
   /** Natural digivolution: consume the DP slot, inherit the penalty. */
