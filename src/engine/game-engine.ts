@@ -420,7 +420,12 @@ export class GameEngine {
     // Resolve the target by identity BEFORE the option leaves the hand —
     // removing it first would shift the caller's hand indices.
     const targets = this.digivolveOptionTargets(p, kind);
-    const chosen = targetIndex !== undefined && targets.includes(targetIndex) ? targetIndex : targets[0];
+    // When valid targets exist the player must choose one explicitly —
+    // never auto-pick. Without targets the option fizzles (trashed below).
+    if (kind !== "devolve" && targets.length > 0 && (targetIndex === undefined || !targets.includes(targetIndex))) {
+      return false;
+    }
+    const chosen = targetIndex !== undefined && targets.includes(targetIndex) ? targetIndex : undefined;
     const target = chosen !== undefined ? p.hand[chosen] : undefined;
 
     p.hand.splice(p.hand.indexOf(option), 1);

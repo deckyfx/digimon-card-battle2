@@ -1065,15 +1065,26 @@ function PlayerArea(props: { g: GameEngine; supportIdx: number | null; portrait?
                           <Show when={isMyDigivolve() && props.g.digivolveOptionKind(card())}>
                             {(kind) => {
                               const opt = () => digiOptions().find((o) => o.index === hi());
-                              const effective = () => (opt() ? optionEffective(opt()!) : false);
+                              const hasTargets = () => (opt()?.targets.length ?? 0) > 0;
+                              const effective = () =>
+                                kind() === "devolve" ? props.g.canDevolve(p()) : hasTargets();
                               return (
-                                <button
-                                  classList={{ fizzle: !effective() }}
-                                  title={`Use ${optionLabel[kind()]}${effective() ? "" : " — no valid target, card will be trashed"}`}
-                                  onClick={() => props.g.useDigivolveOption(hi())}
+                                <Show
+                                  when={kind() === "devolve" || !hasTargets()}
+                                  fallback={
+                                    <span class="bubble-hint" title="Click Digivolve on the target card">
+                                      Pick target →
+                                    </span>
+                                  }
                                 >
-                                  Use
-                                </button>
+                                  <button
+                                    classList={{ fizzle: !effective() }}
+                                    title={`Use ${optionLabel[kind()]}${effective() ? "" : " — no valid target, card will be trashed"}`}
+                                    onClick={() => props.g.useDigivolveOption(hi())}
+                                  >
+                                    Use
+                                  </button>
+                                </Show>
                               );
                             }}
                           </Show>

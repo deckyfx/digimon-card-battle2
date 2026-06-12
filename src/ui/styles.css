@@ -345,6 +345,16 @@ body {
   color: #8a8fa3;
 }
 
+/* Non-clickable balloon hint (e.g. "Pick target →"). */
+.bubble-hint {
+  color: #8a4a1a;
+  font-family: "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Segoe Print", cursive;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 4px;
+}
+
 .card .name {
   font-weight: 700;
   font-size: 0.85rem;
