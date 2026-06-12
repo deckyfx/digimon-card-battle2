@@ -112,7 +112,10 @@ export function ProfilesScreen(props: { store: ProfileStore; onSelect: (profile:
 
           <div class="setup-side">
             <h3>Starter Deck</h3>
-            <div class="tag">Its 30 cards become your card bag — your first deck is built from them.</div>
+            <div class="tag">
+              Its 30 cards become your card bag (plus 5 semi-random reserve cards) — your first deck is built
+              from them.
+            </div>
             <For each={starterDecks()}>
               {(d) => (
                 <div

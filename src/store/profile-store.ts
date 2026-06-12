@@ -40,6 +40,38 @@ export function starterDecks() {
   return DECK_LISTS.filter((d) => /starting deck/i.test(d.note));
 }
 
+/**
+ * Semi-random reserve cards per starter deck (game-guide accurate): each
+ * pair grants ONE of its two card numbers, coin-flipped at profile
+ * creation. Reserves go to the bag only — not into the starting deck.
+ */
+const STARTER_RESERVES: Record<number, [string, string][]> = {
+  121: [
+    // Red Deck
+    ["011", "116"], // Meteormon | Andromon
+    ["025", "131"], // BomberNanimon | Zassomon
+    ["028", "137"], // Solarmon | Aruraumon
+    ["031", "138"], // Candlemon | Sharmamon
+    ["258", "249"], // Fire Spot | Circle Hitter
+  ],
+  122: [
+    // Green Deck
+    ["080", "150"], // Piximon | Etemon
+    ["096", "164"], // MoriShellmon | SandYanmamon
+    ["098", "166"], // Palmon | Hagurumon
+    ["100", "171"], // Elecmon | ModokiBetamon
+    ["265", "250"], // High Speed Disk | Triangle Hitter
+  ],
+  123: [
+    // Yellow Deck
+    ["045", "149"], // BlueMeramon | Mamemon
+    ["060", "160"], // Icemon | Geremon
+    ["065", "167"], // Gizamon | ToyAgumon
+    ["068", "169"], // SnowGoburimon | Vi-Elecmon
+    ["259", "251"], // Ice Crystal | Cross Hitter
+  ],
+};
+
 /** Unique-enough id (crypto.randomUUID is unavailable over LAN http). */
 function generateId(): string {
   return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
@@ -88,8 +120,10 @@ export class ProfileStore {
     const starter = starterDecks().find((d) => d.id === input.starterDeckId);
     if (!starter) throw new Error("Pick a starter deck.");
 
+    // Starter cards + five semi-random reserves (one coin-flip per pair).
+    const reserves = (STARTER_RESERVES[starter.id] ?? []).map((pair) => pair[Math.random() < 0.5 ? 0 : 1]);
     const bag: Record<string, number> = {};
-    for (const n of [...starter.cardNumbers, ...starter.armors]) {
+    for (const n of [...starter.cardNumbers, ...starter.armors, ...reserves]) {
       bag[n] = Math.min(MAX_BAG_COPIES, (bag[n] ?? 0) + 1);
     }
 
