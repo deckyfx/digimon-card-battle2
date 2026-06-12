@@ -7,6 +7,7 @@ import { OPPONENT_ACTORS, PLAYER_ACTORS, getActorById } from "@src/data/actors";
 import { CustomDeckStore } from "@src/store/custom-deck-store";
 import { LocalStorageProvider } from "@src/store/storage-provider";
 import { DeckBuilder } from "./DeckBuilder";
+import { DeckColorBar } from "./DeckColorBar";
 import { CardView, setInspectedCard, inspectedCard, specialtyClass } from "./CardView";
 
 const RANDOM_DECK = "__random__";
@@ -28,6 +29,14 @@ export function App() {
   const [cpuActorId, setCpuActorId] = createSignal(OPPONENT_ACTORS[0]?.id ?? 2);
   const [cpuDeck, setCpuDeck] = createSignal<string>(RANDOM_DECK);
   const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
+  const [setupError, setSetupError] = createSignal("");
+
+  /** Card numbers of the currently selected deck for a side ([] if unresolved). */
+  const selectedNumbers = (value: string): string[] => {
+    if (value.startsWith(CUSTOM_PREFIX)) return customDeckStore.get(value.slice(CUSTOM_PREFIX.length))?.cardNumbers ?? [];
+    if (value.startsWith(PREBUILT_PREFIX)) return getDeckById(parseInt(value.slice(PREBUILT_PREFIX.length), 10))?.cardNumbers ?? [];
+    return [];
+  };
   const playerActor = () => getActorById(playerActorId()) ?? PLAYER_ACTORS[0]!;
   const [view, setView] = createSignal<"menu" | "builder">("menu");
 
@@ -73,9 +82,27 @@ export function App() {
     return engine();
   };
 
+  /** Final legality check — guards against hand-edited localStorage decks. */
+  const deckIllegal = (cards: { number: string }[]): string | null => {
+    if (cards.length !== 30) return `deck has ${cards.length} cards (must be exactly 30)`;
+    const counts = new Map<string, number>();
+    for (const c of cards) counts.set(c.number, (counts.get(c.number) ?? 0) + 1);
+    if ([...counts.values()].some((n) => n > 4)) return "deck has more than 4 copies of a card";
+    return null;
+  };
+
   function startMatch() {
+    setSetupError("");
     const mine = resolveDeck(playerDeck());
-    if (mine.cards.length === 0) return; // no deck selected yet
+    if (mine.cards.length === 0) {
+      setSetupError("Pick your deck first.");
+      return;
+    }
+    const illegal = deckIllegal(mine.cards);
+    if (illegal) {
+      setSetupError(`"${mine.name}" is invalid: ${illegal}.`);
+      return;
+    }
     const actor = cpuActor();
     let cpuDeckValue: string;
     if (actor.isPlayer) {
@@ -217,6 +244,7 @@ export function App() {
                       )}
                     </For>
                   </select>
+                  <DeckColorBar cardNumbers={selectedNumbers(playerDeck())} />
                 </Show>
               </div>
 
@@ -269,6 +297,9 @@ export function App() {
                     </For>
                   </select>
                 </Show>
+                <Show when={cpuDeck() !== RANDOM_DECK}>
+                  <DeckColorBar cardNumbers={selectedNumbers(cpuDeck())} />
+                </Show>
               </div>
             </div>
 
@@ -297,6 +328,11 @@ export function App() {
               </label>
             </div>
 
+            <Show when={setupError()}>
+              <div class="warn" style={{ "margin-bottom": "8px" }}>
+                ⚠ {setupError()}
+              </div>
+            </Show>
             <div class="setup-actions">
               <button class="primary" onClick={startMatch}>
                 ▶ START MATCH

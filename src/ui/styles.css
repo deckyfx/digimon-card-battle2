@@ -449,6 +449,56 @@ body {
   border-color: #d4a017;
 }
 
+/* Deck colour composition bar */
+.deck-colors {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 5px 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.deck-color {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  border: 1px solid #00000066;
+}
+
+.chip-fire {
+  background: #e0452f;
+}
+
+.chip-ice {
+  background: #3f8fe0;
+}
+
+.chip-nature {
+  background: #3fb950;
+}
+
+.chip-darkness {
+  background: #4a3070;
+}
+
+.chip-rare {
+  background: #e6c229;
+}
+
+.chip-label {
+  font-size: 0.66rem;
+  color: #9aa3c7;
+  letter-spacing: 0.05em;
+}
+
 /* Actor portraits */
 .portrait {
   width: 64px;

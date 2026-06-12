@@ -4,6 +4,7 @@ import { MASTER_CARDS } from "@src/data/master-cards";
 import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck, type CustomDeckStore } from "@src/store/custom-deck-store";
 import { DECK_LISTS } from "@src/data/deck-lists";
 import { CardInspector } from "./App";
+import { DeckColorBar } from "./DeckColorBar";
 import { setInspectedCard } from "./CardView";
 
 const ALL = "All";
@@ -180,6 +181,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
         <h2>
           Deck — {numbers().length}/{DECK_SIZE}
         </h2>
+        <DeckColorBar cardNumbers={numbers()} />
         <div class="builder-filters">
           <input
             type="text"
@@ -244,7 +246,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
           {(d) => (
             <div class="pool-row">
               <span class="pool-name">{d.name}</span>
-              <span class="pool-meta">{d.cardNumbers.length} cards</span>
+              <DeckColorBar cardNumbers={d.cardNumbers} />
               <button onClick={() => edit(d)}>Edit</button>
               <button onClick={() => copyCustom(d)}>Copy</button>
               <button onClick={() => deleteDeck(d)}>🗑</button>
