@@ -94,6 +94,8 @@ export class CustomDeckStore {
     if (errors.length > 0) throw new Error(errors.join(" "));
 
     const decks = this.list();
+    const clash = decks.find((d) => d.id !== deck.id && d.name.toLowerCase() === name.toLowerCase());
+    if (clash) throw new Error(`A deck named "${clash.name}" already exists.`);
     const saved: CustomDeck = {
       id: deck.id ?? generateId(),
       name,

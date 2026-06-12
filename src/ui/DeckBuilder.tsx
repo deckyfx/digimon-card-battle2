@@ -119,6 +119,14 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
     setMessage(`Copied template "${tpl.name}" (${tpl.owner}) — rename and save as your own.`);
   };
 
+  /** Copy a saved custom deck into the editor as a new (unsaved) deck. */
+  const copyCustom = (d: CustomDeck) => {
+    setEditingId(null); // saving creates a NEW deck
+    setDeckName(`${d.name} copy`.slice(0, MAX_NAME_LENGTH));
+    setNumbers([...d.cardNumbers]);
+    setMessage(`Copied "${d.name}" — rename and save as a new deck.`);
+  };
+
   const deleteDeck = (d: CustomDeck) => {
     props.store.delete(d.id);
     setDecks(props.store.list());
@@ -238,6 +246,7 @@ export function DeckBuilder(props: { store: CustomDeckStore; onBack: () => void 
               <span class="pool-name">{d.name}</span>
               <span class="pool-meta">{d.cardNumbers.length} cards</span>
               <button onClick={() => edit(d)}>Edit</button>
+              <button onClick={() => copyCustom(d)}>Copy</button>
               <button onClick={() => deleteDeck(d)}>🗑</button>
             </div>
           )}
