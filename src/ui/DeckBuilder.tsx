@@ -4,7 +4,7 @@ import { MASTER_CARDS } from "@src/data/master-cards";
 import { ARMOR_PARTNER, PARTNER_ARMORS, partnersIn } from "@src/data/armor";
 import { DECK_SIZE, MAX_COPIES, MAX_NAME_LENGTH, type CustomDeck, type CustomDeckStore } from "@src/store/custom-deck-store";
 import { DECK_LISTS } from "@src/data/deck-lists";
-import { CardInspector } from "./App";
+import { CardInspector } from "./CardInspector";
 import { DeckColorBar } from "./DeckColorBar";
 import { setInspectedCard } from "./CardView";
 
