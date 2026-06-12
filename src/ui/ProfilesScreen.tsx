@@ -71,7 +71,8 @@ export function ProfilesScreen(props: { store: ProfileStore; onSelect: (profile:
                 <div class="profile-info">
                   <div class="profile-name">{p.name}</div>
                   <div class="tag">
-                    🎴 {bagTotal(p)} cards · 🃏 {p.decks.length} deck{p.decks.length === 1 ? "" : "s"}
+                    🎴 {bagTotal(p)} cards · 🃏 {p.decks.length} deck{p.decks.length === 1 ? "" : "s"} · ⭐{" "}
+                    {p.exp} EXP · {props.store.totalRecord(p).wins}W {props.store.totalRecord(p).losses}L
                   </div>
                 </div>
                 <button

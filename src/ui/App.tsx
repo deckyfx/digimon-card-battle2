@@ -153,6 +153,7 @@ export function App() {
     eng.log.push(`${eng.players.player.name} [${mine.name}] vs ${eng.players.cpu.name} [${theirs.name}]`);
     eng.setOnChange(() => setVersion((v) => v + 1));
     rewardClaim = null;
+    resultRecorded = false;
     setCpu(new CpuPlayer(eng));
     setEngine(eng);
     setAttack("c");
@@ -234,12 +235,23 @@ export function App() {
     if (prof) {
       profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
       profileStore.addExp(prof.id, actor.exp);
-      profileStore.recordWin(prof.id, actor.id);
       refreshProfile();
     }
     rewardClaim = { exp: actor.exp, packName: pack?.name ?? null, cards, bonusCards };
     return rewardClaim;
   }
+
+  // Record EVERY match result (wins and losses) once, at game over.
+  let resultRecorded = false;
+  createEffect(() => {
+    const g = game();
+    if (!g || g.phase !== "game-over" || resultRecorded) return;
+    resultRecorded = true;
+    const prof = profile();
+    if (!prof) return;
+    profileStore.recordResult(prof.id, cpuActor().id, g.winner === "player");
+    refreshProfile();
+  });
 
   function backToLobby() {
     rewardClaim = null;

@@ -15,7 +15,8 @@ export function CityScreen(props: {
   onFight: (actorId: number) => void;
   onBack: () => void;
 }) {
-  const wins = (id: number) => props.profile.defeated[id] ?? 0;
+  const record = (id: number) => props.profile.records[id] ?? { wins: 0, losses: 0 };
+  const wins = (id: number) => record(id).wins;
   return (
     <div class="setup">
       <div class="city-header">
@@ -42,7 +43,9 @@ export function CityScreen(props: {
                     </span>
                     <span class="tag">
                       ⭐ {actor.exp} · 📦 {pack?.name ?? "—"}
-                      {wins(actorId) > 1 ? ` · ${wins(actorId)} wins` : ""}
+                      {wins(actorId) > 0 || record(actorId).losses > 0
+                        ? ` · ${wins(actorId)}W ${record(actorId).losses}L`
+                        : ""}
                     </span>
                     <button class="primary" onClick={() => props.onFight(actorId)}>
                       ⚔ Duel

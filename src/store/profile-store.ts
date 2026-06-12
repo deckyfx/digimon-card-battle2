@@ -24,11 +24,20 @@ export interface PlayerProfile {
   decks: CustomDeck[];
   /** Accumulated experience points (earned by defeating duelists). */
   exp: number;
-  /** Victory counts per defeated actor id (drives city unlocks). */
-  defeated: Record<number, number>;
+  /** Win/loss tallies per opponent actor id (drives city unlocks). */
+  records: BattleRecords;
   createdAt: string;
   updatedAt: string;
 }
+
+/** One opponent's tally against this profile. */
+export interface ActorRecord {
+  wins: number;
+  losses: number;
+}
+
+/** Win/loss tallies keyed by opponent actor id. */
+export type BattleRecords = Record<number, ActorRecord>;
 
 /** A profile may keep at most this many built decks. */
 export const MAX_DECKS = 3;
@@ -101,8 +110,19 @@ export class ProfileStore {
     try {
       const profiles = JSON.parse(raw) as PlayerProfile[];
       if (!Array.isArray(profiles)) return [];
-      // Migrate profiles from before exp / defeat tracking.
-      return profiles.map((p) => ({ ...p, exp: p.exp ?? 0, defeated: p.defeated ?? {} }));
+      // Migrate profiles from before exp / record tracking (the short-lived
+      // `defeated` win-count map becomes win-only records).
+      return profiles.map((raw) => {
+        const p = raw as PlayerProfile & { defeated?: Record<number, number> };
+        let records: BattleRecords = p.records ?? {};
+        if (!p.records && p.defeated) {
+          records = Object.fromEntries(
+            Object.entries(p.defeated).map(([id, wins]) => [id, { wins, losses: 0 }]),
+          );
+        }
+        const { defeated: _legacy, ...rest } = p;
+        return { ...rest, exp: p.exp ?? 0, records };
+      });
     } catch {
       return [];
     }
@@ -149,7 +169,7 @@ export class ProfileStore {
         },
       ],
       exp: 0,
-      defeated: {},
+      records: {},
       createdAt: now,
       updatedAt: now,
     };
@@ -170,10 +190,24 @@ export class ProfileStore {
     return profile.bag[cardNumber] ?? 0;
   }
 
-  /** Records a victory over an actor (drives city unlock progression). */
-  recordWin(profileId: string, actorId: number): PlayerProfile {
+  /** Career totals across every opponent. */
+  totalRecord(profile: PlayerProfile): ActorRecord {
+    let wins = 0;
+    let losses = 0;
+    for (const rec of Object.values(profile.records)) {
+      wins += rec.wins;
+      losses += rec.losses;
+    }
+    return { wins, losses };
+  }
+
+  /** Records a match result against an actor (win AND loss are tracked). */
+  recordResult(profileId: string, actorId: number, won: boolean): PlayerProfile {
     const profile = this.require(profileId);
-    profile.defeated[actorId] = (profile.defeated[actorId] ?? 0) + 1;
+    const rec = profile.records[actorId] ?? { wins: 0, losses: 0 };
+    if (won) rec.wins++;
+    else rec.losses++;
+    profile.records[actorId] = rec;
     return this.update(profile);
   }
 

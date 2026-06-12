@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
-import { CITIES, isCityCleared, isCityUnlocked, type City } from "@src/data/cities";
+import { CITIES, isCityCleared, isCityUnlocked, winsAgainst, type City } from "@src/data/cities";
 import type { PlayerProfile } from "@src/store/profile-store";
+import { profileStore } from "./deck-select";
 
 /**
  * The scenario hub: every city as a banner card — locked until the
@@ -14,20 +15,21 @@ export function WorldMapScreen(props: {
   onChangeProfile: () => void;
   onOpenBuilder: () => void;
 }) {
-  const defeated = () => props.profile.defeated;
+  const records = () => props.profile.records;
+  const total = () => profileStore.totalRecord(props.profile);
   return (
     <div class="setup">
       <h1 class="game-title">DIGITAL CARD BATTLE</h1>
       <p class="subtitle">
-        {props.profile.name} · ⭐ {props.profile.exp} EXP
+        {props.profile.name} · ⭐ {props.profile.exp} EXP · {total().wins}W {total().losses}L
       </p>
 
       <div class="world-map">
         <For each={CITIES}>
           {(city) => {
-            const unlocked = () => isCityUnlocked(city, defeated());
-            const cleared = () => isCityCleared(city, defeated());
-            const beaten = () => city.cafeActorIds.filter((id) => (defeated()[id] ?? 0) > 0).length;
+            const unlocked = () => isCityUnlocked(city, records());
+            const cleared = () => isCityCleared(city, records());
+            const beaten = () => city.cafeActorIds.filter((id) => winsAgainst(records(), id) > 0).length;
             return (
               <div
                 class="city-card"

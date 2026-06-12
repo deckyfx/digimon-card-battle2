@@ -59,18 +59,25 @@ export function getCityById(id: string): City | null {
   return CITIES.find((c) => c.id === id) ?? null;
 }
 
+import type { BattleRecords } from "@src/store/profile-store";
+
+/** Wins against `actorId` in a profile's battle records. */
+export function winsAgainst(records: BattleRecords, actorId: number): number {
+  return records[actorId]?.wins ?? 0;
+}
+
 /**
  * A city is open when its prerequisite city is cleared — every cafe
- * resident there defeated at least once (`defeated` = actor id → wins).
+ * resident there defeated at least once.
  */
-export function isCityUnlocked(city: City, defeated: Record<number, number>): boolean {
+export function isCityUnlocked(city: City, records: BattleRecords): boolean {
   if (!city.unlockedBy) return true;
   const prev = getCityById(city.unlockedBy);
   if (!prev) return true;
-  return prev.cafeActorIds.every((id) => (defeated[id] ?? 0) > 0);
+  return prev.cafeActorIds.every((id) => winsAgainst(records, id) > 0);
 }
 
 /** True when every cafe resident of `city` has been beaten at least once. */
-export function isCityCleared(city: City, defeated: Record<number, number>): boolean {
-  return city.cafeActorIds.every((id) => (defeated[id] ?? 0) > 0);
+export function isCityCleared(city: City, records: BattleRecords): boolean {
+  return city.cafeActorIds.every((id) => winsAgainst(records, id) > 0);
 }
