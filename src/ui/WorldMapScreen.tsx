@@ -56,6 +56,15 @@ export function WorldMapScreen(props: {
         <button onClick={props.onChangeProfile}>⇄ Change Profile</button>
         <button onClick={props.onOpenBuilder}>🛠 Deck Builder</button>
         <button onClick={props.onFreeBattle}>⚔ Free Battle</button>
+        <button
+          onClick={() => {
+            window.history.pushState(null, "", "/debug");
+            window.dispatchEvent(new Event("popstate"));
+          }}
+          style={{ "border-style": "dashed", color: "#aaa" }}
+        >
+          🛠 Debug
+        </button>
       </div>
     </div>
   );

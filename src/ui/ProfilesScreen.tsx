@@ -92,6 +92,15 @@ export function ProfilesScreen(props: { store: ProfileStore; onSelect: (profile:
           <button class="primary" onClick={() => setCreating(true)}>
             ＋ New Profile
           </button>
+          <button
+            onClick={() => {
+              window.history.pushState(null, "", "/debug");
+              window.dispatchEvent(new Event("popstate"));
+            }}
+            style={{ "border-style": "dashed", color: "#aaa" }}
+          >
+            🛠 Debug
+          </button>
         </div>
       </Show>
 

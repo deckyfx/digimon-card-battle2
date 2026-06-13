@@ -26,9 +26,15 @@ export interface City {
   unlockedBy: string | null;
 }
 
-const img = (id: string, kind: "overview" | "cafe" | "arena") => `/assets/cities/${id}-${kind}.png`;
+const img = (id: string, kind: "overview" | "cafe" | "arena") =>
+  `/assets/cities/${id}-${kind}.png`;
 
-const city = (id: string, name: string, cafeActorIds: number[], unlockedBy: string | null): City => ({
+const city = (
+  id: string,
+  name: string,
+  cafeActorIds: number[],
+  unlockedBy: string | null,
+): City => ({
   id,
   name,
   overview: img(id, "overview"),
@@ -50,9 +56,19 @@ export const CITIES: City[] = [
   city("pyramid", "Pyramid City", [23, 24, 25], "dark"), // Centarumon, Tyrannomon, Angemon
   city("sky", "Sky City", [30, 31, 32], "pyramid"), // Wizardmon, AeroVeedramon, Gatomon
   city("steep-road", "Steep Road", [34, 35, 36, 37], "sky"), // Goburimon, DemiDevimon, Megadramon, Gigadramon
-  city("wiseman-tower", "Wiseman Tower", [38, 39, 40, 41, 42, 43], "steep-road"), // Togemon … MetalGreymon
-  city("infinity-tower", "Infinity Tower", [44, 45, 46, 98, 47], "wiseman-tower"), // Tuskmon, Phantomon, MegaSeadramon, Machinedramon, VenomMyotismon
-  city("desert-island", "Desert Island", [48, 49, 50, 51], "junk"), // Leomon, Devimon, MetalEtemon, Myotismon
+  city(
+    "wiseman-tower",
+    "Wiseman Tower",
+    [38, 39, 40, 41, 42, 43],
+    "steep-road",
+  ), // Togemon … MetalGreymon
+  city(
+    "infinity-tower",
+    "Infinity Tower",
+    [44, 45, 46, 98, 47],
+    "wiseman-tower",
+  ), // Tuskmon, Phantomon, MegaSeadramon, Machinedramon, VenomMyotismon
+  city("desert-island", "Desert Island", [48, 49, 50, 51], "infinity-tower"), // Leomon, Devimon, MetalEtemon, Myotismon
 ];
 
 export function getCityById(id: string): City | null {
