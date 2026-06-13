@@ -1,5 +1,5 @@
 import { render } from "solid-js/web";
-import { createSignal, createEffect } from "solid-js";
+import { createSignal, createEffect, onCleanup } from "solid-js";
 import { App } from "./ui/App";
 import { DebugRoute } from "./ui/debug/DebugRoute";
 import "./ui/styles.css";
@@ -17,10 +17,10 @@ function Root() {
     window.addEventListener("popstate", handleLocationChange);
     window.addEventListener("hashchange", handleLocationChange);
 
-    return () => {
+    onCleanup(() => {
       window.removeEventListener("popstate", handleLocationChange);
       window.removeEventListener("hashchange", handleLocationChange);
-    };
+    });
   });
 
   const isDebug = () =>

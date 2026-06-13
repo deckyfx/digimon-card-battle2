@@ -145,7 +145,7 @@ export function SandboxTab() {
   };
 
   // Helper to show changed variables
-  const isChanged = (curr: any, orig: any) => {
+  const isChanged = (curr: CombatantCtx[keyof CombatantCtx] | undefined, orig: CombatantCtx[keyof CombatantCtx] | undefined) => {
     if (Array.isArray(curr) && Array.isArray(orig)) {
       return JSON.stringify(curr) !== JSON.stringify(orig);
     }
@@ -185,7 +185,7 @@ export function SandboxTab() {
                 <select
                   class="sim-select"
                   value={scriptType()}
-                  onChange={(e) => setScriptType(e.currentTarget.value as any)}
+                  onChange={(e) => setScriptType(e.currentTarget.value as "support" | "x_effect")}
                 >
                   <option value="support">Support Effect</option>
                   <option value="x_effect">X-Attack Special Effect</option>

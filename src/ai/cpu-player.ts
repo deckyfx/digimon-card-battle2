@@ -121,7 +121,10 @@ export class CpuPlayer {
     }
 
     const hasUseful = cpu.hand.some(
-      (card) => (card.type === CardType.Option && card.support_script !== "") || isNext(card),
+      (card) =>
+        (card.type === CardType.Option && card.support_script !== "") ||
+        isNext(card) ||
+        this.engine.digivolveOptionKind(card) !== null,
     );
     return !hasUseful;
   }
