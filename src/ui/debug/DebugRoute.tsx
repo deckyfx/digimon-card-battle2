@@ -3,10 +3,11 @@ import { SimTab } from "./SimTab";
 import { SandboxTab } from "./SandboxTab";
 import { ExplorerTab } from "./ExplorerTab";
 import { CardAnimationTab } from "./CardAnimationTab";
+import { BoardDesignTab } from "./BoardDesignTab";
 import "./debug.css";
 
 export function DebugRoute() {
-  const [activeTab, setActiveTab] = createSignal<"sim" | "sandbox" | "explorer" | "animation">("sim");
+  const [activeTab, setActiveTab] = createSignal<"sim" | "sandbox" | "explorer" | "animation" | "board">("sim");
 
   // Navigation helper back to main game
   const navigateToGame = () => {
@@ -54,6 +55,13 @@ export function DebugRoute() {
         >
           🎴 Card Animation Lab
         </button>
+        <button
+          class="debug-btn"
+          classList={{ active: activeTab() === "board" }}
+          onClick={() => setActiveTab("board")}
+        >
+          🎮 Board Design
+        </button>
       </div>
 
       <div class="debug-content">
@@ -68,6 +76,9 @@ export function DebugRoute() {
         </Show>
         <Show when={activeTab() === "animation"}>
           <CardAnimationTab />
+        </Show>
+        <Show when={activeTab() === "board"}>
+          <BoardDesignTab />
         </Show>
       </div>
     </div>

@@ -1,0 +1,64 @@
+/* ── Board Design Tab ──────────────────────────────────────────────────────── */
+
+/* 985 × 711 viewport — preserves exact SVG proportions */
+.bd-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 985 / 711;
+  background: #05060c;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.7);
+  /* subtle grid */
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Base zone */
+.bd-zone {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  box-sizing: border-box;
+  transition: opacity 0.15s;
+}
+
+.bd-zone:hover {
+  opacity: 0.85;
+  z-index: 10;
+}
+
+/* Opponent zones — red tint */
+.bd-zone-opp {
+  background: rgba(250, 100, 100, 0.10);
+  border: 1.5px solid rgba(250, 148, 148, 0.55);
+}
+
+/* Player zones — blue/purple tint */
+.bd-zone-ply {
+  background: rgba(97, 61, 255, 0.10);
+  border: 1.5px solid rgba(97, 61, 255, 0.55);
+}
+
+/* Neutral zones — gold/amber tint */
+.bd-zone-neu {
+  background: rgba(250, 204, 21, 0.10);
+  border: 1.5px solid rgba(250, 204, 21, 0.55);
+}
+
+/* Zone label */
+.bd-zone-label {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: clamp(6px, 1.1vw, 11px);
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  text-align: center;
+  padding: 2px;
+  line-height: 1.2;
+}
