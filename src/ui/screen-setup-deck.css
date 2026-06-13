@@ -1,0 +1,695 @@
+/* ── Screen: Setup Deck ─────────────────────────────────────────────────── */
+
+.ssd-root {
+  height: calc(100dvh - 24px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 24px 24px;
+  box-sizing: border-box;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+
+.ssd-hero {
+  text-align: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.ssd-title {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #00f3ff 0%, #9d4edd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+/* ── Shared ─────────────────────────────────────────────────────────────── */
+
+.ssd-btn-ghost {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  padding: 9px 18px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(226, 232, 240, 0.55);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.ssd-btn-ghost:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+
+.ssd-empty {
+  font-family: "Rajdhani", sans-serif;
+  color: rgba(226,232,240,0.3);
+  text-align: center;
+  padding: 40px;
+  border: 1px dashed rgba(255,255,255,0.08);
+  border-radius: 6px;
+  width: 100%;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIST VIEW
+══════════════════════════════════════════════════════════════════════════ */
+
+.ssd-list-root {
+  width: 100%;
+  max-width: 800px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ssd-list-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ssd-btn-back-list { margin-left: auto; }
+
+.ssd-btn-create {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.82rem;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, rgba(0,243,255,0.12), rgba(157,78,221,0.12));
+  border: 1px solid rgba(0, 243, 255, 0.45);
+  color: #00f3ff;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+}
+.ssd-btn-create:hover {
+  background: linear-gradient(135deg, rgba(0,243,255,0.22), rgba(157,78,221,0.22));
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.25);
+}
+
+/* ── Deck cards ─────────────────────────────────────────────────────────── */
+
+.ssd-deck-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,243,255,0.3) transparent;
+}
+.ssd-deck-list::-webkit-scrollbar        { width: 4px; }
+.ssd-deck-list::-webkit-scrollbar-track  { background: transparent; }
+.ssd-deck-list::-webkit-scrollbar-thumb  { background: rgba(0,243,255,0.3); border-radius: 2px; }
+
+.ssd-deck-card {
+  display: flex;
+  align-items: stretch;
+  background: rgba(20, 24, 33, 0.85);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-left: 3px solid #00f3ff;
+  border-radius: 6px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  transition: border-left-color 0.2s, box-shadow 0.2s;
+}
+.ssd-deck-card:hover {
+  border-left-color: #9d4edd;
+  box-shadow: 0 4px 24px rgba(0,243,255,0.07);
+}
+
+.ssd-deck-card-body {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ssd-deck-name {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ssd-default-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  background: rgba(0, 243, 255, 0.12);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  border-radius: 2px;
+  color: #00f3ff;
+}
+
+.ssd-deck-bar { margin: 2px 0; }
+
+.ssd-deck-stats {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+  color: rgba(226, 232, 240, 0.45);
+  letter-spacing: 0.02em;
+}
+
+.ssd-deck-armor {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.82rem;
+  color: rgba(157, 78, 221, 0.7);
+}
+
+.ssd-deck-card-actions {
+  flex-shrink: 0;
+  padding: 12px 14px;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  min-width: 110px;
+}
+
+.ssd-btn-action {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+  padding: 7px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(226, 232, 240, 0.6);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.ssd-btn-action:hover:not(:disabled) {
+  border-color: rgba(0,243,255,0.4);
+  color: #00f3ff;
+  background: rgba(0,243,255,0.05);
+}
+.ssd-btn-action:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.ssd-btn-danger {
+  color: rgba(239,68,68,0.55);
+  border-color: rgba(239,68,68,0.18);
+}
+.ssd-btn-danger:hover:not(:disabled) {
+  border-color: rgba(239,68,68,0.55);
+  color: #ef4444;
+  background: rgba(239,68,68,0.06);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EDIT VIEW
+══════════════════════════════════════════════════════════════════════════ */
+
+.ssd-edit-root {
+  width: 100%;
+  max-width: 1300px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Edit top bar ───────────────────────────────────────────────────────── */
+
+.ssd-edit-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.ssd-name-input {
+  flex: 1;
+  min-width: 120px;
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: 1rem;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 4px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.ssd-name-input:focus {
+  border-color: #00f3ff;
+  box-shadow: 0 0 0 2px rgba(0,243,255,0.1);
+}
+
+.ssd-edit-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ssd-count-badge {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(226,232,240,0.45);
+  white-space: nowrap;
+}
+
+.ssd-btn-add {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.78rem;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid rgba(0,243,255,0.45);
+  color: #00f3ff;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.ssd-btn-add:hover {
+  background: rgba(0,243,255,0.08);
+  box-shadow: 0 0 12px rgba(0,243,255,0.2);
+}
+
+.ssd-btn-save {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.78rem;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #00f3ff, #9d4edd);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+.ssd-btn-save:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 16px rgba(0,243,255,0.3);
+}
+
+.ssd-message {
+  flex-shrink: 0;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.92rem;
+  padding: 9px 14px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #f87171;
+}
+.ssd-message--ok {
+  background: rgba(74,222,128,0.08);
+  border-color: rgba(74,222,128,0.3);
+  color: #4ade80;
+}
+
+/* ── Two-column main layout ─────────────────────────────────────────────── */
+
+.ssd-edit-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  gap: 20px;
+}
+
+.ssd-edit-left {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,243,255,0.3) transparent;
+}
+.ssd-edit-left::-webkit-scrollbar        { width: 4px; }
+.ssd-edit-left::-webkit-scrollbar-track  { background: transparent; }
+.ssd-edit-left::-webkit-scrollbar-thumb  { background: rgba(0,243,255,0.3); border-radius: 2px; }
+
+.ssd-colorbar-wrap { margin-bottom: 8px; }
+
+/* ── 10 × 3 card grid ───────────────────────────────────────────────────── */
+
+/*
+ * Cards are 200×217px; scaled to 0.40 → 80×87px each.
+ * 10 columns × 80px + 9 gaps × 6px = 854px.
+ */
+.ssd-card-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 80px);
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.ssd-slot {
+  position: relative;
+  width: 80px;
+  height: 87px;   /* 217 × 0.40 */
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.ssd-card-inner {
+  width: 200px;
+  height: 217px;
+  transform: scale(0.40);
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.ssd-slot--empty {
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.08);
+}
+
+.ssd-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.85);
+  border: none;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+.ssd-slot:hover .ssd-remove { opacity: 1; }
+
+/* ── Armor section ──────────────────────────────────────────────────────── */
+
+.ssd-armor-section {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: rgba(157,78,221,0.06);
+  border: 1px solid rgba(157,78,221,0.2);
+  border-radius: 6px;
+}
+
+.ssd-armor-label {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(157,78,221,0.7);
+  margin-bottom: 10px;
+}
+
+.ssd-armor-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ssd-armor-select {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  padding: 7px 10px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(157,78,221,0.3);
+  border-radius: 4px;
+  color: #e2e8f0;
+  outline: none;
+  cursor: pointer;
+}
+
+.ssd-armor-none {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+  color: rgba(226,232,240,0.3);
+}
+
+/* ── Right detail panel (edit view) ────────────────────────────────────── */
+
+.ssd-detail-panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: rgba(9, 10, 15, 0.6);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,243,255,0.3) transparent;
+}
+.ssd-detail-panel::-webkit-scrollbar        { width: 4px; }
+.ssd-detail-panel::-webkit-scrollbar-track  { background: transparent; }
+.ssd-detail-panel::-webkit-scrollbar-thumb  { background: rgba(0,243,255,0.3); border-radius: 2px; }
+
+.ssd-detail-empty {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.88rem;
+  color: rgba(226,232,240,0.3);
+  text-align: center;
+  padding: 24px 8px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ADD CARDS DIALOG
+══════════════════════════════════════════════════════════════════════════ */
+
+.ssd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(6px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.ssd-dialog {
+  background: rgba(13,15,22,0.97);
+  border: 1px solid rgba(0,243,255,0.18);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 1050px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+}
+
+.ssd-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+
+.ssd-dialog-title {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1rem;
+  color: #00f3ff;
+  letter-spacing: 0.06em;
+}
+
+.ssd-dialog-count {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(226,232,240,0.4);
+  margin-left: auto;
+}
+
+.ssd-dialog-close {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.5);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.ssd-dialog-close:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+.ssd-dialog-filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.ssd-filter-input {
+  flex: 1;
+  min-width: 140px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  color: #fff;
+  outline: none;
+}
+.ssd-filter-input:focus { border-color: rgba(0,243,255,0.45); }
+
+.ssd-filter-select {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  color: #e2e8f0;
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── Dialog two-column body ─────────────────────────────────────────────── */
+
+.ssd-dialog-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Pool table (left column) ───────────────────────────────────────────── */
+
+.ssd-pool-table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,243,255,0.3) transparent;
+}
+.ssd-pool-table-wrap::-webkit-scrollbar        { width: 4px; }
+.ssd-pool-table-wrap::-webkit-scrollbar-track  { background: transparent; }
+.ssd-pool-table-wrap::-webkit-scrollbar-thumb  { background: rgba(0,243,255,0.3); border-radius: 2px; }
+.ssd-pool-table-wrap::-webkit-scrollbar-thumb:hover { background: rgba(0,243,255,0.6); }
+
+.ssd-pool-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.ssd-pool-table th,
+.ssd-pool-table td {
+  padding: 9px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.ssd-pool-table thead th {
+  background: rgba(9,10,15,0.9);
+  color: rgba(226,232,240,0.55);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ssd-pool-table .ssd-pool-row:hover td {
+  background: rgba(0,243,255,0.05);
+}
+
+.ssd-pool-row--full { opacity: 0.4; }
+
+/* Column widths */
+.ssd-th-num,  .ssd-td-num  { width: 44px; color: rgba(226,232,240,0.35); font-size: 0.8rem; }
+.ssd-th-name, .ssd-td-name { font-family: "Rajdhani", sans-serif; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.03em; }
+.ssd-th-icon, .ssd-td-icon { width: 40px; text-align: center; }
+.ssd-th-hp,   .ssd-td-hp   { width: 44px; color: rgba(226,232,240,0.5); font-size: 0.85rem; }
+.ssd-th-own,  .ssd-td-own  { width: 40px; text-align: center; color: rgba(226,232,240,0.4); font-size: 0.82rem; }
+.ssd-th-deck, .ssd-td-deck { width: 44px; text-align: center; color: #00f3ff; font-family: "Audiowide", sans-serif; font-size: 0.78rem; }
+.ssd-th-add,  .ssd-td-add  { width: 40px; text-align: center; }
+
+.ssd-row-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.ssd-pool-empty-td {
+  text-align: center;
+  padding: 40px !important;
+  color: rgba(226,232,240,0.3);
+  font-family: "Rajdhani", sans-serif;
+}
+
+.ssd-pool-add {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid rgba(0,243,255,0.35);
+  color: #00f3ff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.ssd-pool-add:hover:not(:disabled) {
+  background: rgba(0,243,255,0.1);
+  box-shadow: 0 0 8px rgba(0,243,255,0.2);
+}
+.ssd-pool-add:disabled { opacity: 0.2; cursor: not-allowed; }
+
+/* ── Dialog right: card detail ──────────────────────────────────────────── */
+
+.ssd-dialog-detail {
+  width: 270px;
+  flex-shrink: 0;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  padding: 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,243,255,0.3) transparent;
+}
+.ssd-dialog-detail::-webkit-scrollbar        { width: 4px; }
+.ssd-dialog-detail::-webkit-scrollbar-track  { background: transparent; }
+.ssd-dialog-detail::-webkit-scrollbar-thumb  { background: rgba(0,243,255,0.3); border-radius: 2px; }

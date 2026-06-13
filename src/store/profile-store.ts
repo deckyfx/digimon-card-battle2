@@ -372,7 +372,20 @@ export class ProfileStore {
 
   deleteDeck(profileId: string, deckId: string): PlayerProfile {
     const profile = this.require(profileId);
+    if (profile.decks.length <= 1) {
+      throw new Error("A profile must keep at least one deck.");
+    }
     profile.decks = profile.decks.filter((d) => d.id !== deckId);
+    return this.update(profile);
+  }
+
+  /** Moves the given deck to position 0 (the "default" used on profile select). */
+  setDefaultDeck(profileId: string, deckId: string): PlayerProfile {
+    const profile = this.require(profileId);
+    const idx = profile.decks.findIndex((d) => d.id === deckId);
+    if (idx <= 0) return profile;
+    const [deck] = profile.decks.splice(idx, 1) as [CustomDeck];
+    profile.decks.unshift(deck);
     return this.update(profile);
   }
 

@@ -1,0 +1,435 @@
+/* ── Screen: Profiles ────────────────────────────────────────────────────── */
+
+.sp-root {
+  height: calc(100dvh - 24px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 24px 24px;
+  box-sizing: border-box;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────────── */
+
+.sp-hero {
+  flex-shrink: 0;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.sp-title {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 700;
+  margin: 0 0 10px;
+  background: linear-gradient(135deg, #00f3ff 0%, #9d4edd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.sp-subtitle {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.1rem;
+  color: rgba(226, 232, 240, 0.5);
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────────────── */
+
+.sp-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 780px;
+  margin-bottom: 16px;
+}
+
+.sp-btn-create {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, rgba(0,243,255,0.15), rgba(157,78,221,0.15));
+  border: 1px solid rgba(0, 243, 255, 0.5);
+  color: #00f3ff;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+
+.sp-btn-create:hover {
+  background: linear-gradient(135deg, rgba(0,243,255,0.25), rgba(157,78,221,0.25));
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.3);
+}
+
+.sp-btn-debug {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.3);
+  border-radius: 4px;
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sp-btn-debug:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.6);
+}
+
+/* ── Profile list ──────────────────────────────────────────────────────────── */
+
+.sp-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 780px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,243,255,0.3) transparent;
+}
+.sp-list::-webkit-scrollbar        { width: 4px; }
+.sp-list::-webkit-scrollbar-track  { background: transparent; }
+.sp-list::-webkit-scrollbar-thumb  { background: rgba(0,243,255,0.3); border-radius: 2px; }
+
+.sp-empty {
+  font-family: "Rajdhani", sans-serif;
+  color: rgba(226,232,240,0.35);
+  text-align: center;
+  padding: 32px;
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 6px;
+}
+
+/* ── Profile card ──────────────────────────────────────────────────────────── */
+
+.sp-card {
+  display: flex;
+  align-items: stretch;
+  background: rgba(20, 24, 33, 0.80);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid #00f3ff;
+  border-radius: 6px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  transition: border-left-color 0.2s, box-shadow 0.2s;
+  min-height: 120px;
+}
+
+.sp-card:hover {
+  border-left-color: #9d4edd;
+  box-shadow: 0 4px 24px rgba(0,243,255,0.08);
+}
+
+/* Portrait column */
+.sp-card-portrait {
+  flex-shrink: 0;
+  width: 120px;
+  background: rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sp-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sp-portrait-placeholder {
+  font-family: "Audiowide", sans-serif;
+  font-size: 2rem;
+  color: rgba(255,255,255,0.15);
+}
+
+/* Data column */
+.sp-card-body {
+  flex: 1;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sp-card-name {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sp-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sp-stat {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  color: rgba(226, 232, 240, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sp-stat-icon {
+  font-size: 0.85rem;
+}
+
+.sp-stat-sep {
+  color: rgba(255,255,255,0.2);
+  font-size: 0.85rem;
+}
+
+.sp-stat-wins   { color: #4ade80; font-weight: 700; }
+.sp-stat-losses { color: rgba(226,232,240,0.45); }
+
+/* Actions column */
+.sp-card-actions {
+  flex-shrink: 0;
+  width: 130px;
+  padding: 14px 16px;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.sp-btn-play {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.8rem;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #00f3ff, #9d4edd);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  text-align: center;
+}
+
+.sp-btn-play:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.4);
+}
+
+.sp-btn-delete {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(226,232,240,0.4);
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.sp-btn-delete:hover {
+  border-color: rgba(239,68,68,0.5);
+  color: rgba(239,68,68,0.8);
+  background: rgba(239,68,68,0.06);
+}
+
+.sp-btn-delete--confirm {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239,68,68,0.12);
+}
+
+/* ── Create form ───────────────────────────────────────────────────────────── */
+
+.sp-create {
+  width: 100%;
+  max-width: 780px;
+}
+
+.sp-create-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.sp-create-title {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1.2rem;
+  color: #00f3ff;
+  margin: 0;
+  letter-spacing: 0.08em;
+}
+
+.sp-btn-back {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(226,232,240,0.6);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sp-btn-back:hover {
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+}
+
+.sp-create-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.sp-create-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sp-label {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(0,243,255,0.7);
+}
+
+.sp-input {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sp-input:focus {
+  border-color: #00f3ff;
+  box-shadow: 0 0 0 2px rgba(0,243,255,0.12);
+}
+
+.sp-hint {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.88rem;
+  color: rgba(226,232,240,0.45);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Starter deck selector */
+.sp-starter {
+  padding: 12px 14px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sp-starter:hover {
+  border-color: rgba(0,243,255,0.35);
+  background: rgba(0,243,255,0.05);
+}
+
+.sp-starter--selected {
+  border-color: #00f3ff;
+  background: rgba(0,243,255,0.08);
+  box-shadow: 0 0 12px rgba(0,243,255,0.15);
+}
+
+.sp-starter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.sp-starter-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.sp-starter-owner {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.8rem;
+  color: rgba(226,232,240,0.4);
+}
+
+.sp-starter-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sp-card-tag {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  background: rgba(0,243,255,0.08);
+  border: 1px solid rgba(0,243,255,0.2);
+  border-radius: 2px;
+  color: rgba(226,232,240,0.65);
+  cursor: default;
+  transition: border-color 0.15s;
+}
+
+.sp-card-tag:hover {
+  border-color: rgba(0,243,255,0.55);
+  color: #fff;
+}
+
+.sp-inspector-wrap {
+  max-width: 420px;
+  margin-bottom: 16px;
+}
+
+.sp-error {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  color: #f87171;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.sp-create-actions {
+  display: flex;
+  justify-content: flex-end;
+}

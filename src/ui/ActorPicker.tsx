@@ -2,7 +2,10 @@ import { For, createSignal } from "solid-js";
 import { OPPONENT_ACTORS, PLAYER_ACTORS, getActorById } from "@src/data/actors";
 
 /** Opponent picker: search actors, click a portrait to choose. */
-export function ActorPicker(props: { selectedId: number; onPick: (id: number) => void }) {
+export function ActorPicker(props: {
+  selectedId: number;
+  onPick: (id: number) => void;
+}) {
   const [query, setQuery] = createSignal("");
   // Player actors are selectable too — they bring the user's custom decks.
   const matches = () =>
@@ -13,12 +16,16 @@ export function ActorPicker(props: { selectedId: number; onPick: (id: number) =>
   return (
     <div>
       <div class="actor-selected">
-        <img class="portrait selected" src={selected()?.portrait} alt={selected()?.name} />
+        <img
+          class="portrait selected"
+          src={selected()?.portrait}
+          alt={selected()?.name}
+        />
         <span class="actor-name">{selected()?.name}</span>
       </div>
       <input
         type="text"
-        placeholder="🔍 Search opponents…"
+        placeholder="🔍 Search Actor…"
         value={query()}
         onInput={(e) => setQuery(e.currentTarget.value)}
       />

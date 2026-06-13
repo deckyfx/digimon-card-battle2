@@ -48,7 +48,11 @@ export function SetupScreen(props: {
         <div class="setup-side">
           <h3>You</h3>
           <div class="actor-selected">
-            <img class="portrait selected" src={avatar()} alt={props.profile.name} />
+            <img
+              class="portrait selected"
+              src={avatar()}
+              alt={props.profile.name}
+            />
             <span class="actor-name">{props.profile.name}</span>
             <button class="mini" onClick={props.onChangeProfile}>
               ⇄ Change Profile
@@ -56,11 +60,17 @@ export function SetupScreen(props: {
           </div>
           <div class="label-row">
             <label>Deck ({props.profile.decks.length}/3)</label>
-            <button class="mini" onClick={props.onOpenBuilder}>🛠 Deck Builder</button>
+            <button class="mini" onClick={props.onOpenBuilder}>
+              🛠 Setup Deck
+            </button>
           </div>
           <Show
             when={props.profile.decks.length > 0}
-            fallback={<div class="tag">No decks — open the builder to assemble one from your bag.</div>}
+            fallback={
+              <div class="tag">
+                No decks — open the builder to assemble one from your bag.
+              </div>
+            }
           >
             <select
               size={Math.min(6, Math.max(3, props.profile.decks.length))}
@@ -68,13 +78,18 @@ export function SetupScreen(props: {
             >
               <For each={props.profile.decks}>
                 {(d) => (
-                  <option value={`${CUSTOM_PREFIX}${d.id}`} selected={`${CUSTOM_PREFIX}${d.id}` === props.playerDeck}>
+                  <option
+                    value={`${CUSTOM_PREFIX}${d.id}`}
+                    selected={`${CUSTOM_PREFIX}${d.id}` === props.playerDeck}
+                  >
                     {d.name}
                   </option>
                 )}
               </For>
             </select>
-            <DeckColorBar cardNumbers={selectedNumbers(props.playerDeck, props.profile)} />
+            <DeckColorBar
+              cardNumbers={selectedNumbers(props.playerDeck, props.profile)}
+            />
             <Show when={playerArmorNames()}>
               <div class="tag">🛡 Armor side deck: {playerArmorNames()}</div>
             </Show>
@@ -87,7 +102,11 @@ export function SetupScreen(props: {
             when={!props.lockedOpponent}
             fallback={
               <div class="actor-selected">
-                <img class="portrait selected" src={cpuActor()?.portrait} alt={cpuActor()?.name} />
+                <img
+                  class="portrait selected"
+                  src={cpuActor()?.portrait}
+                  alt={cpuActor()?.name}
+                />
                 <span class="actor-name">{cpuActor()?.name}</span>
               </div>
             }
@@ -106,15 +125,28 @@ export function SetupScreen(props: {
             fallback={
               <Show
                 when={props.profile.decks.length > 0}
-                fallback={<div class="tag">Mirror match needs one of your decks — build one first.</div>}
+                fallback={
+                  <div class="tag">
+                    Mirror match needs one of your decks — build one first.
+                  </div>
+                }
               >
-                <select onChange={(e) => props.setCpuDeck(e.currentTarget.value)}>
-                  <option value={RANDOM_DECK} selected={props.cpuDeck === RANDOM_DECK}>
-                    🎲 Random ({props.profile.decks.length} of your deck{props.profile.decks.length > 1 ? "s" : ""})
+                <select
+                  onChange={(e) => props.setCpuDeck(e.currentTarget.value)}
+                >
+                  <option
+                    value={RANDOM_DECK}
+                    selected={props.cpuDeck === RANDOM_DECK}
+                  >
+                    🎲 Random ({props.profile.decks.length} of your deck
+                    {props.profile.decks.length > 1 ? "s" : ""})
                   </option>
                   <For each={props.profile.decks}>
                     {(d) => (
-                      <option value={`${CUSTOM_PREFIX}${d.id}`} selected={`${CUSTOM_PREFIX}${d.id}` === props.cpuDeck}>
+                      <option
+                        value={`${CUSTOM_PREFIX}${d.id}`}
+                        selected={`${CUSTOM_PREFIX}${d.id}` === props.cpuDeck}
+                      >
                         {d.name}
                       </option>
                     )}
@@ -124,14 +156,21 @@ export function SetupScreen(props: {
             }
           >
             <select onChange={(e) => props.setCpuDeck(e.currentTarget.value)}>
-              <option value={RANDOM_DECK} selected={props.cpuDeck === RANDOM_DECK}>
-                🎲 Random ({cpuActor()?.deckIds.length} deck{(cpuActor()?.deckIds.length ?? 0) > 1 ? "s" : ""})
+              <option
+                value={RANDOM_DECK}
+                selected={props.cpuDeck === RANDOM_DECK}
+              >
+                🎲 Random ({cpuActor()?.deckIds.length} deck
+                {(cpuActor()?.deckIds.length ?? 0) > 1 ? "s" : ""})
               </option>
               <For each={cpuActor()?.deckIds ?? []}>
                 {(id) => {
                   const deck = getDeckById(id);
                   return (
-                    <option value={`deck:${id}`} selected={`deck:${id}` === props.cpuDeck}>
+                    <option
+                      value={`deck:${id}`}
+                      selected={`deck:${id}` === props.cpuDeck}
+                    >
                       {deck?.name}
                       {deck?.note ? ` (${deck.note})` : ""}
                     </option>
@@ -141,7 +180,9 @@ export function SetupScreen(props: {
             </select>
           </Show>
           <Show when={props.cpuDeck !== RANDOM_DECK}>
-            <DeckColorBar cardNumbers={selectedNumbers(props.cpuDeck, props.profile)} />
+            <DeckColorBar
+              cardNumbers={selectedNumbers(props.cpuDeck, props.profile)}
+            />
           </Show>
         </div>
       </div>
@@ -149,7 +190,11 @@ export function SetupScreen(props: {
       <div class="setup-options">
         <span>
           First player:{" "}
-          <select onChange={(e) => props.setFirstPlayer(e.currentTarget.value as PlayerId | "random")}>
+          <select
+            onChange={(e) =>
+              props.setFirstPlayer(e.currentTarget.value as PlayerId | "random")
+            }
+          >
             <option value="random" selected={props.firstPlayer === "random"}>
               Random
             </option>
@@ -165,7 +210,9 @@ export function SetupScreen(props: {
           <input
             type="checkbox"
             checked={props.revealOpponentHand}
-            onChange={(e) => props.setRevealOpponentHand(e.currentTarget.checked)}
+            onChange={(e) =>
+              props.setRevealOpponentHand(e.currentTarget.checked)
+            }
           />{" "}
           Reveal CPU hand
         </label>
