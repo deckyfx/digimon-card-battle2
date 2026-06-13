@@ -556,3 +556,26 @@
   cursor: not-allowed;
 }
 
+
+/* ── Board Design fullboard mode ─────────────────────────────────────────── */
+
+/* Debug chrome floats above the Portal board (z-index 5) */
+.bd-fullboard {
+  position: relative;
+  z-index: 10;
+  /* Let background show through so the board is visible behind chrome */
+  background: transparent;
+}
+
+.bd-fullboard .debug-header,
+.bd-fullboard .debug-tabs {
+  position: relative;
+  background: rgba(13, 15, 20, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hide the empty content well — board renders via Portal, not here */
+.bd-fullboard .debug-content {
+  display: none;
+}

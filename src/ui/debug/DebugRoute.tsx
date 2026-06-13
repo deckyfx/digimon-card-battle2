@@ -16,7 +16,7 @@ export function DebugRoute() {
   };
 
   return (
-    <div class="debug-root">
+    <div class="debug-root" classList={{ "bd-fullboard": activeTab() === "board" }}>
       <div class="debug-header">
         <h1 class="debug-title">DIGITAL CARD BATTLE // DEBUG</h1>
         <div class="debug-nav">
