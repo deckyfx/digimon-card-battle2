@@ -1,0 +1,382 @@
+/* ScreenBattleSetup — streamlined game-progression battle intro */
+
+.sbs-root {
+  position: fixed;
+  inset: 0;
+  background: #08091c;
+  color: #e0e0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  font-family: inherit;
+}
+
+.sbs-prompt {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #9098d8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+/* ── STAGE 1: DECK SELECT ─────────────────────────────────── */
+
+.sbs-deck-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  width: 100%;
+  max-width: 520px;
+  padding: 2rem 1.5rem;
+}
+
+.sbs-deck-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.sbs-deck-item {
+  width: 100%;
+  background: #0f1030;
+  border: 2px solid #252560;
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  transition: border-color 0.18s, background 0.18s, transform 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sbs-deck-item:hover {
+  border-color: #4455bb;
+  background: #141540;
+  transform: translateX(3px);
+}
+
+.sbs-deck-item--selected {
+  border-color: #6677ff;
+  background: #181860;
+  box-shadow: 0 0 18px rgba(90, 110, 255, 0.28);
+}
+
+.sbs-deck-item-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sbs-deck-item-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d0d8ff;
+}
+
+.sbs-deck-item-count {
+  font-size: 0.75rem;
+  color: #5560a0;
+}
+
+.sbs-btn-confirm {
+  padding: 0.7rem 3.5rem;
+  background: #3344bb;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+
+.sbs-btn-confirm:hover:not(:disabled) {
+  background: #4455dd;
+  transform: translateY(-2px);
+}
+
+.sbs-btn-confirm:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── STAGE 2: ATTACK ORDER PICK ──────────────────────────── */
+
+.sbs-attack-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.8rem;
+}
+
+.sbs-cards-row {
+  display: flex;
+  gap: 3.5rem;
+}
+
+/* 3-D card flip — matches DigiCard 200 × 217 px */
+.sbs-card-flip {
+  width: 200px;
+  height: 217px;
+  perspective: 1200px;
+  cursor: pointer;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.sbs-card-flip:not(.sbs-card-flip--done):hover {
+  transform: translateY(-10px) scale(1.04);
+  filter: drop-shadow(0 12px 24px rgba(80, 110, 255, 0.55));
+}
+
+.sbs-card-flip--done {
+  cursor: default;
+  pointer-events: none;
+}
+
+.sbs-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+.sbs-card-flip--flipped .sbs-card-inner {
+  transform: rotateY(180deg);
+}
+
+.sbs-card-back,
+.sbs-card-front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ─ Card back — same style as DigiCard back ─ */
+.sbs-card-back {
+  background: #03030a;
+  border: 2px solid #00f3ff;
+}
+
+.sbs-card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ─ Card front ─ */
+.sbs-card-front {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.sbs-card-front--first {
+  background: linear-gradient(160deg, #0e2a60 0%, #07162e 100%);
+  border: 2px solid #3d88cc;
+  box-shadow: inset 0 0 28px rgba(60, 130, 220, 0.12);
+}
+
+.sbs-card-front--second {
+  background: linear-gradient(160deg, #402e00 0%, #201700 100%);
+  border: 2px solid #cc8a28;
+  box-shadow: inset 0 0 28px rgba(200, 140, 40, 0.12);
+}
+
+.sbs-card-ord {
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.sbs-card-atk {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.sbs-card-front--first .sbs-card-ord,
+.sbs-card-front--first .sbs-card-atk {
+  color: #6aaeee;
+  text-shadow: 0 0 14px rgba(90, 160, 240, 0.55);
+}
+
+.sbs-card-front--second .sbs-card-ord,
+.sbs-card-front--second .sbs-card-atk {
+  color: #e0a830;
+  text-shadow: 0 0 14px rgba(220, 165, 45, 0.55);
+}
+
+.sbs-result {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  animation: sbs-result-in 0.35s ease-out both;
+}
+
+@keyframes sbs-result-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+/* ── STAGE 3: CINEMATIC ──────────────────────────────────── */
+
+.sbs-cinematic {
+  position: fixed;
+  inset: 0;
+  background: #06060f;
+  overflow: hidden;
+}
+
+/* Fade-to-black overlay */
+.sbs-cinematic::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.75s ease-in;
+  z-index: 10;
+}
+
+.sbs-cinematic--fading::after {
+  opacity: 1;
+}
+
+/* ─ CPU panel — top-LEFT, portrait then info ─ */
+.sbs-cin-cpu {
+  position: absolute;
+  top: 8%;
+  left: 5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.4rem;
+  /* GSAP controls visibility — start hidden */
+  opacity: 0;
+}
+
+/* ─ Player panel — bottom-RIGHT, info then portrait ─ */
+.sbs-cin-player {
+  position: absolute;
+  bottom: 8%;
+  right: 5%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.4rem;
+  /* GSAP controls visibility — start hidden */
+  opacity: 0;
+}
+
+/* 2× portrait */
+.sbs-cin-portrait {
+  width: 260px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.10);
+  flex-shrink: 0;
+}
+
+/* ─ Info panel ─ */
+.sbs-cin-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  /* GSAP controls opacity */
+  opacity: 0;
+}
+
+/* Player info text aligns right */
+.sbs-cin-info--right {
+  text-align: right;
+}
+
+.sbs-cin-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
+.sbs-cin-deck {
+  font-size: 0.78rem;
+  color: #5568a8;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.sbs-cin-order {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.2rem 0.7rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.sbs-cin-order--first {
+  color: #6aaeee;
+  background: rgba(60, 130, 220, 0.15);
+  border: 1px solid rgba(60, 130, 220, 0.35);
+}
+
+.sbs-cin-order--second {
+  color: #e0a830;
+  background: rgba(200, 140, 40, 0.15);
+  border: 1px solid rgba(200, 140, 40, 0.35);
+}
+
+/* Right-aligned order badge */
+.sbs-cin-info--right .sbs-cin-order {
+  margin-left: auto;
+}
+
+/* ─ VS text — absolute center, GSAP-driven ─
+   NOTE: transform is intentionally absent — GSAP owns it via xPercent/yPercent.
+   Padding-right prevents italic "S" from being clipped by overflow:hidden. */
+.sbs-cin-vs {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: clamp(5rem, 14vw, 11rem);
+  font-weight: 900;
+  font-style: italic;
+  padding-right: 0.15em;
+  /* Gold gradient text */
+  background: linear-gradient(160deg, #fff8b0 0%, #ffd700 45%, #cc7700 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Emboss: sharp bottom shadow + warm glow */
+  filter:
+    drop-shadow(0 3px 0 rgba(100, 50, 0, 0.85))
+    drop-shadow(0 6px 4px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 28px rgba(255, 170, 0, 0.55));
+  user-select: none;
+  white-space: nowrap;
+  /* GSAP controls visibility and centering */
+  opacity: 0;
+}

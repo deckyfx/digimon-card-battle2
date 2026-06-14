@@ -256,6 +256,18 @@
   box-shadow: 0 0 20px rgba(74, 222, 128, 0.12);
 }
 
+.sc-resident-card--empty {
+  cursor: default;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.sc-resident-card--empty:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  transform: none;
+}
+
 .sc-resident-portrait-wrap {
   position: relative;
   width: 100%;
@@ -357,10 +369,6 @@
   animation: sc-slide-right 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sc-avatar-col--opponent .amv-root {
-  transform: scaleX(-1);
-}
-
 .sc-avatar-col--speaking .amv-root {
   filter: brightness(1.15) drop-shadow(0 0 14px rgba(0, 243, 255, 0.45));
   transition: filter 0.3s ease;
@@ -369,16 +377,6 @@
 .sc-avatar-col--silent .amv-root {
   filter: brightness(0.45) saturate(0.4);
   transition: filter 0.3s ease;
-}
-
-.sc-avatar-col--opponent.sc-avatar-col--speaking .amv-root {
-  transform: scaleX(-1);
-  filter: brightness(1.15) drop-shadow(0 0 14px rgba(0, 243, 255, 0.45));
-}
-
-.sc-avatar-col--opponent.sc-avatar-col--silent .amv-root {
-  transform: scaleX(-1);
-  filter: brightness(0.45) saturate(0.4);
 }
 
 .sc-avatar-name {
@@ -435,6 +433,23 @@
 
 .sc-speech-bubble--talk:hover {
   border-color: rgba(0, 243, 255, 0.4);
+}
+
+/* Post-battle result tints */
+.sc-speech-bubble--win {
+  border-color: rgba(80, 220, 100, 0.35);
+  background: rgba(30, 60, 35, 0.7);
+}
+.sc-speech-bubble--win:hover {
+  border-color: rgba(80, 220, 100, 0.6);
+}
+
+.sc-speech-bubble--lose {
+  border-color: rgba(220, 60, 60, 0.35);
+  background: rgba(50, 20, 20, 0.7);
+}
+.sc-speech-bubble--lose:hover {
+  border-color: rgba(220, 80, 80, 0.55);
 }
 
 .sc-speech-advance {

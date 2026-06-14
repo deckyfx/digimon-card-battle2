@@ -1,5 +1,6 @@
 import { For, Show } from "solid-js";
 import { CITIES, isCityCleared, isCityUnlocked, winsAgainst, type City } from "@src/data/cities";
+import { getCafeBattleById } from "@src/data/battle-cafe-datas";
 import type { PlayerProfile } from "@src/store/profile-store";
 import { profileStore } from "./deck-select";
 
@@ -29,7 +30,7 @@ export function ScreenWorldMap(props: {
           {(city) => {
             const unlocked = () => isCityUnlocked(city, records());
             const cleared = () => isCityCleared(city, records());
-            const beaten = () => city.cafeActorIds.filter((id) => winsAgainst(records(), id) > 0).length;
+            const beaten = () => isCityCleared(city, records()) ? city.cafeBattleIds.length : city.cafeBattleIds.filter((bid) => { const b = getCafeBattleById(bid); return b ? winsAgainst(records(), b.actorId) > 0 : false; }).length;
             return (
               <div
                 class="city-card"
@@ -43,7 +44,7 @@ export function ScreenWorldMap(props: {
                 </div>
                 <Show when={unlocked()}>
                   <div class="tag">
-                    {beaten()}/{city.cafeActorIds.length} defeated
+                    {beaten()}/{city.cafeBattleIds.length} defeated
                   </div>
                 </Show>
               </div>

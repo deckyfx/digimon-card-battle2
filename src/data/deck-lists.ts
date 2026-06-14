@@ -11,6 +11,10 @@ export interface DeckList {
   owner: string;
   /** Owner context note, e.g. "Tutorial", "If Veemon is Not Partner A". */
   note: string;
+  /** Experience awarded to the player for defeating this deck's owner. */
+  exp: number;
+  /** Prize pack id (1–16) granted on winning against this deck. */
+  prizePack: number;
   /** Master card numbers, one entry per copy. */
   cardNumbers: string[];
   /** Armor side-deck card numbers (empty when the deck has none). */
@@ -22,10 +26,13 @@ export interface DeckList {
 export const DECK_LISTS: DeckList[] = [
   {
     id: 1,
+    exp: 2,
+    prizePack: 1,
     name: "Tutorial Deck",
     owner: "Betamon",
     note: "Tutorial",
-    description: "Betamon's Main Deck. An upfront Deck, much like Betamon himself. Ideal to use for battles against beginners.",
+    description:
+      "Betamon's Main Deck. An upfront Deck, much like Betamon himself. Ideal to use for battles against beginners.",
     cardNumbers: [
       "017",
       "022",
@@ -62,6 +69,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 2,
+    exp: 3,
+    prizePack: 1,
     name: "Tricolor Starter Deck",
     owner: "Agumon",
     note: "",
@@ -102,6 +111,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 3,
+    exp: 4,
+    prizePack: 1,
     name: "Penguinmon Color Deck",
     owner: "Penguinmon",
     note: "",
@@ -142,6 +153,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 4,
+    exp: 5,
+    prizePack: 2,
     name: "New Power Deck",
     owner: "Babamon",
     note: "",
@@ -182,10 +195,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 5,
+    exp: 4,
+    prizePack: 1,
     name: "Burning Hot! Deck",
     owner: "Meramon",
     note: "",
-    description: "A mono-Red Deck, with its soul clad in flames. Has unexpected speed.",
+    description:
+      "A mono-Red Deck, with its soul clad in flames. Has unexpected speed.",
     cardNumbers: [
       "010",
       "010",
@@ -222,10 +238,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 6,
+    exp: 4,
+    prizePack: 1,
     name: "Big Red Sky Deck",
     owner: "Phoenixmon",
     note: "",
-    description: "A Red army of rulers of the sky. Watch out for its preemptive attacks!",
+    description:
+      "A Red army of rulers of the sky. Watch out for its preemptive attacks!",
     cardNumbers: [
       "003",
       "003",
@@ -262,10 +281,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 7,
+    exp: 5,
+    prizePack: 5,
     name: "Go Go Dinosaur Deck",
     owner: "Veemon",
     note: "",
-    description: "A fire-breathing army of Dinosaurs. Its O attacks hurt if they are not avoided!",
+    description:
+      "A fire-breathing army of Dinosaurs. Its O attacks hurt if they are not avoided!",
     cardNumbers: [
       "008",
       "009",
@@ -302,10 +324,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 8,
+    exp: 5,
+    prizePack: 9,
     name: "Quick Digivolve Deck",
     owner: "Vegiemon",
     note: "",
-    description: "Nature's forte is evolving fast! What would it need Options for?",
+    description:
+      "Nature's forte is evolving fast! What would it need Options for?",
     cardNumbers: [
       "078",
       "078",
@@ -342,6 +367,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 9,
+    exp: 5,
+    prizePack: 9,
     name: "Switching Deck",
     owner: "Ninjamon",
     note: "",
@@ -382,6 +409,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 10,
+    exp: 6,
+    prizePack: 9,
     name: "V For Victory Deck",
     owner: "Veedramon",
     note: "",
@@ -422,6 +451,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 11,
+    exp: 5,
+    prizePack: 11,
     name: "Tryout Deck",
     owner: "Wormmon",
     note: "1st Encounter",
@@ -462,10 +493,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 12,
+    exp: 5,
+    prizePack: 7,
     name: "Hearty Meal Deck",
     owner: "Frigimon",
     note: "",
-    description: "It's full of food. Destructive power is needed to take down its large HP.",
+    description:
+      "It's full of food. Destructive power is needed to take down its large HP.",
     cardNumbers: [
       "038",
       "045",
@@ -502,10 +536,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 13,
+    exp: 5,
+    prizePack: 7,
     name: "Guarding Sea Deck",
     owner: "Whamon",
     note: "",
-    description: "Purely defensive, as is typical for Blue. Defeating it in a single blow might be ideal.",
+    description:
+      "Purely defensive, as is typical for Blue. Defeating it in a single blow might be ideal.",
     cardNumbers: [
       "040",
       "042",
@@ -542,10 +579,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 14,
+    exp: 6,
+    prizePack: 7,
     name: "Fightback Deck",
     owner: "Garurumon",
     note: "",
-    description: "A balanced Blue Deck with both offense and defense. The Killer cards included are nothing to sneer at.",
+    description:
+      "A balanced Blue Deck with both offense and defense. The Killer cards included are nothing to sneer at.",
     cardNumbers: [
       "039",
       "040",
@@ -582,6 +622,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 15,
+    exp: 6,
+    prizePack: 11,
     name: "Black Storm Deck",
     owner: "Stingmon",
     note: "1st Encounter",
@@ -622,10 +664,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 16,
+    exp: 5,
+    prizePack: 13,
     name: "Toy Party Deck",
     owner: "Hagurumon",
     note: "",
-    description: "A Deck that's much like a box of toys. What could come out of it?",
+    description:
+      "A Deck that's much like a box of toys. What could come out of it?",
     cardNumbers: [
       "146",
       "148",
@@ -662,10 +707,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 17,
+    exp: 5,
+    prizePack: 13,
     name: "Jam-Jam Deck",
     owner: "ShellNumemon",
     note: "",
-    description: "A lopsided Deck that only disrupts Evolution in various ways.",
+    description:
+      "A lopsided Deck that only disrupts Evolution in various ways.",
     cardNumbers: [
       "155",
       "155",
@@ -702,6 +750,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 18,
+    exp: 6,
+    prizePack: 13,
     name: "Hail King Sukamon Deck",
     owner: "KingSukamon",
     note: "",
@@ -742,10 +792,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 19,
+    exp: 7,
+    prizePack: 11,
     name: "Evil Fire Deck",
     owner: "Shadramon",
     note: "1st Encounter",
-    description: "A Red and Black Deck aiming towards Evolution. It cleverly covers its weak points.",
+    description:
+      "A Red and Black Deck aiming towards Evolution. It cleverly covers its weak points.",
     cardNumbers: [
       "010",
       "026",
@@ -782,10 +835,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 20,
+    exp: 5,
+    prizePack: 11,
     name: "Get Serious Deck",
     owner: "Wormmon",
     note: "2nd Encounter",
-    description: "An improved version of the previous Deck. It is still rather similar.",
+    description:
+      "An improved version of the previous Deck. It is still rather similar.",
     cardNumbers: [
       "090",
       "090",
@@ -822,10 +878,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 21,
+    exp: 6,
+    prizePack: 11,
     name: "Black Storm Again Deck",
     owner: "Stingmon",
     note: "2nd Encounter",
-    description: "A new version of the previously defeated Deck. It is definitely stronger.",
+    description:
+      "A new version of the previously defeated Deck. It is definitely stronger.",
     cardNumbers: [
       "112",
       "112",
@@ -862,10 +921,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 22,
+    exp: 7,
+    prizePack: 11,
     name: "Evil Fire Revived Deck",
     owner: "Shadramon",
     note: "2nd Encounter",
-    description: "A new version of the previous Deck, now oriented towards resurrection. It has been changed somewhat.",
+    description:
+      "A new version of the previous Deck, now oriented towards resurrection. It has been changed somewhat.",
     cardNumbers: [
       "010",
       "026",
@@ -902,10 +964,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 23,
+    exp: 8,
+    prizePack: 11,
     name: "Bad Luck Wind Deck",
     owner: "Quetzalmon",
     note: "",
-    description: "A nasty Deck that uses combos to exploit weaknesses. Keep an eye on your own colors.",
+    description:
+      "A nasty Deck that uses combos to exploit weaknesses. Keep an eye on your own colors.",
     cardNumbers: [
       "043",
       "043",
@@ -942,10 +1007,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 24,
+    exp: 15,
+    prizePack: 12,
     name: "Binding Chain Deck",
     owner: "Digimon Emperor",
     note: "",
-    description: "The Deck of an \"Emperor\", specializing in the ability to control the field.",
+    description:
+      'The Deck of an "Emperor", specializing in the ability to control the field.',
     cardNumbers: [
       "104",
       "104",
@@ -982,10 +1050,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 25,
+    exp: 5,
+    prizePack: 5,
     name: "Gate of Fire Deck",
     owner: "Centarumon",
     note: "",
-    description: "Defensive, and strong against Blue. You shall not pass through.",
+    description:
+      "Defensive, and strong against Blue. You shall not pass through.",
     cardNumbers: [
       "011",
       "011",
@@ -1022,10 +1093,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 26,
+    exp: 6,
+    prizePack: 5,
     name: "Paleo-Energy Deck",
     owner: "Tyrannomon",
     note: "",
-    description: "Somewhat rough, but well-balanced. It also evolves fairly quickly.",
+    description:
+      "Somewhat rough, but well-balanced. It also evolves fairly quickly.",
     cardNumbers: [
       "008",
       "008",
@@ -1062,10 +1136,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 27,
+    exp: 7,
+    prizePack: 9,
     name: "Evil-Slayer Deck",
     owner: "Angemon",
     note: "",
-    description: "A Darkness-destroying Deck. Do you dare challenge it with Darkness?",
+    description:
+      "A Darkness-destroying Deck. Do you dare challenge it with Darkness?",
     cardNumbers: [
       "075",
       "077",
@@ -1102,6 +1179,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 28,
+    exp: 8,
+    prizePack: 5,
     name: "Fire Heart Deck",
     owner: "Davis",
     note: "",
@@ -1142,10 +1221,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 29,
+    exp: 8,
+    prizePack: 9,
     name: "Bingo!! Deck",
     owner: "Keely",
     note: "",
-    description: "A fascinating Deck that uses a wide variety of Gambling cards to mess with opponents.",
+    description:
+      "A fascinating Deck that uses a wide variety of Gambling cards to mess with opponents.",
     cardNumbers: [
       "076",
       "076",
@@ -1182,10 +1264,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 30,
+    exp: 8,
+    prizePack: 7,
     name: "Ready to Go Deck",
     owner: "Cody",
     note: "",
-    description: "Endurance-oriented. Could speed be the factor that decides between victory and defeat?",
+    description:
+      "Endurance-oriented. Could speed be the factor that decides between victory and defeat?",
     cardNumbers: [
       "142",
       "142",
@@ -1222,10 +1307,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 31,
+    exp: 7,
+    prizePack: 9,
     name: "Wings of Hope Deck",
     owner: "T.K.",
     note: "",
-    description: "A clever Deck that switches between offense and defense by assessing the situation.",
+    description:
+      "A clever Deck that switches between offense and defense by assessing the situation.",
     cardNumbers: [
       "075",
       "075",
@@ -1262,10 +1350,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 32,
+    exp: 6,
+    prizePack: 11,
     name: "Magic Strike Deck",
     owner: "Wizardmon",
     note: "",
-    description: "A Deck with a certain air to it, using X Attacks and a wide variety of Options.",
+    description:
+      "A Deck with a certain air to it, using X Attacks and a wide variety of Options.",
     cardNumbers: [
       "045",
       "057",
@@ -1302,10 +1393,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 33,
+    exp: 7,
+    prizePack: 9,
     name: "Slayer Deck",
     owner: "AeroVeedramon",
     note: "",
-    description: "The perfect Deck to eliminate enemies at Perfect Level. You should probably not try to show off against it.",
+    description:
+      "The perfect Deck to eliminate enemies at Perfect Level. You should probably not try to show off against it.",
     cardNumbers: [
       "072",
       "072",
@@ -1342,6 +1436,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 34,
+    exp: 8,
+    prizePack: 9,
     name: "Cat Attack Deck",
     owner: "Gatomon",
     note: "1st Encounter",
@@ -1382,10 +1478,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 35,
+    exp: 8,
+    prizePack: 9,
     name: "Ladies’ Night Deck",
     owner: "Kari",
     note: "",
-    description: "A collection of gorgeous female Digimon. It flows well and is quite flexible.",
+    description:
+      "A collection of gorgeous female Digimon. It flows well and is quite flexible.",
     cardNumbers: [
       "020",
       "029",
@@ -1422,10 +1521,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 36,
+    exp: 5,
+    prizePack: 15,
     name: "Out of Control Deck",
     owner: "Goburimon",
     note: "",
-    description: "A 5-color Deck pulling out all the stops. As its name implies, it attacks head-on.",
+    description:
+      "A 5-color Deck pulling out all the stops. As its name implies, it attacks head-on.",
     cardNumbers: [
       "033",
       "033",
@@ -1462,6 +1564,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 37,
+    exp: 6,
+    prizePack: 11,
     name: "Dark Digivolution Deck",
     owner: "DemiDevimon",
     note: "",
@@ -1502,10 +1606,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 38,
+    exp: 7,
+    prizePack: 11,
     name: "Mega Shock Deck",
     owner: "Megadramon",
     note: "",
-    description: "A power-oriented Darkness Deck focused single-mindedly on raw destructive power.",
+    description:
+      "A power-oriented Darkness Deck focused single-mindedly on raw destructive power.",
     cardNumbers: [
       "112",
       "112",
@@ -1542,10 +1649,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 39,
+    exp: 8,
+    prizePack: 3,
     name: "Mega Giga Deck",
     owner: "Gigadramon",
     note: "",
-    description: "A Red and Black Deck based on all-out offense. There's no looking back for this Deck style.",
+    description:
+      "A Red and Black Deck based on all-out offense. There's no looking back for this Deck style.",
     cardNumbers: [
       "005",
       "005",
@@ -1582,10 +1692,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 40,
+    exp: 8,
+    prizePack: 9,
     name: "Spiky Deck",
     owner: "Togemon",
     note: "",
-    description: "A Deck that feels very Nature-like, with both preemptive attacks and Draining.",
+    description:
+      "A Deck that feels very Nature-like, with both preemptive attacks and Draining.",
     cardNumbers: [
       "078",
       "078",
@@ -1622,6 +1735,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 41,
+    exp: 8,
+    prizePack: 9,
     name: "Anti-A Deck",
     owner: "Kabuterimon",
     note: "",
@@ -1662,10 +1777,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 42,
+    exp: 8,
+    prizePack: 7,
     name: "Anti Fire Deck",
     owner: "Ikkakumon",
     note: "",
-    description: "An Ice Deck that ruins Fire. Red Decks should be prepared for the worst.",
+    description:
+      "An Ice Deck that ruins Fire. Red Decks should be prepared for the worst.",
     cardNumbers: [
       "040",
       "040",
@@ -1702,10 +1820,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 43,
+    exp: 8,
+    prizePack: 5,
     name: "First Attack Deck",
     owner: "Birdramon",
     note: "",
-    description: "A speedy Fire Deck that launches enhanced preemptive attacks.",
+    description:
+      "A speedy Fire Deck that launches enhanced preemptive attacks.",
     cardNumbers: [
       "007",
       "007",
@@ -1742,10 +1863,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 44,
+    exp: 8,
+    prizePack: 7,
     name: "Howl to the Moon Deck",
     owner: "WereGarurumon",
     note: "",
-    description: "A Deck with Counter Attacks and Recovery. Expect your attacks to be dodged.",
+    description:
+      "A Deck with Counter Attacks and Recovery. Expect your attacks to be dodged.",
     cardNumbers: [
       "039",
       "039",
@@ -1782,6 +1906,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 45,
+    exp: 8,
+    prizePack: 3,
     name: "SEVEN Deck",
     owner: "MetalGreymon",
     note: "",
@@ -1822,10 +1948,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 46,
+    exp: 8,
+    prizePack: 11,
     name: "Fighting Monsters Deck",
     owner: "Tuskmon",
     note: "",
-    description: "A dangerous and aggressive kind of Darkness Deck. It charges head-on.",
+    description:
+      "A dangerous and aggressive kind of Darkness Deck. It charges head-on.",
     cardNumbers: [
       "108",
       "113",
@@ -1862,6 +1991,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 47,
+    exp: 8,
+    prizePack: 11,
     name: "Sickle Slayer Deck",
     owner: "Phantomon",
     note: "",
@@ -1902,6 +2033,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 48,
+    exp: 8,
+    prizePack: 7,
     name: "Mega Flood Deck",
     owner: "MegaSeadramon",
     note: "",
@@ -1942,6 +2075,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 49,
+    exp: 10,
+    prizePack: 12,
     name: "Evil King Deck",
     owner: "VenomMyotismon",
     note: "",
@@ -1982,6 +2117,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 50,
+    exp: 8,
+    prizePack: 9,
     name: "Battle Gear Deck",
     owner: "Leomon",
     note: "",
@@ -2022,10 +2159,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 51,
+    exp: 9,
+    prizePack: 4,
     name: "Cool Devil Deck",
     owner: "Devimon",
     note: "Desert Island",
-    description: "A demonic Black and Blue Deck. It mercilessly attacks weak points.",
+    description:
+      "A demonic Black and Blue Deck. It mercilessly attacks weak points.",
     cardNumbers: [
       "058",
       "058",
@@ -2062,6 +2202,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 52,
+    exp: 9,
+    prizePack: 14,
     name: "Steel Gate Deck",
     owner: "MetalEtemon",
     note: "",
@@ -2102,10 +2244,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 53,
+    exp: 10,
+    prizePack: 12,
     name: "Dark Revival Deck",
     owner: "Myotismon",
     note: "Desert Island",
-    description: "A resurrected version of a Demon King Deck. It seems to not have been fully resurrected...",
+    description:
+      "A resurrected version of a Demon King Deck. It seems to not have been fully resurrected...",
     cardNumbers: [
       "111",
       "111",
@@ -2142,10 +2287,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 54,
+    exp: 8,
+    prizePack: 15,
     name: "Digivolution! Deck",
     owner: "Greymon",
     note: "",
-    description: "A Fire Deck that has gone back to the basics. We were all beginners once.",
+    description:
+      "A Fire Deck that has gone back to the basics. We were all beginners once.",
     cardNumbers: [
       "009",
       "009",
@@ -2182,10 +2330,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 55,
+    exp: 8,
+    prizePack: 5,
     name: "Strong-V Deck",
     owner: "ExVeemon",
     note: "",
-    description: "A Fire Deck based on countering. It also strengthens already-powerful regular attacks.",
+    description:
+      "A Fire Deck based on countering. It also strengthens already-powerful regular attacks.",
     cardNumbers: [
       "012",
       "012",
@@ -2222,10 +2373,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 56,
+    exp: 9,
+    prizePack: 6,
     name: "Rocket Bomb Deck",
     owner: "Flamedramon",
     note: "",
-    description: "A Fire Deck with powerful self-destruction. Hits hard with normal attacks too.",
+    description:
+      "A Fire Deck with powerful self-destruction. Hits hard with normal attacks too.",
     cardNumbers: [
       "011",
       "011",
@@ -2262,6 +2416,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 57,
+    exp: 10,
+    prizePack: 5,
     name: "Raiden Blade Deck",
     owner: "Raidramon",
     note: "",
@@ -2302,6 +2458,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 58,
+    exp: 8,
+    prizePack: 9,
     name: "Quick Draw Deck",
     owner: "Hawkmon",
     note: "",
@@ -2342,10 +2500,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 59,
+    exp: 8,
+    prizePack: 3,
     name: "Storm Bringer Deck",
     owner: "Aquilamon",
     note: "",
-    description: "A Red and Green version of a Deck based on preemptive attacks. Its colors are well-balanced together.",
+    description:
+      "A Red and Green version of a Deck based on preemptive attacks. Its colors are well-balanced together.",
     cardNumbers: [
       "007",
       "007",
@@ -2382,10 +2543,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 60,
+    exp: 10,
+    prizePack: 9,
     name: "Burning Love Deck",
     owner: "Halsemon",
     note: "",
-    description: "A balanced Nature Deck. It specializes in preemptive attacks and recovery.",
+    description:
+      "A balanced Nature Deck. It specializes in preemptive attacks and recovery.",
     cardNumbers: [
       "076",
       "076",
@@ -2422,10 +2586,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 61,
+    exp: 8,
+    prizePack: 13,
     name: "Mountain Crusher Deck",
     owner: "Armadillomon",
     note: "",
-    description: "A Rare Deck based on Deck Destruction. It does so rather explosively.",
+    description:
+      "A Rare Deck based on Deck Destruction. It does so rather explosively.",
     cardNumbers: [
       "159",
       "159",
@@ -2462,10 +2629,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 62,
+    exp: 9,
+    prizePack: 14,
     name: "Rock Head Deck",
     owner: "Ankylomon",
     note: "",
-    description: "A Rare Deck with a strong defense. Go for attacks that cannot be stopped by its Options.",
+    description:
+      "A Rare Deck with a strong defense. Go for attacks that cannot be stopped by its Options.",
     cardNumbers: [
       "144",
       "144",
@@ -2502,10 +2672,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 63,
+    exp: 10,
+    prizePack: 13,
     name: "Mountain Crusher DX Deck",
     owner: "Digmon",
     note: "",
-    description: "A Rare Deck based on Deck Destruction. It has been improved upon with Recovery.",
+    description:
+      "A Rare Deck based on Deck Destruction. It has been improved upon with Recovery.",
     cardNumbers: [
       "142",
       "142",
@@ -2542,10 +2715,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 64,
+    exp: 8,
+    prizePack: 13,
     name: "Blitzkrieg Deck",
     owner: "Thundermon",
     note: "",
-    description: "A Rare Deck with hand destruction and very powerful self-destruction. It's just shocking!",
+    description:
+      "A Rare Deck with hand destruction and very powerful self-destruction. It's just shocking!",
     cardNumbers: [
       "146",
       "146",
@@ -2582,10 +2758,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 65,
+    exp: 9,
+    prizePack: 14,
     name: "Bean Stalk Deck",
     owner: "MetalMamemon",
     note: "",
-    description: "A Rare Deck that aims to reach Perfect Level. It does not do well at Level Ⅳ.",
+    description:
+      "A Rare Deck that aims to reach Perfect Level. It does not do well at Level Ⅳ.",
     cardNumbers: [
       "089",
       "089",
@@ -2622,6 +2801,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 66,
+    exp: 10,
+    prizePack: 14,
     name: "Star Force Deck",
     owner: "SuperStarmon",
     note: "",
@@ -2662,10 +2843,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 67,
+    exp: 8,
+    prizePack: 11,
     name: "Dancing Ghosts Deck",
     owner: "Bakemon",
     note: "",
-    description: "A tenacious Darkness Deck that uses both Draining and Recovery.",
+    description:
+      "A tenacious Darkness Deck that uses both Draining and Recovery.",
     cardNumbers: [
       "123",
       "123",
@@ -2702,10 +2886,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 68,
+    exp: 9,
+    prizePack: 12,
     name: "Devil’s Call Deck",
     owner: "Devimon",
     note: "Dark City",
-    description: "An improved version of the Deck from the previous game. It obliterates Nature Decks.",
+    description:
+      "An improved version of the Deck from the previous game. It obliterates Nature Decks.",
     cardNumbers: [
       "113",
       "113",
@@ -2742,10 +2929,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 69,
+    exp: 10,
+    prizePack: 12,
     name: "Stealth Skull Deck",
     owner: "SkullGreymon",
     note: "",
-    description: "A Darkness Deck aiming for complete destruction. Nature opponents, beware!",
+    description:
+      "A Darkness Deck aiming for complete destruction. Nature opponents, beware!",
     cardNumbers: [
       "113",
       "113",
@@ -2782,6 +2972,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 70,
+    exp: 11,
+    prizePack: 12,
     name: "Dark Prince Deck",
     owner: "Myotismon",
     note: "Dark City",
@@ -2822,10 +3014,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 71,
+    exp: 8,
+    prizePack: 15,
     name: "Friendly Deck",
     owner: "Patamon",
     note: "",
-    description: "A Nature Deck using only Level Ⅲs. Do not underestimate it though.",
+    description:
+      "A Nature Deck using only Level Ⅲs. Do not underestimate it though.",
     cardNumbers: [
       "097",
       "097",
@@ -2862,10 +3057,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 72,
+    exp: 9,
+    prizePack: 4,
     name: "Twin Meteor Deck",
     owner: "Baronmon",
     note: "",
-    description: "An aggressive 2-color Deck. It is composed of cards not bound to its colors.",
+    description:
+      "An aggressive 2-color Deck. It is composed of cards not bound to its colors.",
     cardNumbers: [
       "011",
       "011",
@@ -2902,10 +3100,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 73,
+    exp: 10,
+    prizePack: 9,
     name: "Great Hope Deck",
     owner: "Pegasusmon",
     note: "",
-    description: "A Nature Deck for annihilating Darkness. It takes the lead through fast Evolution.",
+    description:
+      "A Nature Deck for annihilating Darkness. It takes the lead through fast Evolution.",
     cardNumbers: [
       "070",
       "070",
@@ -2942,6 +3143,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 74,
+    exp: 8,
+    prizePack: 9,
     name: "Call of Destiny Deck",
     owner: "Gatomon",
     note: "2nd Encounter",
@@ -2982,10 +3185,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 75,
+    exp: 9,
+    prizePack: 10,
     name: "Divine Monster Deck",
     owner: "Nefertimon",
     note: "",
-    description: "A balanced Nature Deck that moves forward steadily and reliably.",
+    description:
+      "A balanced Nature Deck that moves forward steadily and reliably.",
     cardNumbers: [
       "071",
       "071",
@@ -3022,6 +3228,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 76,
+    exp: 10,
+    prizePack: 9,
     name: "Swirling Light Deck",
     owner: "Tylomon",
     note: "",
@@ -3062,10 +3270,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 77,
+    exp: 10,
+    prizePack: 10,
     name: "Head-On Collision Deck",
     owner: "Kuwagamon",
     note: "",
-    description: "A super-offensive Nature Deck that uses high-risk Attack Options.",
+    description:
+      "A super-offensive Nature Deck that uses high-risk Attack Options.",
     cardNumbers: [
       "084",
       "090",
@@ -3102,10 +3313,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 78,
+    exp: 13,
+    prizePack: 10,
     name: "Beetle Cross Deck",
     owner: "HerculesKabuterimon",
     note: "",
-    description: "A Nature and Darkness Deck featuring and revolving around powerful insect-like Digimon.",
+    description:
+      "A Nature and Darkness Deck featuring and revolving around powerful insect-like Digimon.",
     cardNumbers: [
       "074",
       "074",
@@ -3142,10 +3356,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 79,
+    exp: 10,
+    prizePack: 15,
     name: "Fire Heart Deck",
     owner: "WarGreymon",
     note: "",
-    description: "A perfectly balanced Fire Deck. Does it really have no glaring weaknesses?!",
+    description:
+      "A perfectly balanced Fire Deck. Does it really have no glaring weaknesses?!",
     cardNumbers: [
       "002",
       "002",
@@ -3182,10 +3399,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 80,
+    exp: 10,
+    prizePack: 16,
     name: "Go All The Way Deck",
     owner: "Tai",
     note: "",
-    description: "A potent Fire Deck that aims to reach the Perfect Level directly.",
+    description:
+      "A potent Fire Deck that aims to reach the Perfect Level directly.",
     cardNumbers: [
       "001",
       "002",
@@ -3222,10 +3442,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 81,
+    exp: 10,
+    prizePack: 5,
     name: "Three Signs Deck",
     owner: "Paildramon",
     note: "",
-    description: "An advanced Deck that predicts Attack Buttons for various purposes. Guessing wrong would be embarassing.",
+    description:
+      "An advanced Deck that predicts Attack Buttons for various purposes. Guessing wrong would be embarassing.",
     cardNumbers: [
       "004",
       "004",
@@ -3262,6 +3485,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 82,
+    exp: 10,
+    prizePack: 6,
     name: "Sun’s Gift Deck",
     owner: "Garudamon",
     note: "",
@@ -3302,10 +3527,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 83,
+    exp: 10,
+    prizePack: 6,
     name: "Hyper Digivolution Deck",
     owner: "Sora",
     note: "",
-    description: "A Fire Deck based on Evolution. Has a large amount of Evolution Options.",
+    description:
+      "A Fire Deck based on Evolution. Has a large amount of Evolution Options.",
     cardNumbers: [
       "007",
       "007",
@@ -3342,10 +3570,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 84,
+    exp: 10,
+    prizePack: 4,
     name: "Ninja Deck",
     owner: "Shurimon",
     note: "",
-    description: "A flexible, ninja-like Green and Yellow Deck that disrupts opponents.",
+    description:
+      "A flexible, ninja-like Green and Yellow Deck that disrupts opponents.",
     cardNumbers: [
       "076",
       "076",
@@ -3382,10 +3613,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 85,
+    exp: 10,
+    prizePack: 10,
     name: "Flower Fairies Deck",
     owner: "Lillymon",
     note: "",
-    description: "A Nature Deck that uses no Options. It collects Evolution POW quickly!",
+    description:
+      "A Nature Deck that uses no Options. It collects Evolution POW quickly!",
     cardNumbers: [
       "073",
       "078",
@@ -3422,10 +3656,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 86,
+    exp: 10,
+    prizePack: 10,
     name: "Princess Deck",
     owner: "Mimi",
     note: "",
-    description: "24 subordinates protect the Princess. A gathering of heroic Digimon.",
+    description:
+      "24 subordinates protect the Princess. A gathering of heroic Digimon.",
     cardNumbers: [
       "053",
       "053",
@@ -3462,10 +3699,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 87,
+    exp: 10,
+    prizePack: 13,
     name: "Yellow Submarine Deck",
     owner: "Submarimon",
     note: "",
-    description: "A durable Blue and Yellow Deck. A lot of force is needed to break through.",
+    description:
+      "A durable Blue and Yellow Deck. A lot of force is needed to break through.",
     cardNumbers: [
       "034",
       "047",
@@ -3502,6 +3742,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 88,
+    exp: 10,
+    prizePack: 8,
     name: "Shoot Everything! Deck",
     owner: "MetalGarurumon",
     note: "",
@@ -3542,10 +3784,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 89,
+    exp: 10,
+    prizePack: 8,
     name: "Bonding Deck",
     owner: "Matt",
     note: "",
-    description: "A high-speed Deck combining the strong points of Ice and Nature.",
+    description:
+      "A high-speed Deck combining the strong points of Ice and Nature.",
     cardNumbers: [
       "036",
       "036",
@@ -3582,10 +3827,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 90,
+    exp: 10,
+    prizePack: 8,
     name: "Armed Deck",
     owner: "Zudomon",
     note: "",
-    description: "A Deck using lots of weapons. It has an aggressive look to it.",
+    description:
+      "A Deck using lots of weapons. It has an aggressive look to it.",
     cardNumbers: [
       "040",
       "040",
@@ -3622,10 +3870,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 91,
+    exp: 10,
+    prizePack: 8,
     name: "First Aid Deck",
     owner: "Joe",
     note: "",
-    description: "A Recovery-oriented Deck using only Digimon. It can recover HP at any time.",
+    description:
+      "A Recovery-oriented Deck using only Digimon. It can recover HP at any time.",
     cardNumbers: [
       "000",
       "000",
@@ -3662,6 +3913,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 92,
+    exp: 10,
+    prizePack: 10,
     name: "Intercepting Traps Deck",
     owner: "MegaKabuterimon",
     note: "",
@@ -3702,10 +3955,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 93,
+    exp: 10,
+    prizePack: 10,
     name: "Program Deck",
     owner: "Izzy",
     note: "",
-    description: "Machines and insects. Koshiro's Deck is full of machines and insects (bugs?)",
+    description:
+      "Machines and insects. Koshiro's Deck is full of machines and insects (bugs?)",
     cardNumbers: [
       "079",
       "079",
@@ -3742,10 +3998,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 94,
+    exp: 10,
+    prizePack: 9,
     name: "Divine Sword Deck",
     owner: "MagnaAngemon",
     note: "",
-    description: "The greatest Darkness destroyer. It would be unwise for the Darkness to stand before it.",
+    description:
+      "The greatest Darkness destroyer. It would be unwise for the Darkness to stand before it.",
     cardNumbers: [
       "070",
       "075",
@@ -3782,6 +4041,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 95,
+    exp: 10,
+    prizePack: 9,
     name: "Shining Goddess Deck",
     owner: "Angewomon",
     note: "",
@@ -3822,10 +4083,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 96,
+    exp: 10,
+    prizePack: 12,
     name: "Black King Deck",
     owner: "GranKuwagamon",
     note: "",
-    description: "A Power Deck that shows off the tremendous might of Black Decks.",
+    description:
+      "A Power Deck that shows off the tremendous might of Black Decks.",
     cardNumbers: [
       "104",
       "104",
@@ -3862,10 +4126,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 97,
+    exp: 10,
+    prizePack: 12,
     name: "Wormhole Deck",
     owner: "Ken",
     note: "",
-    description: "A Darkness Deck that makes way for its attacks through Jamming and Negation.",
+    description:
+      "A Darkness Deck that makes way for its attacks through Jamming and Negation.",
     cardNumbers: [
       "104",
       "104",
@@ -3902,10 +4169,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 98,
+    exp: 12,
+    prizePack: 8,
     name: "Rough Sea King Deck",
     owner: "MetalSeadramon",
     note: "",
-    description: "One of the greatest Ice Decks, possessing incredible defenses.",
+    description:
+      "One of the greatest Ice Decks, possessing incredible defenses.",
     cardNumbers: [
       "036",
       "036",
@@ -3942,10 +4212,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 99,
+    exp: 12,
+    prizePack: 14,
     name: "Toy Castle Deck",
     owner: "Puppetmon",
     note: "",
-    description: "Pinocchiomon loves to play, but could he be out of practice due to not having anyone to play with?!",
+    description:
+      "Pinocchiomon loves to play, but could he be out of practice due to not having anyone to play with?!",
     cardNumbers: [
       "139",
       "139",
@@ -3982,10 +4255,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 100,
+    exp: 9,
+    prizePack: 4,
     name: "Machine Empire Deck",
     owner: "Machinedramon",
     note: "",
-    description: "A super-destructive army of machines! Its finisher is Mugen Cannon!",
+    description:
+      "A super-destructive army of machines! Its finisher is Mugen Cannon!",
     cardNumbers: [
       "108",
       "108",
@@ -4022,10 +4298,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 101,
+    exp: 12,
+    prizePack: 12,
     name: "Evil Flower Deck",
     owner: "LadyDevimon",
     note: "",
-    description: "A Black gambling Deck. It launches fatal attacks when it predicts successfully.",
+    description:
+      "A Black gambling Deck. It launches fatal attacks when it predicts successfully.",
     cardNumbers: [
       "110",
       "110",
@@ -4062,6 +4341,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 102,
+    exp: 12,
+    prizePack: 12,
     name: "4 Strong Monsters Deck",
     owner: "Piedmon",
     note: "",
@@ -4102,10 +4383,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 103,
+    exp: 12,
+    prizePack: 6,
     name: "Miracle Knight’s Deck",
     owner: "Magnamon",
     note: "",
-    description: "A Fire Deck focused on battling at Armor Level. Excels at defense.",
+    description:
+      "A Fire Deck focused on battling at Armor Level. Excels at defense.",
     cardNumbers: [
       "004",
       "004",
@@ -4142,10 +4426,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 104,
+    exp: 12,
+    prizePack: 10,
     name: "Storm Tamer Deck",
     owner: "Sylphymon",
     note: "",
-    description: "A Nature Deck with defenses and preemptive attacks. It finishes off enemies with hit-and-run attacks.",
+    description:
+      "A Nature Deck with defenses and preemptive attacks. It finishes off enemies with hit-and-run attacks.",
     cardNumbers: [
       "076",
       "076",
@@ -4182,10 +4469,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 105,
+    exp: 12,
+    prizePack: 14,
     name: "Ancient Legend Deck",
     owner: "Shakkoumon",
     note: "",
-    description: "Watch out for color-changing combos, as Rare Decks are quite good at those.",
+    description:
+      "Watch out for color-changing combos, as Rare Decks are quite good at those.",
     cardNumbers: [
       "142",
       "142",
@@ -4222,6 +4512,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 106,
+    exp: 12,
+    prizePack: 10,
     name: "Heaven’s Gate Deck",
     owner: "Seraphimon",
     note: "",
@@ -4262,10 +4554,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 107,
+    exp: 12,
+    prizePack: 10,
     name: "Divine Dragon Deck",
     owner: "Magnadramon",
     note: "",
-    description: "A Nature Deck with very potent Recovery ability. It is expected to engage in prolongued battles.",
+    description:
+      "A Nature Deck with very potent Recovery ability. It is expected to engage in prolongued battles.",
     cardNumbers: [
       "071",
       "071",
@@ -4302,10 +4597,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 108,
+    exp: 13,
+    prizePack: 12,
     name: "Forever Increase Deck",
     owner: "Infermon",
     note: "",
-    description: "A Deck that moves in circles over and over. You probably won't get anywhere if you don't defeat it in one blow.",
+    description:
+      "A Deck that moves in circles over and over. You probably won't get anywhere if you don't defeat it in one blow.",
     cardNumbers: [
       "109",
       "109",
@@ -4342,10 +4640,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 109,
+    exp: 14,
+    prizePack: 12,
     name: "Time Bomb Deck",
     owner: "Diaboromon",
     note: "",
-    description: "A potent self-destruction Deck. It has enough power to destroy planets!",
+    description:
+      "A potent self-destruction Deck. It has enough power to destroy planets!",
     cardNumbers: [
       "105",
       "105",
@@ -4382,10 +4683,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 110,
+    exp: 15,
+    prizePack: 6,
     name: "Invincible Emperor Deck",
     owner: "Imperialdramon",
     note: "",
-    description: "The Deck of an Emperor who stands at the top of it all, with all kinds of Digimon at his feet.",
+    description:
+      "The Deck of an Emperor who stands at the top of it all, with all kinds of Digimon at his feet.",
     cardNumbers: [
       "000",
       "000",
@@ -4422,6 +4726,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 111,
+    exp: 15,
+    prizePack: 10,
     name: "Warrior Princess Deck",
     owner: "Valkyrimon",
     note: "",
@@ -4462,10 +4768,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 112,
+    exp: 15,
+    prizePack: 8,
     name: "Permafrost Deck",
     owner: "Vikemon",
     note: "",
-    description: "A Blue and Yellow Deck oriented towards Evolution. It goes without saying that it has very solid defenses.",
+    description:
+      "A Blue and Yellow Deck oriented towards Evolution. It goes without saying that it has very solid defenses.",
     cardNumbers: [
       "034",
       "034",
@@ -4502,10 +4811,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 113,
+    exp: 15,
+    prizePack: 16,
     name: "Blue Star Red Moon Deck",
     owner: "Omnimon",
     note: "",
-    description: "A Red and Blue Deck realizing the dream of having Omegamon as the card spearheading it.",
+    description:
+      "A Red and Blue Deck realizing the dream of having Omegamon as the card spearheading it.",
     cardNumbers: [
       "001",
       "001",
@@ -4542,10 +4854,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 114,
+    exp: 25,
+    prizePack: 12,
     name: "Desperate Space Deck",
     owner: "Apokarimon",
     note: "",
-    description: "The most wicked and most powerful Deck, born from all the power of darkness!",
+    description:
+      "The most wicked and most powerful Deck, born from all the power of darkness!",
     cardNumbers: [
       "103",
       "103",
@@ -4582,10 +4897,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 115,
+    exp: 16,
+    prizePack: 6,
     name: "Black Fire Heart Deck",
     owner: "BK WarGreymon",
     note: "",
-    description: "A Fire Deck based on Negation, paired with high offensive power for a double whammy!",
+    description:
+      "A Fire Deck based on Negation, paired with high offensive power for a double whammy!",
     cardNumbers: [
       "002",
       "002",
@@ -4622,10 +4940,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 116,
+    exp: 16,
+    prizePack: 8,
     name: "Patriot Deck",
     owner: "BK MetalGarurumon",
     note: "",
-    description: "An Ice Deck based on Jamming and Negation. Slowly and deliberately bothersome.",
+    description:
+      "An Ice Deck based on Jamming and Negation. Slowly and deliberately bothersome.",
     cardNumbers: [
       "036",
       "036",
@@ -4662,6 +4983,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 117,
+    exp: 5,
+    prizePack: 16,
     name: "Rose Garden Deck",
     owner: "Rosemon",
     note: "",
@@ -4702,6 +5025,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 118,
+    exp: 10,
+    prizePack: 16,
     name: "Who Are You? Deck",
     owner: "Nanimon",
     note: "",
@@ -4742,6 +5067,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 119,
+    exp: 12,
+    prizePack: 10,
     name: "Return Deck",
     owner: "Piximon",
     note: "",
@@ -4782,6 +5109,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 120,
+    exp: 30,
+    prizePack: 16,
     name: "Darkness Wave Deck",
     owner: "A",
     note: "",
@@ -4822,10 +5151,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 121,
+    exp: 5,
+    prizePack: 5,
     name: "Red Deck",
     owner: "Veemon",
     note: "Starting Deck",
-    description: "Veemon's starter Deck, bristling with Fire and Darkness. Attack Chips fuel a relentless offense, while Darkness tricks twist the battlefield — forcing attack buttons, halving HP, and keeping opponents off balance. Simple on the surface, dangerous when it gets going.",
+    description:
+      "Veemon's starter Deck, bristling with Fire and Darkness. Attack Chips fuel a relentless offense, while Darkness tricks twist the battlefield — forcing attack buttons, halving HP, and keeping opponents off balance. Simple on the surface, dangerous when it gets going.",
     cardNumbers: [
       "016",
       "016",
@@ -4862,10 +5194,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 122,
+    exp: 8,
+    prizePack: 9,
     name: "Green Deck",
     owner: "Hawkmon",
     note: "Starting Deck",
-    description: "Hawkmon's starter Deck, patient and precise. Defense Disks blunt the sharpest attacks, while Kunemon lowers both sides to a crawl and Vegiemon jams the evolution lane. Hawkmon waits above, drawing cards, until the moment to strike from the sky arrives.",
+    description:
+      "Hawkmon's starter Deck, patient and precise. Defense Disks blunt the sharpest attacks, while Kunemon lowers both sides to a crawl and Vegiemon jams the evolution lane. Hawkmon waits above, drawing cards, until the moment to strike from the sky arrives.",
     cardNumbers: [
       "091",
       "091",
@@ -4902,10 +5237,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 123,
+    exp: 8,
+    prizePack: 13,
     name: "Yellow Deck",
     owner: "Armadillomon",
     note: "Starting Deck",
-    description: "Armadillomon's starter Deck, built like its owner — stubborn and full of surprises. Ice cards null opponent attacks, Disrupt Ray rotates buttons mid-battle, ClearAgumon voids supports entirely, and the Rare crew chips away at the opponent's deck. Dig in and outlast.",
+    description:
+      "Armadillomon's starter Deck, built like its owner — stubborn and full of surprises. Ice cards null opponent attacks, Disrupt Ray rotates buttons mid-battle, ClearAgumon voids supports entirely, and the Rare crew chips away at the opponent's deck. Dig in and outlast.",
     cardNumbers: [
       "055",
       "055",
@@ -4942,10 +5280,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 124,
+    exp: 8,
+    prizePack: 5,
     name: "Flame Deck",
     owner: "Davis",
     note: "If Veemon is Not Partner A",
-    description: "Davis's Deck built around Flamedramon's fiery Armor charge. The Fire and Darkness core hits from every angle while Flamedramon's draw keeps the hand stocked. Aggressive from the first turn, it never gives the opponent room to breathe.",
+    description:
+      "Davis's Deck built around Flamedramon's fiery Armor charge. The Fire and Darkness core hits from every angle while Flamedramon's draw keeps the hand stocked. Aggressive from the first turn, it never gives the opponent room to breathe.",
     cardNumbers: [
       "016",
       "016",
@@ -4982,10 +5323,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 125,
+    exp: 8,
+    prizePack: 5,
     name: "Raidra Deck",
     owner: "Davis",
     note: "If Veemon is Not Partner B",
-    description: "Davis's Deck built around Raidramon, the lightning-dark Armor. The same relentless Fire and Darkness offense is here, but Raidramon's shadowy edge adds a sharper threat to evolution. A shock the opponent won't see coming.",
+    description:
+      "Davis's Deck built around Raidramon, the lightning-dark Armor. The same relentless Fire and Darkness offense is here, but Raidramon's shadowy edge adds a sharper threat to evolution. A shock the opponent won't see coming.",
     cardNumbers: [
       "016",
       "016",
@@ -5022,10 +5366,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 126,
+    exp: 8,
+    prizePack: 5,
     name: "Magna Deck",
     owner: "Davis",
     note: "If Veemon is Not Partner C",
-    description: "Davis's Deck built around Magnamon, the golden Armor. Sacred and unstoppable, Magnamon elevates the Fire and Darkness lineup into something greater than the sum of its parts — it hits hard, draws sharp, and never shows mercy.",
+    description:
+      "Davis's Deck built around Magnamon, the golden Armor. Sacred and unstoppable, Magnamon elevates the Fire and Darkness lineup into something greater than the sum of its parts — it hits hard, draws sharp, and never shows mercy.",
     cardNumbers: [
       "016",
       "016",
@@ -5062,10 +5409,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 127,
+    exp: 8,
+    prizePack: 9,
     name: "Holse Deck",
     owner: "Keely",
     note: "If Hawkmon is Not Partner A",
-    description: "Keely's Deck built around Halsemon, the Wind Armor. Halsemon's three-card draw feeds a patient Nature and Rare strategy, stacking Defense Disks and disruption until the opponent runs out of answers. Let them wear themselves out — then strike.",
+    description:
+      "Keely's Deck built around Halsemon, the Wind Armor. Halsemon's three-card draw feeds a patient Nature and Rare strategy, stacking Defense Disks and disruption until the opponent runs out of answers. Let them wear themselves out — then strike.",
     cardNumbers: [
       "091",
       "091",
@@ -5102,10 +5452,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 128,
+    exp: 8,
+    prizePack: 9,
     name: "Shuri Deck",
     owner: "Keely",
     note: "If Hawkmon is Not Partner B",
-    description: "Keely's Deck built around Shurimon, the spinning blade Armor. The patient Nature and Rare Defense core is unchanged, but Shurimon's ability to nullify ✕ Attacks adds a razor edge — like a shuriken the opponent never sees coming.",
+    description:
+      "Keely's Deck built around Shurimon, the spinning blade Armor. The patient Nature and Rare Defense core is unchanged, but Shurimon's ability to nullify ✕ Attacks adds a razor edge — like a shuriken the opponent never sees coming.",
     cardNumbers: [
       "091",
       "091",
@@ -5142,10 +5495,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 129,
+    exp: 8,
+    prizePack: 7,
     name: "Dig Deck",
     owner: "Cody",
     note: "If Armadillomon is Not Partner A",
-    description: "Cody's Deck built around Digmon, the Armor of Knowledge. Digmon drills through the opponent's deck while the Ice and Rare corps disrupt attacks and void supports from every angle. By the time they realize what hit them, there's nothing left to draw.",
+    description:
+      "Cody's Deck built around Digmon, the Armor of Knowledge. Digmon drills through the opponent's deck while the Ice and Rare corps disrupt attacks and void supports from every angle. By the time they realize what hit them, there's nothing left to draw.",
     cardNumbers: [
       "055",
       "055",
@@ -5182,10 +5538,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 130,
+    exp: 8,
+    prizePack: 7,
     name: "Submarine Deck",
     owner: "Cody",
     note: "If Armadillomon is Not Partner B",
-    description: "Cody's Deck built around Submarimon, the Armor of Reliability. Hidden beneath the surface, Ice and Rare work together to null attacks and rotate buttons until the opponent's offense runs dry. Submarimon seals the deal from the depths.",
+    description:
+      "Cody's Deck built around Submarimon, the Armor of Reliability. Hidden beneath the surface, Ice and Rare work together to null attacks and rotate buttons until the opponent's offense runs dry. Submarimon seals the deal from the depths.",
     cardNumbers: [
       "055",
       "055",
@@ -5222,10 +5581,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 131,
+    exp: 7,
+    prizePack: 9,
     name: "Pegasus Deck",
     owner: "T.K",
     note: "If Patamon is Not Partner A",
-    description: "T.K.'s Deck soaring on Pegasusmon's wings. Fire and Nature combine in a swift, counter-heavy formation — ○ Counters from every corner, Yanmamon strikes first, and Attack Disk △ doubles the pressure. A celestial offense that lands before the opponent can react.",
+    description:
+      "T.K.'s Deck soaring on Pegasusmon's wings. Fire and Nature combine in a swift, counter-heavy formation — ○ Counters from every corner, Yanmamon strikes first, and Attack Disk △ doubles the pressure. A celestial offense that lands before the opponent can react.",
     cardNumbers: [
       "019",
       "019",
@@ -5262,10 +5624,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 132,
+    exp: 7,
+    prizePack: 9,
     name: "Baro Deck",
     owner: "T.K",
     note: "If Patamon is Not Partner B",
-    description: "T.K.'s Deck built around Baronmon, the fiery Armor. The same Fire and Nature counter formation charges forward, but Baronmon's x-attack nullifies the opponent's ○ at the decisive moment — turning their aggression into ash.",
+    description:
+      "T.K.'s Deck built around Baronmon, the fiery Armor. The same Fire and Nature counter formation charges forward, but Baronmon's x-attack nullifies the opponent's ○ at the decisive moment — turning their aggression into ash.",
     cardNumbers: [
       "019",
       "019",
@@ -5302,10 +5667,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 133,
+    exp: 8,
+    prizePack: 9,
     name: "Neferti Deck",
     owner: "Kari",
     note: "If Gatomon is Not Partner A",
-    description: "Kari's Deck blessed by Nefertimon, the sacred Light Armor. Ice and Nature weave together in a disciplined wall — ○ Attacks are shut down at every turn, Leomon punches up when outleveled, and Earth Charm grants Nature and first strike at once. As graceful as it is unyielding.",
+    description:
+      "Kari's Deck blessed by Nefertimon, the sacred Light Armor. Ice and Nature weave together in a disciplined wall — ○ Attacks are shut down at every turn, Leomon punches up when outleveled, and Earth Charm grants Nature and first strike at once. As graceful as it is unyielding.",
     cardNumbers: [
       "052",
       "052",
@@ -5342,10 +5710,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 134,
+    exp: 8,
+    prizePack: 9,
     name: "Tylo Deck",
     owner: "Kari",
     note: "If Gatomon is Not Partner B",
-    description: "Kari's Deck built around Tylomon, the Water Armor. The disciplined Ice and Nature core remains, but Tylomon surges to the front against Fire opponents — a predator beneath the current, merciless to those who burn.",
+    description:
+      "Kari's Deck built around Tylomon, the Water Armor. The disciplined Ice and Nature core remains, but Tylomon surges to the front against Fire opponents — a predator beneath the current, merciless to those who burn.",
     cardNumbers: [
       "052",
       "052",
@@ -5382,10 +5753,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 135,
+    exp: 10,
+    prizePack: 12,
     name: "Shadra Deck",
     owner: "Ken",
     note: "If Wormmon is Not Partner A",
-    description: "Ken's Deck built around Shadramon, the Armor of darkness. Ice chills the battlefield while Darkness closes in — Nature Foe predators, Jamming, button rotation, and Guardromon's crash make this as unpredictable as its trainer. The ruthless edge of a reformed Emperor.",
+    description:
+      "Ken's Deck built around Shadramon, the Armor of darkness. Ice chills the battlefield while Darkness closes in — Nature Foe predators, Jamming, button rotation, and Guardromon's crash make this as unpredictable as its trainer. The ruthless edge of a reformed Emperor.",
     cardNumbers: [
       "051",
       "051",
@@ -5422,10 +5796,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 136,
+    exp: 10,
+    prizePack: 12,
     name: "Quetzal Deck",
     owner: "Ken",
     note: "If Wormmon is Not Partner B",
-    description: "Ken's Deck built around Quetzalmon, the colorful Ice Armor. The same cold and dark assault remains, but Quetzalmon's ✕ Counter turns the opponent's strongest attack back against them. Beautiful, dangerous, and utterly calculated.",
+    description:
+      "Ken's Deck built around Quetzalmon, the colorful Ice Armor. The same cold and dark assault remains, but Quetzalmon's ✕ Counter turns the opponent's strongest attack back against them. Beautiful, dangerous, and utterly calculated.",
     cardNumbers: [
       "051",
       "051",
@@ -5462,10 +5839,13 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 137,
+    exp: 3,
+    prizePack: 1,
     name: "Practice Deck",
     owner: "Betamon",
     note: "Practice",
-    description: "Betamon's practice Deck, built to teach the fundamentals without overwhelming. Fire leads with first strikes and boosted attacks, Nature counters and heals, and a handful of Defense Disks round it out. Lose to this and it might be time to rethink the strategy.",
+    description:
+      "Betamon's practice Deck, built to teach the fundamentals without overwhelming. Fire leads with first strikes and boosted attacks, Nature counters and heals, and a handful of Defense Disks round it out. Lose to this and it might be time to rethink the strategy.",
     cardNumbers: [
       "007",
       "020",
@@ -5502,6 +5882,8 @@ export const DECK_LISTS: DeckList[] = [
   },
   {
     id: 138,
+    exp: 25,
+    prizePack: 4,
     name: "Pick Up Deck",
     owner: "Betamon",
     note: "Serious",

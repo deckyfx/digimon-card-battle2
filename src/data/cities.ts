@@ -9,6 +9,7 @@
  */
 
 import type { BattleRecords } from "@src/store/profile-store";
+import { getCafeBattleById } from "@src/data/battle-cafe-datas";
 
 export interface City {
   id: string;
@@ -19,8 +20,8 @@ export interface City {
   cafe: string;
   /** Battle Arena interior. */
   arena: string;
-  /** Actor ids fightable at this city's Battle Cafe. */
-  cafeActorIds: number[];
+  /** CafeBattle ids (battle-cafe-datas.ts) for this city's Battle Cafe. */
+  cafeBattleIds: number[];
   /**
    * City id that must be cleared (all cafe residents defeated at least
    * once) before this city opens. null = open from the start.
@@ -34,7 +35,7 @@ const img = (id: string, kind: "overview" | "cafe" | "arena") =>
 const city = (
   id: string,
   name: string,
-  cafeActorIds: number[],
+  cafeBattleIds: number[],
   unlockedBy: string | null,
 ): City => ({
   id,
@@ -42,35 +43,25 @@ const city = (
   overview: img(id, "overview"),
   cafe: img(id, "cafe"),
   arena: img(id, "arena"),
-  cafeActorIds,
+  cafeBattleIds,
   unlockedBy,
 });
 
 export const CITIES: City[] = [
-  // Confirmed roster.
-  city("beginner", "Beginner City", [2, 3, 4, 5], null),
-  // Drafted rosters below — edit freely.
-  city("flame", "Flame City", [6, 7, 8], "beginner"),
-  city("jungle", "Jungle City", [9, 10, 11, 12], "flame"),
-  city("igloo", "Igloo City", [13, 14, 15, 16], "jungle"),
-  city("junk", "Junk City", [17, 18, 19, 20], "igloo"),
-  city("dark", "Dark City", [65, 66, 67, 68], "junk"),
-  city("pyramid", "Pyramid City", [23, 24, 25], "dark"),
-  city("sky", "Sky City", [30, 31, 32], "pyramid"),
-  city("steep-road", "Steep Road", [34, 35, 36, 37], "sky"),
-  city(
-    "wiseman-tower",
-    "Wiseman Tower",
-    [38, 39, 40, 41, 42, 43],
-    "steep-road",
-  ),
-  city(
-    "infinity-tower",
-    "Infinity Tower",
-    [44, 45, 46, 98, 47],
-    "wiseman-tower",
-  ),
-  city("desert-island", "Desert Island", [48, 49, 50, 51], "infinity-tower"),
+  // Confirmed roster — cafeBattleIds reference CAFE_BATTLES in battle-cafe-datas.ts.
+  city("beginner", "Beginner City", [1, 2], null),
+  // Drafted rosters below — cafeBattleIds TBD as CafeBattle entries are authored.
+  city("flame", "Flame City", [], "beginner"),
+  city("jungle", "Jungle City", [], "flame"),
+  city("igloo", "Igloo City", [], "jungle"),
+  city("junk", "Junk City", [], "igloo"),
+  city("dark", "Dark City", [], "junk"),
+  city("pyramid", "Pyramid City", [], "dark"),
+  city("sky", "Sky City", [], "pyramid"),
+  city("steep-road", "Steep Road", [], "sky"),
+  city("wiseman-tower", "Wiseman Tower", [], "steep-road"),
+  city("infinity-tower", "Infinity Tower", [], "wiseman-tower"),
+  city("desert-island", "Desert Island", [], "infinity-tower"),
 ];
 
 export function getCityById(id: string): City | null {
@@ -79,7 +70,9 @@ export function getCityById(id: string): City | null {
 
 /** Returns the city whose Battle Cafe contains the given actor, if any. */
 export function getCityByActorId(actorId: number): City | null {
-  return CITIES.find((c) => c.cafeActorIds.includes(actorId)) ?? null;
+  return CITIES.find((c) =>
+    c.cafeBattleIds.some((bid) => getCafeBattleById(bid)?.actorId === actorId),
+  ) ?? null;
 }
 
 /** Wins against `actorId` in a profile's battle records. */
@@ -95,10 +88,13 @@ export function isCityUnlocked(city: City, records: BattleRecords): boolean {
   if (!city.unlockedBy) return true;
   const prev = getCityById(city.unlockedBy);
   if (!prev) return true;
-  return prev.cafeActorIds.every((id) => winsAgainst(records, id) > 0);
+  return isCityCleared(prev, records);
 }
 
-/** True when every cafe resident of `city` has been beaten at least once. */
+/** True when every cafe battle in `city` has been won at least once. */
 export function isCityCleared(city: City, records: BattleRecords): boolean {
-  return city.cafeActorIds.every((id) => winsAgainst(records, id) > 0);
+  return city.cafeBattleIds.every((bid) => {
+    const actorId = getCafeBattleById(bid)?.actorId;
+    return actorId !== undefined && winsAgainst(records, actorId) > 0;
+  });
 }

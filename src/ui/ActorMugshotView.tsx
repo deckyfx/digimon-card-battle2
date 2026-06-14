@@ -35,7 +35,7 @@ export function ActorMugshotView(props: {
     >
       {/* Frame first (behind), mugshot second (on top) so it covers the opaque black screen area */}
       <img class="amv-frame" src="/assets/mugshots/frame.png" alt="" />
-      <img class="amv-mugshot" src={props.mugshot} alt={props.label ?? ""} />
+      {props.mugshot && <img class="amv-mugshot" src={props.mugshot} alt={props.label ?? ""} />}
     </div>
   );
 }

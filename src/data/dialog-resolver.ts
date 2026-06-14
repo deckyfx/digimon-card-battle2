@@ -75,13 +75,17 @@ function resolveExpr(expr: string, full: string, ctx: DialogContext): DialogSegm
     return { kind: "player", value: ctx.player.name };
   }
 
-  // ${actor[N].prize.name}
+  // ${actor[N].prize.name}  — resolved via the actor's primary deck
   const actorPrizeM = expr.match(/^actor\[(\d+)\]\.prize\.name$/);
   if (actorPrizeM) {
     const actor = ctx.actorById(Number(actorPrizeM[1]));
-    if (actor?.prizePack) {
-      const pack = ctx.packById(actor.prizePack);
-      if (pack) return { kind: "pack", value: pack.name };
+    const primaryDeckId = actor?.deckIds[0];
+    if (primaryDeckId !== undefined) {
+      const deck = ctx.deckById(primaryDeckId);
+      if (deck) {
+        const pack = ctx.packById(deck.prizePack);
+        if (pack) return { kind: "pack", value: pack.name };
+      }
     }
     return fallback;
   }

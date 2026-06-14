@@ -49,6 +49,7 @@ export function getTalkDialog(actorId: number): Dialog | undefined {
 
 export const DIALOGS: Dialog[] = [
   {
+    // Betamon tutorial first time dialog
     id: 1,
     actors: [0, 2],
     lines: [
@@ -75,6 +76,27 @@ export const DIALOGS: Dialog[] = [
         actor: 2,
         message:
           "Win and I'll reward you with a ${actor[2].prize.name} — packed with cards to power up your deck. Hit BATTLE when you're ready — I'll be right here!",
+      },
+    ],
+  },
+  {
+    // Betamon tutorial win
+    id: 2,
+    actors: [0, 2],
+    lines: [
+      {
+        actor: 2,
+        message: "You have knack for this!",
+      },
+      {
+        actor: 0,
+        message:
+          "Thank you.",
+      },
+      {
+        actor: 2,
+        message:
+          "That's the gist of this game, i pray for your continuous victory",
       },
     ],
   },

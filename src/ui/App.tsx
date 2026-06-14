@@ -3,11 +3,15 @@ import type { AttackType } from "@src/types";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
 import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
+import { getDeckById } from "@src/data/prebuilt-decks";
 import type { PlayerProfile } from "@src/store/profile-store";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { getPackById, openPack } from "@src/data/prize-packs";
 import { getCityById, type City } from "@src/data/cities";
+import { getCafeBattleById } from "@src/data/battle-cafe-datas";
+import { CITY_ROSTER_RULES } from "@src/data/progression-scripts";
 import { ScreenSetupDeck } from "./ScreenSetupDeck";
+import { ScreenBattleSetup } from "./ScreenBattleSetup";
 import { ProfilesScreen } from "./ScreenProfiles";
 import { ScreenWelcome } from "./ScreenWelcome";
 import { ScreenSetupBattle } from "./SetupScreen";
@@ -42,12 +46,19 @@ export function App() {
   const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
   const [setupError, setSetupError] = createSignal("");
   // App opens on profile management; the world map is the scenario hub.
-  const [view, setView] = createSignal<"ScreenProfiles" | "welcome" | "world" | "city" | "setup" | "builder">("ScreenProfiles");
+  const [view, setView] = createSignal<"ScreenProfiles" | "welcome" | "world" | "city" | "setup" | "battle-intro" | "builder">("ScreenProfiles");
   const [profile, setProfile] = createSignal<PlayerProfile | null>(null);
   /** City currently being visited (view "city" / scenario duels). */
   const [activeCityId, setActiveCityId] = createSignal<string | null>(null);
   /** Where a battle was launched from — decides where the lobby is. */
   const [battleOrigin, setBattleOrigin] = createSignal<"free" | string>("free");
+  /** The CafeBattle id for the current scenario duel (null for free battles). */
+  const [activeCafeBattleId, setActiveCafeBattleId] = createSignal<number | null>(null);
+  /** Post-battle dialog to show when returning to the city after a duel. */
+  const [pendingPostBattle, setPendingPostBattle] = createSignal<{
+    cafeBattleId: number;
+    result: "win" | "lose";
+  } | null>(null);
   /** Where the builder was opened from, to return there on Back. */
   let builderOrigin: "world" | "setup" = "world";
 
@@ -59,12 +70,15 @@ export function App() {
     setView("welcome");
   };
 
-  /** Enter a city resident duel: opponent locked, lobby = the city. */
-  const fightResident = (cityId: string, actorId: number) => {
+  /** Enter a city resident duel: opponent locked to this CafeBattle, lobby = the city. */
+  const fightResident = (cityId: string, actorId: number, cafeBattleId: number) => {
     setCpuActorId(actorId);
-    setCpuDeck(RANDOM_DECK);
+    const cafeBattle = getCafeBattleById(cafeBattleId);
+    // Use the specific deck defined for this CafeBattle slot, not a random one.
+    setCpuDeck(cafeBattle ? `${PREBUILT_PREFIX}${cafeBattle.deckId}` : RANDOM_DECK);
     setBattleOrigin(cityId);
-    setView("setup");
+    setActiveCafeBattleId(cafeBattleId);
+    setView("battle-intro");
   };
 
   /** Re-reads the active profile from the store (after builder edits). */
@@ -227,7 +241,14 @@ export function App() {
   function claimRewards(): MatchRewards {
     if (rewardClaim) return rewardClaim;
     const actor = cpuActor();
-    const pack = actor.prizePack ? getPackById(actor.prizePack) : null;
+    // Resolve deck to get exp and prizePack (deck is the source of truth now).
+    const deckIdStr = cpuDeck();
+    const deckId = deckIdStr.startsWith(PREBUILT_PREFIX)
+      ? parseInt(deckIdStr.slice(PREBUILT_PREFIX.length), 10)
+      : null;
+    const deck = deckId !== null ? getDeckById(deckId) : null;
+    const exp = deck?.exp ?? 0;
+    const pack = deck?.prizePack ? getPackById(deck.prizePack) : null;
     const cards = pack ? openPack(pack) : [];
     const bonusCards = (actor.prizeCards ?? [])
       .map((n) => MASTER_CARDS.find((c) => c.number === n))
@@ -235,10 +256,27 @@ export function App() {
     const prof = profile();
     if (prof) {
       profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
-      profileStore.addExp(prof.id, actor.exp);
+      profileStore.addExp(prof.id, exp);
+
+      // Apply story flags from this CafeBattle and recompute the city roster.
+      const cafeBattleId = activeCafeBattleId();
+      const cafeBattle = cafeBattleId !== null ? getCafeBattleById(cafeBattleId) : null;
+      if (cafeBattle?.onWin?.length) {
+        let flaggedProfile = prof;
+        for (const flagKey of cafeBattle.onWin) {
+          flaggedProfile = profileStore.setFlag(prof.id, flagKey, true);
+        }
+        const cityId = battleOrigin();
+        const rosterRule = CITY_ROSTER_RULES[cityId];
+        if (rosterRule) {
+          const newRoster = rosterRule(flaggedProfile.flags);
+          profileStore.applyCityRoster(prof.id, cityId, newRoster);
+        }
+      }
+
       refreshProfile();
     }
-    rewardClaim = { exp: actor.exp, packName: pack?.name ?? null, cards, bonusCards };
+    rewardClaim = { exp, packName: pack?.name ?? null, cards, bonusCards };
     return rewardClaim;
   }
 
@@ -255,11 +293,17 @@ export function App() {
   });
 
   function backToLobby() {
+    // Capture winner before clearing the engine.
+    const result: "win" | "lose" = engine()?.winner === "player" ? "win" : "lose";
     rewardClaim = null;
     setEngine(null);
-    // Scenario duels return to their city; free battles to the setup screen.
+    // Scenario duels return to their city with a post-battle dialog; free battles go to setup.
     if (battleOrigin() !== "free" && getCityById(battleOrigin())) {
       setActiveCityId(battleOrigin());
+      const cafeBattleId = activeCafeBattleId();
+      if (cafeBattleId !== null) {
+        setPendingPostBattle({ cafeBattleId, result });
+      }
       setView("city");
     } else {
       setView("setup");
@@ -303,8 +347,33 @@ export function App() {
               <ScreenCity
                 city={getCityById(activeCityId() ?? "") as City}
                 profile={profile() as PlayerProfile}
-                onFight={(actorId) => fightResident(activeCityId() as string, actorId)}
+                onFight={(actorId, cafeBattleId) => fightResident(activeCityId() as string, actorId, cafeBattleId)}
+                onFlagSet={(key, value) => {
+                  const prof = profile();
+                  if (prof) {
+                    profileStore.setFlag(prof.id, key, value);
+                    refreshProfile();
+                  }
+                }}
                 onBack={() => setView("world")}
+                pendingPostBattle={pendingPostBattle()}
+                onPostBattleConsumed={() => setPendingPostBattle(null)}
+              />
+            </Show>
+            <Show when={view() === "battle-intro" && profile()}>
+              <ScreenBattleSetup
+                profile={profile() as PlayerProfile}
+                cpuActor={cpuActor()}
+                cpuDeckName={
+                  cpuDeck().startsWith(PREBUILT_PREFIX)
+                    ? (getDeckById(parseInt(cpuDeck().slice(PREBUILT_PREFIX.length), 10))?.name ?? "???")
+                    : "???"
+                }
+                onStart={(customDeckId, fp) => {
+                  setPlayerDeck(`${CUSTOM_PREFIX}${customDeckId}`);
+                  setFirstPlayer(fp);
+                  startMatch();
+                }}
               />
             </Show>
             <Show when={view() === "setup" && profile()}>

@@ -31,6 +31,16 @@ export interface PlayerProfile {
   exp: number;
   /** Win/loss tallies per opponent actor id (drives city unlocks). */
   records: BattleRecords;
+  /**
+   * Persistent story flags set by CafeBattle.onWin and checked by the
+   * progression engine. Keys are free-form strings (e.g. "betamon_tutorial_defeated").
+   */
+  flags: Record<string, boolean>;
+  /**
+   * City cafe rosters overridden by progression (cityId → cafeBattleIds).
+   * If absent for a city the static city.cafeBattleIds is used instead.
+   */
+  cityRosters: Record<string, number[]>;
   createdAt: string;
   updatedAt: string;
 }
@@ -131,7 +141,7 @@ export class ProfileStore {
           );
         }
         const { defeated: _legacy, ...rest } = p;
-        return { ...rest, exp: p.exp ?? 0, records };
+        return { ...rest, exp: p.exp ?? 0, records, flags: p.flags ?? {}, cityRosters: p.cityRosters ?? {} };
       });
     } catch {
       return [];
@@ -192,6 +202,8 @@ export class ProfileStore {
       ],
       exp: 0,
       records: {},
+      flags: {},
+      cityRosters: {},
       createdAt: now,
       updatedAt: now,
     };
@@ -386,6 +398,18 @@ export class ProfileStore {
     if (idx <= 0) return profile;
     const [deck] = profile.decks.splice(idx, 1) as [CustomDeck];
     profile.decks.unshift(deck);
+    return this.update(profile);
+  }
+
+  setFlag(profileId: string, key: string, value: boolean): PlayerProfile {
+    const profile = this.require(profileId);
+    profile.flags = { ...profile.flags, [key]: value };
+    return this.update(profile);
+  }
+
+  applyCityRoster(profileId: string, cityId: string, cafeBattleIds: number[]): PlayerProfile {
+    const profile = this.require(profileId);
+    profile.cityRosters = { ...profile.cityRosters, [cityId]: cafeBattleIds };
     return this.update(profile);
   }
 

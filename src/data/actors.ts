@@ -14,19 +14,6 @@ export interface Actor {
   mugshot: string;
   /** Prebuilt deck ids this actor owns (empty for player actors). */
   deckIds: number[];
-  /**
-   * Base experience awarded for defeating this actor (game-guide values).
-   * Where the guide lists per-deck values, this is the repeatable base —
-   * one-time first-deck bonuses are a future campaign mechanic. 0 for
-   * player actors.
-   */
-  exp: number;
-  /**
-   * Prize pack id awarded for defeating this actor (see
-   * src/data/prize-packs.ts). Undefined = not yet specified by the guide
-   * data — to be filled with sensible defaults.
-   */
-  prizePack?: number;
   /** Bonus card numbers granted directly on defeat (e.g. Apokarimon #103). */
   prizeCards?: string[];
   /** Player actors are controlled by the human and use custom decks. */
@@ -40,7 +27,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/00.png",
     mugshot: "/assets/mugshots/001.png",
     deckIds: [],
-    exp: 0,
     isPlayer: true,
   },
   {
@@ -49,17 +35,14 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/01.png",
     mugshot: "/assets/mugshots/001.png",
     deckIds: [],
-    exp: 0,
     isPlayer: false,
   },
   {
     id: 2,
     name: "Betamon",
-    portrait: "/assets/potraits/11.png",
+    portrait: "/assets/potraits/02.png",
     mugshot: "/assets/mugshots/011.png",
     deckIds: [1, 137, 138],
-    exp: 2,
-    prizePack: 1,
     isPlayer: false,
   },
   {
@@ -68,8 +51,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/03.png",
     mugshot: "/assets/mugshots/002.png",
     deckIds: [2],
-    exp: 3,
-    prizePack: 1,
     isPlayer: false,
   },
   {
@@ -78,8 +59,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/04.png",
     mugshot: "/assets/mugshots/003.png",
     deckIds: [3],
-    exp: 4,
-    prizePack: 1,
     isPlayer: false,
   },
   {
@@ -88,8 +67,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/05.png",
     mugshot: "/assets/mugshots/010.png",
     deckIds: [4],
-    exp: 5,
-    prizePack: 2,
     isPlayer: false,
   },
   {
@@ -98,8 +75,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/06.png",
     mugshot: "/assets/mugshots/012.png",
     deckIds: [5],
-    exp: 4,
-    prizePack: 1,
     isPlayer: false,
   },
   {
@@ -108,8 +83,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/07.png",
     mugshot: "/assets/mugshots/013.png",
     deckIds: [6],
-    exp: 4,
-    prizePack: 1,
     isPlayer: false,
   },
   {
@@ -118,8 +91,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/08.png",
     mugshot: "/assets/mugshots/014.png",
     deckIds: [7, 121],
-    exp: 5,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -128,8 +99,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/09.png",
     mugshot: "/assets/mugshots/024.png",
     deckIds: [8],
-    exp: 5,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -138,8 +107,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/10.png",
     mugshot: "/assets/mugshots/025.png",
     deckIds: [9],
-    exp: 5,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -148,8 +115,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/11.png",
     mugshot: "/assets/mugshots/026.png",
     deckIds: [10],
-    exp: 6,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -158,8 +123,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/12.png",
     mugshot: "/assets/mugshots/038.png",
     deckIds: [11, 20],
-    exp: 5,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -168,8 +131,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/13.png",
     mugshot: "/assets/mugshots/039.png",
     deckIds: [12],
-    exp: 5,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -178,8 +139,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/14.png",
     mugshot: "/assets/mugshots/040.png",
     deckIds: [13],
-    exp: 5,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -188,8 +147,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/15.png",
     mugshot: "/assets/mugshots/041.png",
     deckIds: [14],
-    exp: 6,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -198,8 +155,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/16.png",
     mugshot: "/assets/mugshots/052.png",
     deckIds: [15, 21],
-    exp: 6,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -208,8 +163,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/17.png",
     mugshot: "/assets/mugshots/053.png",
     deckIds: [16],
-    exp: 5,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -218,8 +171,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/18.png",
     mugshot: "/assets/mugshots/054.png",
     deckIds: [17],
-    exp: 5,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -228,8 +179,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/19.png",
     mugshot: "/assets/mugshots/055.png",
     deckIds: [18],
-    exp: 6,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -238,8 +187,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/20.png",
     mugshot: "/assets/mugshots/058.png",
     deckIds: [19, 22],
-    exp: 7,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -248,8 +195,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/21.png",
     mugshot: "/assets/mugshots/063.png",
     deckIds: [23],
-    exp: 8,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -258,8 +203,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/22.png",
     mugshot: "/assets/mugshots/070.png",
     deckIds: [24],
-    exp: 15,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -268,8 +211,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/23.png",
     mugshot: "/assets/mugshots/075.png",
     deckIds: [25],
-    exp: 5,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -278,8 +219,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/24.png",
     mugshot: "/assets/mugshots/076.png",
     deckIds: [26],
-    exp: 6,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -288,8 +227,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/25.png",
     mugshot: "/assets/mugshots/077.png",
     deckIds: [27],
-    exp: 7,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -298,8 +235,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/26.png",
     mugshot: "/assets/mugshots/015.png",
     deckIds: [28, 124, 125, 126],
-    exp: 8,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -308,8 +243,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/27.png",
     mugshot: "/assets/mugshots/027.png",
     deckIds: [29, 127, 128],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -318,8 +251,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/28.png",
     mugshot: "/assets/mugshots/042.png",
     deckIds: [30, 129, 130],
-    exp: 8,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -328,8 +259,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/29.png",
     mugshot: "/assets/mugshots/078.png",
     deckIds: [31, 131, 132],
-    exp: 7,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -338,8 +267,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/30.png",
     mugshot: "/assets/mugshots/084.png",
     deckIds: [32],
-    exp: 6,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -348,8 +275,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/31.png",
     mugshot: "/assets/mugshots/085.png",
     deckIds: [33],
-    exp: 7,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -358,8 +283,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/32.png",
     mugshot: "/assets/mugshots/086.png",
     deckIds: [34],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -368,8 +291,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/33.png",
     mugshot: "/assets/mugshots/087.png",
     deckIds: [35, 133, 134],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -378,8 +299,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/34.png",
     mugshot: "/assets/mugshots/093.png",
     deckIds: [36],
-    exp: 5,
-    prizePack: 15,
     isPlayer: false,
   },
   {
@@ -388,8 +307,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/35.png",
     mugshot: "/assets/mugshots/094.png",
     deckIds: [37],
-    exp: 6,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -398,8 +315,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/36.png",
     mugshot: "/assets/mugshots/095.png",
     deckIds: [38],
-    exp: 7,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -408,8 +323,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/37.png",
     mugshot: "/assets/mugshots/096.png",
     deckIds: [39],
-    exp: 8,
-    prizePack: 3,
     isPlayer: false,
   },
   {
@@ -418,8 +331,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/38.png",
     mugshot: "/assets/mugshots/100.png",
     deckIds: [40],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -428,8 +339,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/39.png",
     mugshot: "/assets/mugshots/101.png",
     deckIds: [41],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -438,8 +347,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/40.png",
     mugshot: "/assets/mugshots/102.png",
     deckIds: [42],
-    exp: 8,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -448,8 +355,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/41.png",
     mugshot: "/assets/mugshots/103.png",
     deckIds: [43],
-    exp: 8,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -458,8 +363,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/42.png",
     mugshot: "/assets/mugshots/104.png",
     deckIds: [44],
-    exp: 8,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -468,8 +371,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/43.png",
     mugshot: "/assets/mugshots/105.png",
     deckIds: [45],
-    exp: 8,
-    prizePack: 3,
     isPlayer: false,
   },
   {
@@ -478,8 +379,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/44.png",
     mugshot: "/assets/mugshots/109.png",
     deckIds: [46],
-    exp: 8,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -488,8 +387,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/45.png",
     mugshot: "/assets/mugshots/107.png",
     deckIds: [47],
-    exp: 8,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -498,8 +395,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/46.png",
     mugshot: "/assets/mugshots/108.png",
     deckIds: [48],
-    exp: 8,
-    prizePack: 7,
     isPlayer: false,
   },
   {
@@ -508,8 +403,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/47.png",
     mugshot: "/assets/mugshots/110.png",
     deckIds: [49],
-    exp: 10,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -518,8 +411,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/48.png",
     mugshot: "/assets/mugshots/071.png",
     deckIds: [50],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -528,8 +419,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/49.png",
     mugshot: "/assets/mugshots/072.png",
     deckIds: [51],
-    exp: 9,
-    prizePack: 4,
     isPlayer: false,
   },
   {
@@ -538,8 +427,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/50.png",
     mugshot: "/assets/mugshots/073.png",
     deckIds: [52],
-    exp: 9,
-    prizePack: 14,
     isPlayer: false,
   },
   {
@@ -548,8 +435,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/51.png",
     mugshot: "/assets/mugshots/074.png",
     deckIds: [53],
-    exp: 10,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -558,8 +443,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/52.png",
     mugshot: "/assets/mugshots/005.png",
     deckIds: [54],
-    exp: 8,
-    prizePack: 15,
     isPlayer: false,
   },
   {
@@ -568,8 +451,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/53.png",
     mugshot: "/assets/mugshots/016.png",
     deckIds: [55],
-    exp: 8,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -578,8 +459,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/54.png",
     mugshot: "/assets/mugshots/023.png",
     deckIds: [56],
-    exp: 9,
-    prizePack: 6,
     isPlayer: false,
   },
   {
@@ -588,8 +467,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/55.png",
     mugshot: "/assets/mugshots/017.png",
     deckIds: [57],
-    exp: 10,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -598,8 +475,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/56.png",
     mugshot: "/assets/mugshots/030.png",
     deckIds: [58, 122],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -608,8 +483,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/57.png",
     mugshot: "/assets/mugshots/031.png",
     deckIds: [59],
-    exp: 8,
-    prizePack: 3,
     isPlayer: false,
   },
   {
@@ -618,8 +491,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/58.png",
     mugshot: "/assets/mugshots/032.png",
     deckIds: [60],
-    exp: 10,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -628,8 +499,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/59.png",
     mugshot: "/assets/mugshots/043.png",
     deckIds: [61, 123],
-    exp: 8,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -638,8 +507,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/60.png",
     mugshot: "/assets/mugshots/044.png",
     deckIds: [62],
-    exp: 9,
-    prizePack: 14,
     isPlayer: false,
   },
   {
@@ -648,8 +515,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/61.png",
     mugshot: "/assets/mugshots/045.png",
     deckIds: [63],
-    exp: 10,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -658,8 +523,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/62.png",
     mugshot: "/assets/mugshots/059.png",
     deckIds: [64],
-    exp: 8,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -668,8 +531,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/63.png",
     mugshot: "/assets/mugshots/060.png",
     deckIds: [65],
-    exp: 9,
-    prizePack: 14,
     isPlayer: false,
   },
   {
@@ -678,8 +539,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/64.png",
     mugshot: "/assets/mugshots/061.png",
     deckIds: [66],
-    exp: 10,
-    prizePack: 14,
     isPlayer: false,
   },
   {
@@ -688,8 +547,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/65.png",
     mugshot: "/assets/mugshots/064.png",
     deckIds: [67],
-    exp: 8,
-    prizePack: 11,
     isPlayer: false,
   },
   {
@@ -698,8 +555,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/66.png",
     mugshot: "/assets/mugshots/065.png",
     deckIds: [68],
-    exp: 9,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -708,8 +563,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/67.png",
     mugshot: "/assets/mugshots/066.png",
     deckIds: [69],
-    exp: 10,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -718,8 +571,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/68.png",
     mugshot: "/assets/mugshots/067.png",
     deckIds: [70],
-    exp: 11,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -728,8 +579,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/69.png",
     mugshot: "/assets/mugshots/079.png",
     deckIds: [71],
-    exp: 8,
-    prizePack: 15,
     isPlayer: false,
   },
   {
@@ -738,8 +587,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/70.png",
     mugshot: "/assets/mugshots/080.png",
     deckIds: [72],
-    exp: 9,
-    prizePack: 4,
     isPlayer: false,
   },
   {
@@ -748,8 +595,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/71.png",
     mugshot: "/assets/mugshots/081.png",
     deckIds: [73],
-    exp: 10,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -758,8 +603,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/72.png",
     mugshot: "/assets/mugshots/088.png",
     deckIds: [74],
-    exp: 8,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -768,8 +611,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/73.png",
     mugshot: "/assets/mugshots/089.png",
     deckIds: [75],
-    exp: 9,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -778,8 +619,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/74.png",
     mugshot: "/assets/mugshots/090.png",
     deckIds: [76],
-    exp: 10,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -788,8 +627,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/75.png",
     mugshot: "/assets/mugshots/028.png",
     deckIds: [77],
-    exp: 10,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -798,8 +635,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/76.png",
     mugshot: "/assets/mugshots/029.png",
     deckIds: [78],
-    exp: 13,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -808,8 +643,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/77.png",
     mugshot: "/assets/mugshots/007.png",
     deckIds: [79],
-    exp: 10,
-    prizePack: 15,
     isPlayer: false,
   },
   {
@@ -818,8 +651,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/78.png",
     mugshot: "/assets/mugshots/006.png",
     deckIds: [80],
-    exp: 10,
-    prizePack: 16,
     isPlayer: false,
   },
   {
@@ -828,8 +659,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/79.png",
     mugshot: "/assets/mugshots/018.png",
     deckIds: [81],
-    exp: 10,
-    prizePack: 5,
     isPlayer: false,
   },
   {
@@ -838,8 +667,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/80.png",
     mugshot: "/assets/mugshots/033.png",
     deckIds: [84],
-    exp: 10,
-    prizePack: 4,
     isPlayer: false,
   },
   {
@@ -848,8 +675,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/81.png",
     mugshot: "/assets/mugshots/046.png",
     deckIds: [87],
-    exp: 10,
-    prizePack: 13,
     isPlayer: false,
   },
   {
@@ -858,8 +683,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/82.png",
     mugshot: "/assets/mugshots/082.png",
     deckIds: [94],
-    exp: 10,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -868,8 +691,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/83.png",
     mugshot: "/assets/mugshots/091.png",
     deckIds: [95],
-    exp: 10,
-    prizePack: 9,
     isPlayer: false,
   },
   {
@@ -878,8 +699,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/84.png",
     mugshot: "/assets/mugshots/097.png",
     deckIds: [96],
-    exp: 10,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -888,8 +707,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/85.png",
     mugshot: "/assets/mugshots/098.png",
     deckIds: [97, 135, 136],
-    exp: 10,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -898,8 +715,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/86.png",
     mugshot: "/assets/mugshots/021.png",
     deckIds: [82],
-    exp: 10,
-    prizePack: 6,
     isPlayer: false,
   },
   {
@@ -908,8 +723,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/87.png",
     mugshot: "/assets/mugshots/022.png",
     deckIds: [83],
-    exp: 10,
-    prizePack: 6,
     isPlayer: false,
   },
   {
@@ -918,8 +731,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/88.png",
     mugshot: "/assets/mugshots/036.png",
     deckIds: [85],
-    exp: 10,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -928,8 +739,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/89.png",
     mugshot: "/assets/mugshots/037.png",
     deckIds: [86],
-    exp: 10,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -938,8 +747,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/90.png",
     mugshot: "/assets/mugshots/049.png",
     deckIds: [88],
-    exp: 10,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -948,8 +755,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/91.png",
     mugshot: "/assets/mugshots/050.png",
     deckIds: [89],
-    exp: 10,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -958,8 +763,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/92.png",
     mugshot: "/assets/mugshots/056.png",
     deckIds: [90],
-    exp: 10,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -968,8 +771,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/93.png",
     mugshot: "/assets/mugshots/057.png",
     deckIds: [91],
-    exp: 10,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -978,8 +779,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/94.png",
     mugshot: "/assets/mugshots/068.png",
     deckIds: [92],
-    exp: 10,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -988,8 +787,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/95.png",
     mugshot: "/assets/mugshots/069.png",
     deckIds: [93],
-    exp: 10,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -998,8 +795,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/96.png",
     mugshot: "/assets/mugshots/111.png",
     deckIds: [98],
-    exp: 12,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -1008,8 +803,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/97.png",
     mugshot: "/assets/mugshots/112.png",
     deckIds: [99],
-    exp: 12,
-    prizePack: 14,
     isPlayer: false,
   },
   {
@@ -1018,8 +811,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/98.png",
     mugshot: "/assets/mugshots/113.png",
     deckIds: [100],
-    exp: 9,
-    prizePack: 4,
     isPlayer: false,
   },
   {
@@ -1028,8 +819,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/99.png",
     mugshot: "/assets/mugshots/114.png",
     deckIds: [101],
-    exp: 12,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -1038,8 +827,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/100.png",
     mugshot: "/assets/mugshots/115.png",
     deckIds: [102],
-    exp: 12,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -1048,8 +835,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/101.png",
     mugshot: "/assets/mugshots/019.png",
     deckIds: [103],
-    exp: 12,
-    prizePack: 6,
     isPlayer: false,
   },
   {
@@ -1058,8 +843,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/102.png",
     mugshot: "/assets/mugshots/034.png",
     deckIds: [104],
-    exp: 12,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -1068,8 +851,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/103.png",
     mugshot: "/assets/mugshots/047.png",
     deckIds: [105],
-    exp: 12,
-    prizePack: 14,
     isPlayer: false,
   },
   {
@@ -1078,8 +859,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/104.png",
     mugshot: "/assets/mugshots/083.png",
     deckIds: [106],
-    exp: 12,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -1088,8 +867,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/105.png",
     mugshot: "/assets/mugshots/092.png",
     deckIds: [107],
-    exp: 12,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -1098,8 +875,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/106.png",
     mugshot: "/assets/mugshots/116.png",
     deckIds: [108],
-    exp: 13,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -1108,8 +883,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/107.png",
     mugshot: "/assets/mugshots/117.png",
     deckIds: [109],
-    exp: 14,
-    prizePack: 12,
     isPlayer: false,
   },
   {
@@ -1118,8 +891,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/108.png",
     mugshot: "/assets/mugshots/020.png",
     deckIds: [110],
-    exp: 15,
-    prizePack: 6,
     isPlayer: false,
   },
   {
@@ -1128,8 +899,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/109.png",
     mugshot: "/assets/mugshots/035.png",
     deckIds: [111],
-    exp: 15,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -1138,8 +907,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/110.png",
     mugshot: "/assets/mugshots/106.png",
     deckIds: [113],
-    exp: 15,
-    prizePack: 16,
     isPlayer: false,
   },
   {
@@ -1148,8 +915,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/111.png",
     mugshot: "/assets/mugshots/048.png",
     deckIds: [112],
-    exp: 15,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -1158,8 +923,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/112.png",
     mugshot: "/assets/mugshots/009.png",
     deckIds: [114],
-    exp: 25,
-    prizePack: 12,
     prizeCards: ["103"],
     isPlayer: false,
   },
@@ -1169,8 +932,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/113.png",
     mugshot: "/assets/mugshots/125.png",
     deckIds: [114],
-    exp: 25,
-    prizePack: 12,
     prizeCards: ["103"],
     isPlayer: false,
   },
@@ -1180,8 +941,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/114.png",
     mugshot: "/assets/mugshots/008.png",
     deckIds: [115],
-    exp: 16,
-    prizePack: 6,
     isPlayer: false,
   },
   {
@@ -1190,8 +949,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/115.png",
     mugshot: "/assets/mugshots/051.png",
     deckIds: [116],
-    exp: 16,
-    prizePack: 8,
     isPlayer: false,
   },
   {
@@ -1200,8 +957,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/116.png",
     mugshot: "/assets/mugshots/004.png",
     deckIds: [117],
-    exp: 5,
-    prizePack: 16,
     isPlayer: false,
   },
   {
@@ -1210,8 +965,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/117.png",
     mugshot: "/assets/mugshots/136.png",
     deckIds: [118],
-    exp: 10,
-    prizePack: 16,
     isPlayer: false,
   },
   {
@@ -1220,8 +973,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/118.png",
     mugshot: "/assets/mugshots/099.png",
     deckIds: [119],
-    exp: 12,
-    prizePack: 10,
     isPlayer: false,
   },
   {
@@ -1230,8 +981,6 @@ export const ACTORS: Actor[] = [
     portrait: "/assets/potraits/119.png",
     mugshot: "/assets/mugshots/118.png",
     deckIds: [120],
-    exp: 30,
-    prizePack: 16,
     isPlayer: false,
   },
 ];
