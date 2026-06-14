@@ -2,21 +2,22 @@ import { createSignal, Show } from "solid-js";
 import { SimTab } from "./SimTab";
 import { SandboxTab } from "./SandboxTab";
 import { ExplorerTab } from "./ExplorerTab";
-import { CardAnimationTab } from "./CardAnimationTab";
-import { BoardDesignTab } from "./BoardDesignTab";
+import { CardsTab } from "./CardsTab";
+import { PartnersTab } from "./PartnersTab";
 import "./debug.css";
 
-export function DebugRoute() {
-  const [activeTab, setActiveTab] = createSignal<"sim" | "sandbox" | "explorer" | "animation" | "board">("sim");
+type DebugTab = "sim" | "sandbox" | "explorer" | "cards" | "partners";
 
-  // Navigation helper back to main game
+export function DebugRoute() {
+  const [activeTab, setActiveTab] = createSignal<DebugTab>("sim");
+
   const navigateToGame = () => {
     window.history.pushState(null, "", "/");
     window.dispatchEvent(new Event("popstate"));
   };
 
   return (
-    <div class="debug-root" classList={{ "bd-fullboard": activeTab() === "board" }}>
+    <div class="debug-root">
       <div class="debug-header">
         <h1 class="debug-title">DIGITAL CARD BATTLE // DEBUG</h1>
         <div class="debug-nav">
@@ -27,40 +28,20 @@ export function DebugRoute() {
       </div>
 
       <div class="debug-tabs">
-        <button
-          class="debug-btn"
-          classList={{ active: activeTab() === "sim" }}
-          onClick={() => setActiveTab("sim")}
-        >
-          🤖 AI Match Simulator
+        <button class="debug-btn" classList={{ active: activeTab() === "sim" }} onClick={() => setActiveTab("sim")}>
+          🤖 AI Simulator
         </button>
-        <button
-          class="debug-btn"
-          classList={{ active: activeTab() === "sandbox" }}
-          onClick={() => setActiveTab("sandbox")}
-        >
+        <button class="debug-btn" classList={{ active: activeTab() === "sandbox" }} onClick={() => setActiveTab("sandbox")}>
           🧪 Script Sandbox
         </button>
-        <button
-          class="debug-btn"
-          classList={{ active: activeTab() === "explorer" }}
-          onClick={() => setActiveTab("explorer")}
-        >
-          📂 Card Explorer & Stats
+        <button class="debug-btn" classList={{ active: activeTab() === "explorer" }} onClick={() => setActiveTab("explorer")}>
+          📂 Card Explorer
         </button>
-        <button
-          class="debug-btn"
-          classList={{ active: activeTab() === "animation" }}
-          onClick={() => setActiveTab("animation")}
-        >
-          🎴 Card Animation Lab
+        <button class="debug-btn" classList={{ active: activeTab() === "cards" }} onClick={() => setActiveTab("cards")}>
+          🃏 Give Cards
         </button>
-        <button
-          class="debug-btn"
-          classList={{ active: activeTab() === "board" }}
-          onClick={() => setActiveTab("board")}
-        >
-          🎮 Board Design
+        <button class="debug-btn" classList={{ active: activeTab() === "partners" }} onClick={() => setActiveTab("partners")}>
+          🐉 Partners
         </button>
       </div>
 
@@ -74,14 +55,13 @@ export function DebugRoute() {
         <Show when={activeTab() === "explorer"}>
           <ExplorerTab />
         </Show>
-        <Show when={activeTab() === "animation"}>
-          <CardAnimationTab />
+        <Show when={activeTab() === "cards"}>
+          <CardsTab />
         </Show>
-        <Show when={activeTab() === "board"}>
-          <BoardDesignTab />
+        <Show when={activeTab() === "partners"}>
+          <PartnersTab />
         </Show>
       </div>
     </div>
   );
 }
-

@@ -1,6 +1,13 @@
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { ARMOR_PARTNER } from "@src/data/armor";
 import { DECK_LISTS } from "@src/data/deck-lists";
+import { DIGIPARTS } from "@src/data/digiparts";
+import {
+  partnerLevelFromExp,
+  PARTNER_PROGRESSIONS,
+  PARTNERS,
+  type PartnerId,
+} from "@src/data/partners";
 import { CardLevel } from "@src/types";
 import {
   DECK_SIZE,
@@ -9,6 +16,28 @@ import {
   type CustomDeck,
 } from "./custom-deck-store";
 import type { StorageProvider } from "./storage-provider";
+
+/**
+ * Runtime state for one unlocked partner Digimon on a profile.
+ * Level and stat bonuses are always derived from `totalExp`; they are
+ * re-computed from scratch by {@link ProfileStore.setPartnerExp}.
+ */
+export interface PartnerState {
+  id: PartnerId;
+  /** Total accumulated EXP (0 to 9999). Level is derived from this. */
+  totalExp: number;
+  /** Stat bonuses accumulated from level-ups (+10 each, max 200 per stat). */
+  bonusHp: number;
+  bonusCircle: number;
+  bonusTriangle: number;
+  bonusCross: number;
+  /** DigiPart ids owned by this partner. */
+  ownedDigiparts: number[];
+  /** Currently equipped DigiPart ids (max 3). */
+  equippedDigiparts: number[];
+  /** Equipped armor card number (null = none chosen). */
+  armor: string | null;
+}
 
 /** A player profile: identity + owned cards + up to 3 built decks. */
 export interface PlayerProfile {
@@ -41,6 +70,11 @@ export interface PlayerProfile {
    * If absent for a city the static city.cafeBattleIds is used instead.
    */
   cityRosters: Record<string, number[]>;
+  /**
+   * Active partners (max 3). Ordered: first = primary.
+   * Partners are unlocked via {@link ProfileStore.unlockPartner}.
+   */
+  partners: PartnerState[];
   createdAt: string;
   updatedAt: string;
 }
@@ -141,7 +175,7 @@ export class ProfileStore {
           );
         }
         const { defeated: _legacy, ...rest } = p;
-        return { ...rest, exp: p.exp ?? 0, records, flags: p.flags ?? {}, cityRosters: p.cityRosters ?? {} };
+        return { ...rest, exp: p.exp ?? 0, records, flags: p.flags ?? {}, cityRosters: p.cityRosters ?? {}, partners: p.partners ?? [] };
       });
     } catch {
       return [];
@@ -204,6 +238,7 @@ export class ProfileStore {
       records: {},
       flags: {},
       cityRosters: {},
+      partners: [],
       createdAt: now,
       updatedAt: now,
     };
@@ -410,6 +445,214 @@ export class ProfileStore {
   applyCityRoster(profileId: string, cityId: string, cafeBattleIds: number[]): PlayerProfile {
     const profile = this.require(profileId);
     profile.cityRosters = { ...profile.cityRosters, [cityId]: cafeBattleIds };
+    return this.update(profile);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Partner management
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Returns the partner state for this profile, or null if not yet unlocked.
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner to look up.
+   */
+  getPartner(profileId: string, partnerId: PartnerId): PartnerState | null {
+    const profile = this.require(profileId);
+    return profile.partners.find((p) => p.id === partnerId) ?? null;
+  }
+
+  /**
+   * Unlocks a partner for the profile (adds to `profile.partners` if not
+   * already present, up to a maximum of 3 partners).
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner to unlock.
+   * @returns The updated profile.
+   */
+  unlockPartner(profileId: string, partnerId: PartnerId): PlayerProfile {
+    // Verify partnerId is valid.
+    PARTNERS.find((p) => p.id === partnerId); // throws if not found via getPartnerById
+    const profile = this.require(profileId);
+    if (profile.partners.some((p) => p.id === partnerId)) return profile;
+    if (profile.partners.length >= 3) {
+      throw new Error("A profile can hold at most 3 partners.");
+    }
+    const newPartner: PartnerState = {
+      id: partnerId,
+      totalExp: 0,
+      bonusHp: 0,
+      bonusCircle: 0,
+      bonusTriangle: 0,
+      bonusCross: 0,
+      ownedDigiparts: [],
+      equippedDigiparts: [],
+      armor: null,
+    };
+    profile.partners = [...profile.partners, newPartner];
+    return this.update(profile);
+  }
+
+  /**
+   * Sets a partner's total EXP directly and recalculates all stat bonuses
+   * from scratch based on the new level. Useful for debug / grant-exp flows.
+   *
+   * Stat bonuses: each level transition in {@link PARTNER_LEVEL_STAT_SEQUENCE}
+   * that is non-null awards +10 to the corresponding stat, capped at 200.
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner to update.
+   * @param totalExp - New total EXP (clamped to 0–9999).
+   * @returns The updated profile.
+   */
+  setPartnerExp(
+    profileId: string,
+    partnerId: PartnerId,
+    totalExp: number,
+  ): PlayerProfile {
+    const profile = this.require(profileId);
+    const partner = profile.partners.find((p) => p.id === partnerId);
+    if (!partner) throw new Error(`Partner "${partnerId}" is not unlocked on this profile.`);
+
+    const clampedExp = Math.max(0, Math.min(9999, totalExp));
+    partner.totalExp = clampedExp;
+
+    // Recalculate stat bonuses and earned DigiParts from scratch.
+    const newLevel = partnerLevelFromExp(clampedExp);
+    const progression = PARTNER_PROGRESSIONS[partnerId];
+    let hp = 0, circle = 0, triangle = 0, cross = 0;
+    const earnedDigiparts = new Set<number>(partner.ownedDigiparts);
+    // Transitions k=0...(newLevel-2) have been crossed (k = Lv(k+1)→Lv(k+2)).
+    for (let k = 0; k < newLevel - 1; k++) {
+      const reward = progression[k];
+      if (!reward) continue;
+      if (reward.type === "stat") {
+        if (reward.stat === "hp") hp += 10;
+        else if (reward.stat === "circle") circle += 10;
+        else if (reward.stat === "triangle") triangle += 10;
+        else if (reward.stat === "cross") cross += 10;
+      } else {
+        earnedDigiparts.add(reward.id);
+      }
+    }
+    partner.bonusHp = Math.min(200, hp);
+    partner.bonusCircle = Math.min(200, circle);
+    partner.bonusTriangle = Math.min(200, triangle);
+    partner.bonusCross = Math.min(200, cross);
+    partner.ownedDigiparts = Array.from(earnedDigiparts);
+
+    return this.update(profile);
+  }
+
+  /**
+   * Grants a DigiPart to a partner (adds to `ownedDigiparts` if not already
+   * present).
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner receiving the DigiPart.
+   * @param digipartId - DigiPart id (0–127).
+   * @returns The updated profile.
+   */
+  grantDigipart(
+    profileId: string,
+    partnerId: PartnerId,
+    digipartId: number,
+  ): PlayerProfile {
+    const profile = this.require(profileId);
+    const partner = profile.partners.find((p) => p.id === partnerId);
+    if (!partner) throw new Error(`Partner "${partnerId}" is not unlocked on this profile.`);
+    if (!DIGIPARTS[digipartId]) throw new Error(`Unknown DigiPart id: ${digipartId}`);
+    if (!partner.ownedDigiparts.includes(digipartId)) {
+      partner.ownedDigiparts = [...partner.ownedDigiparts, digipartId];
+    }
+    return this.update(profile);
+  }
+
+  /**
+   * Equips a DigiPart on a partner. Enforces:
+   * - Max 3 equipped parts at once.
+   * - No two parts of the same group can be equipped simultaneously.
+   * - The part must be owned by the partner.
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner equipping the DigiPart.
+   * @param digipartId - DigiPart id (0–127).
+   * @returns An error string describing the problem, or null on success.
+   */
+  equipDigipart(
+    profileId: string,
+    partnerId: PartnerId,
+    digipartId: number,
+  ): string | null {
+    const profile = this.require(profileId);
+    const partner = profile.partners.find((p) => p.id === partnerId);
+    if (!partner) return `Partner "${partnerId}" is not unlocked on this profile.`;
+
+    const part = DIGIPARTS[digipartId];
+    if (!part) return `Unknown DigiPart id: ${digipartId}`;
+    if (!partner.ownedDigiparts.includes(digipartId)) {
+      return `Partner does not own DigiPart "${part.name}".`;
+    }
+    if (partner.equippedDigiparts.includes(digipartId)) {
+      return null; // Already equipped — idempotent.
+    }
+    if (partner.equippedDigiparts.length >= 3) {
+      return "Cannot equip more than 3 DigiParts at once.";
+    }
+
+    // Check group conflict.
+    for (const equippedId of partner.equippedDigiparts) {
+      const equipped = DIGIPARTS[equippedId];
+      if (equipped && equipped.group === part.group) {
+        return `Cannot equip two DigiParts of the same group ("${part.group}"): already have "${equipped.name}".`;
+      }
+    }
+
+    partner.equippedDigiparts = [...partner.equippedDigiparts, digipartId];
+    this.update(profile);
+    return null;
+  }
+
+  /**
+   * Unequips a DigiPart from a partner. No-ops if the part is not equipped.
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner unequipping the DigiPart.
+   * @param digipartId - DigiPart id (0–127).
+   * @returns The updated profile.
+   */
+  unequipDigipart(
+    profileId: string,
+    partnerId: PartnerId,
+    digipartId: number,
+  ): PlayerProfile {
+    const profile = this.require(profileId);
+    const partner = profile.partners.find((p) => p.id === partnerId);
+    if (!partner) throw new Error(`Partner "${partnerId}" is not unlocked on this profile.`);
+    partner.equippedDigiparts = partner.equippedDigiparts.filter(
+      (id) => id !== digipartId,
+    );
+    return this.update(profile);
+  }
+
+  /**
+   * Sets the partner's chosen armor card number. Pass null to clear.
+   *
+   * @param profileId - Profile id.
+   * @param partnerId - The partner to update.
+   * @param armorNumber - An armor card number string, or null to clear.
+   * @returns The updated profile.
+   */
+  setPartnerArmor(
+    profileId: string,
+    partnerId: PartnerId,
+    armorNumber: string | null,
+  ): PlayerProfile {
+    const profile = this.require(profileId);
+    const partner = profile.partners.find((p) => p.id === partnerId);
+    if (!partner) throw new Error(`Partner "${partnerId}" is not unlocked on this profile.`);
+    partner.armor = armorNumber;
     return this.update(profile);
   }
 
