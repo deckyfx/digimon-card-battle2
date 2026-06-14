@@ -10,9 +10,9 @@ import { getCityById, type City } from "@src/data/cities";
 import { ScreenSetupDeck } from "./ScreenSetupDeck";
 import { ProfilesScreen } from "./ScreenProfiles";
 import { ScreenWelcome } from "./ScreenWelcome";
-import { SetupScreen } from "./SetupScreen";
+import { ScreenSetupBattle } from "./SetupScreen";
 import { ScreenWorldMap } from "./ScreenWorldMap";
-import { CityScreen } from "./CityScreen";
+import { ScreenCity } from "./ScreenCity";
 import { BattleResultModal, type MatchRewards } from "./BattleResultModal";
 import { LogArea } from "./LogArea";
 import { ControlPanel } from "./ControlPanel";
@@ -300,7 +300,7 @@ export function App() {
               />
             </Show>
             <Show when={view() === "city" && profile() && getCityById(activeCityId() ?? "")}>
-              <CityScreen
+              <ScreenCity
                 city={getCityById(activeCityId() ?? "") as City}
                 profile={profile() as PlayerProfile}
                 onFight={(actorId) => fightResident(activeCityId() as string, actorId)}
@@ -308,7 +308,7 @@ export function App() {
               />
             </Show>
             <Show when={view() === "setup" && profile()}>
-              <SetupScreen
+              <ScreenSetupBattle
                 profile={profile() as PlayerProfile}
                 playerDeck={playerDeck()}
                 setPlayerDeck={setPlayerDeck}

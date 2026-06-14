@@ -8,7 +8,7 @@ import { MASTER_CARDS } from "./master-cards";
  * guide, always occupy the FIRST position of an opened pack.
  */
 export interface PrizePack {
-  id: string;
+  id: number;
   name: string;
   /** Always-available card numbers. */
   cards: string[];
@@ -16,9 +16,17 @@ export interface PrizePack {
   rares: string[];
 }
 
+/**
+ * Numeric pack IDs for reference:
+ *  1=Basic  2=Hyper   3=Super    4=Great
+ *  5=Red    6=S-Red   7=Blue     8=S-Blue
+ *  9=Green  10=S-Green 11=Black  12=S-Black
+ *  13=Yellow 14=S-Yellow 15=Option 16=S-Option
+ */
+
 export const PRIZE_PACKS: PrizePack[] = [
   {
-    id: "basic",
+    id: 1,
     name: "Basic Pack",
     cards: [
       "024", "025", "026", "027", "028", "029", "030", "031", "032", "033", "058", "059",
@@ -30,7 +38,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["023", "057", "093", "128", "161"],
   },
   {
-    id: "hyper",
+    id: 2,
     name: "Hyper Pack",
     cards: [
       "011", "015", "016", "017", "018", "019", "020", "021", "022", "023", "024", "025",
@@ -46,7 +54,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["010", "014", "044", "048", "079", "084", "115", "119", "149", "152"],
   },
   {
-    id: "super",
+    id: 3,
     name: "Super Pack",
     cards: [
       "007", "008", "009", "010", "011", "012", "013", "014", "015", "016", "017", "018",
@@ -65,7 +73,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["006", "040", "075", "111", "145", "231", "232", "233", "234", "235"],
   },
   {
-    id: "great",
+    id: 4,
     name: "Great Pack",
     cards: [
       "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013", "014",
@@ -84,7 +92,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["002", "037", "074", "107", "142"],
   },
   {
-    id: "red",
+    id: 5,
     name: "Red Pack",
     cards: [
       "012", "013", "014", "015", "016", "017", "018", "019", "020", "021", "022", "023",
@@ -93,7 +101,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["009", "010", "011"],
   },
   {
-    id: "s-red",
+    id: 6,
     name: "S-Red Pack",
     cards: [
       "005", "006", "007", "008", "009", "010", "011", "012", "013", "014", "015", "016",
@@ -102,7 +110,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["002", "003", "004"],
   },
   {
-    id: "blue",
+    id: 7,
     name: "Blue Pack",
     cards: [
       "046", "047", "048", "049", "050", "051", "052", "053", "054", "055", "056", "057",
@@ -111,7 +119,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["043", "044", "045"],
   },
   {
-    id: "s-blue",
+    id: 8,
     name: "S-Blue Pack",
     cards: [
       "040", "041", "042", "043", "044", "045", "046", "047", "048", "049", "050", "051",
@@ -120,7 +128,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["037", "038", "039"],
   },
   {
-    id: "green",
+    id: 9,
     name: "Green Pack",
     cards: [
       "081", "082", "083", "084", "085", "086", "087", "088", "089", "090", "091", "092",
@@ -129,7 +137,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["078", "079", "080"],
   },
   {
-    id: "s-green",
+    id: 10,
     name: "S-Green Pack",
     cards: [
       "077", "078", "079", "080", "081", "082", "083", "084", "085", "086", "087", "088",
@@ -138,7 +146,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["074", "075", "076"],
   },
   {
-    id: "black",
+    id: 11,
     name: "Black Pack",
     cards: [
       "117", "118", "119", "120", "121", "122", "123", "124", "125", "126", "127", "128",
@@ -147,7 +155,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["114", "115", "116"],
   },
   {
-    id: "s-black",
+    id: 12,
     name: "S-Black Pack",
     cards: [
       "110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121",
@@ -156,7 +164,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["107", "108", "109"],
   },
   {
-    id: "yellow",
+    id: 13,
     name: "Yellow Pack",
     cards: [
       "151", "152", "153", "154", "155", "156", "157", "158", "159", "160", "161", "162",
@@ -165,7 +173,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["148", "149", "150"],
   },
   {
-    id: "s-yellow",
+    id: 14,
     name: "S-Yellow Pack",
     cards: [
       "145", "146", "147", "148", "149", "150", "151", "152", "153", "154", "155", "156",
@@ -174,7 +182,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["142", "143", "144"],
   },
   {
-    id: "option",
+    id: 15,
     name: "Option Pack",
     cards: [
       "216", "217", "218", "219", "220", "221", "222", "223", "224", "225", "226", "227",
@@ -186,7 +194,7 @@ export const PRIZE_PACKS: PrizePack[] = [
     rares: ["215", "295", "296"],
   },
   {
-    id: "s-option",
+    id: 16,
     name: "S-Option Pack",
     cards: [
       "197", "198", "199", "201", "202", "203", "204", "205", "206", "207", "208", "209",
@@ -202,7 +210,7 @@ export const PRIZE_PACKS: PrizePack[] = [
 const CARD_BY_NUMBER = new Map<string, MasterCard>(MASTER_CARDS.map((c) => [c.number, c]));
 
 /** Finds a prize pack by its id (e.g. "basic", "s-red", "option"). */
-export function getPackById(id: string): PrizePack | null {
+export function getPackById(id: number): PrizePack | null {
   return PRIZE_PACKS.find((p) => p.id === id) ?? null;
 }
 

@@ -9,7 +9,7 @@ import { ActorPicker } from "./ActorPicker";
 import { CUSTOM_PREFIX, RANDOM_DECK, selectedNumbers } from "./deck-select";
 
 /** Match setup screen: the active profile's decks vs a chosen opponent. */
-export function SetupScreen(props: {
+export function ScreenSetupBattle(props: {
   profile: PlayerProfile;
   playerDeck: string;
   setPlayerDeck: (value: string) => void;

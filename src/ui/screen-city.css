@@ -1,0 +1,706 @@
+/* ── Screen: City ──────────────────────────────────────────────────────────── */
+
+@keyframes sc-slide-left {
+  from { transform: translateX(-60px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes sc-slide-right {
+  from { transform: translateX(60px);  opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes sc-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sc-card-enter {
+  from { opacity: 0; transform: translate(-60px, -60px) scale(0.12); }
+  to   { opacity: 1; transform: translate(0, 0)         scale(1);    }
+}
+
+.sc-root {
+  height: calc(100dvh - 24px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* ── Persistent header ──────────────────────────────────────────────────────── */
+
+.sc-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(10, 12, 20, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.sc-btn-nav {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(226, 232, 240, 0.65);
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.sc-btn-nav:hover {
+  border-color: rgba(0, 243, 255, 0.5);
+  color: #00f3ff;
+}
+
+.sc-breadcrumb {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: rgba(226, 232, 240, 0.5);
+  text-transform: uppercase;
+}
+
+/* ── MENU VIEW ──────────────────────────────────────────────────────────────── */
+
+.sc-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding: 32px 24px;
+  overflow-y: auto;
+  animation: sc-fade-in 0.35s ease-out;
+}
+
+.sc-menu-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.sc-banner-img {
+  width: 256px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  image-rendering: pixelated;
+}
+
+.sc-city-title {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #00f3ff 0%, #9d4edd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.sc-menu-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.sc-entry-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 28px;
+  background: rgba(20, 24, 33, 0.9);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  backdrop-filter: blur(6px);
+}
+
+.sc-entry-btn:hover {
+  background: rgba(0, 243, 255, 0.08);
+  border-color: rgba(0, 243, 255, 0.7);
+  box-shadow: 0 0 24px rgba(0, 243, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.sc-entry-btn--arena {
+  border-color: rgba(157, 78, 221, 0.3);
+  opacity: 0.7;
+}
+
+.sc-entry-btn--arena:hover {
+  border-color: rgba(157, 78, 221, 0.6);
+  background: rgba(157, 78, 221, 0.07);
+  box-shadow: 0 0 24px rgba(157, 78, 221, 0.18);
+}
+
+.sc-entry-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.sc-entry-label {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1rem;
+  color: #e2e8f0;
+  letter-spacing: 0.06em;
+}
+
+.sc-arena-notice {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  color: rgba(157, 78, 221, 0.85);
+  background: rgba(157, 78, 221, 0.08);
+  border: 1px solid rgba(157, 78, 221, 0.3);
+  border-radius: 4px;
+  padding: 12px 20px;
+  text-align: center;
+  max-width: 380px;
+  animation: sc-fade-in 0.25s ease-out;
+}
+
+/* ── CAFE VIEW ──────────────────────────────────────────────────────────────── */
+
+.sc-cafe {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: sc-fade-in 0.3s ease-out;
+}
+
+.sc-cafe-banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sc-cafe-img {
+  width: 96px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.sc-cafe-subtitle {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.5);
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+.sc-resident-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 200px);
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  align-content: start;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.3) transparent;
+}
+.sc-resident-grid::-webkit-scrollbar       { width: 4px; }
+.sc-resident-grid::-webkit-scrollbar-track { background: transparent; }
+.sc-resident-grid::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.3); border-radius: 2px; }
+
+.sc-resident-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  background: rgba(20, 24, 33, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  padding: 0;
+  text-align: center;
+  animation: sc-card-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sc-resident-card:hover {
+  border-color: rgba(0, 243, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.sc-resident-card--beaten {
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+.sc-resident-card--beaten:hover {
+  border-color: rgba(74, 222, 128, 0.6);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.12);
+}
+
+.sc-resident-portrait-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 78 / 69;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.sc-resident-card:hover .amv-root {
+  transform: scale(1.06);
+}
+
+.sc-resident-overlay {
+  position: absolute;
+  bottom: 10.1%;
+  left: 9.6%;
+  right: 9.6%;
+  padding: 24px 6px 5px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.sc-resident-name {
+  display: block;
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-beaten-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(74, 222, 128, 0.88);
+  color: #052e16;
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+
+/* ── INTERACT VIEW ──────────────────────────────────────────────────────────── */
+
+.sc-interact {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Stage: portraits + speech bubble, all bottom-aligned */
+
+.sc-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.sc-dialog-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Avatar columns */
+
+.sc-avatar-col {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+
+.sc-avatar-col--player {
+  align-items: flex-start;
+  padding-left: 24px;
+  padding-bottom: 20px;
+  animation: sc-slide-left 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sc-avatar-col--opponent {
+  align-items: flex-end;
+  padding-right: 24px;
+  padding-bottom: 20px;
+  animation: sc-slide-right 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sc-avatar-col--opponent .amv-root {
+  transform: scaleX(-1);
+}
+
+.sc-avatar-col--speaking .amv-root {
+  filter: brightness(1.15) drop-shadow(0 0 14px rgba(0, 243, 255, 0.45));
+  transition: filter 0.3s ease;
+}
+
+.sc-avatar-col--silent .amv-root {
+  filter: brightness(0.45) saturate(0.4);
+  transition: filter 0.3s ease;
+}
+
+.sc-avatar-col--opponent.sc-avatar-col--speaking .amv-root {
+  transform: scaleX(-1);
+  filter: brightness(1.15) drop-shadow(0 0 14px rgba(0, 243, 255, 0.45));
+}
+
+.sc-avatar-col--opponent.sc-avatar-col--silent .amv-root {
+  transform: scaleX(-1);
+  filter: brightness(0.45) saturate(0.4);
+}
+
+.sc-avatar-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.6);
+  margin-bottom: 8px;
+  text-align: center;
+  width: 230px;
+}
+
+/* Speech bubble — sits between portraits at same Y */
+
+.sc-speech {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 20px;
+  min-width: 0;
+  animation: sc-fade-in 0.3s ease-out;
+}
+
+.sc-speech-bubble {
+  position: relative;
+  background: rgba(10, 14, 28, 0.88);
+  border: 1px solid rgba(0, 243, 255, 0.22);
+  border-radius: 6px;
+  padding: 12px 18px 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sc-speech-bubble--scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.25) transparent;
+  gap: 14px;
+}
+
+.sc-speech-bubble--talk {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sc-speech-bubble--talk:hover {
+  border-color: rgba(0, 243, 255, 0.4);
+}
+
+.sc-speech-advance {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sc-speech-speaker {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #00f3ff;
+  flex-shrink: 0;
+}
+
+.sc-speech-text {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.1rem;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.65;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.25) transparent;
+}
+
+/* Only grow to fill the bubble when inside the active talk bubble */
+.sc-speech-bubble .sc-speech-text {
+  flex: 1;
+  /* leave room for the absolutely-positioned advance indicator */
+  padding-bottom: 28px;
+}
+
+/* Idle bubble: same size as active bubble so layout doesn't shift */
+.sc-speech-text--idle {
+  background: rgba(10, 14, 28, 0.88);
+  border: 1px solid rgba(0, 243, 255, 0.22);
+  border-radius: 6px;
+  padding: 14px 18px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  height: 200px;
+  color: rgba(226, 232, 240, 0.25);
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+/* Action panel — fixed bottom strip */
+
+.sc-panel {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(0, 243, 255, 0.12);
+  background: rgba(5, 8, 18, 0.82);
+  padding: 14px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.sc-panel-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 2px;
+}
+
+/* Options */
+
+.sc-action-list {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.sc-action-btn {
+  flex: 1;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  color: #e2e8f0;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s;
+}
+
+.sc-action-btn:hover {
+  background: rgba(0, 243, 255, 0.07);
+  border-color: rgba(0, 243, 255, 0.4);
+  color: #fff;
+}
+
+.sc-action-btn--battle {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: rgba(252, 165, 165, 0.9);
+}
+
+.sc-action-btn--battle:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+}
+
+.sc-action-btn--active {
+  background: rgba(0, 243, 255, 0.08);
+  border-color: rgba(0, 243, 255, 0.45);
+  color: #fff;
+}
+
+.sc-dialog-counter {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.35);
+  letter-spacing: 0.06em;
+}
+
+.sc-dialog-next,
+.sc-dialog-close {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: rgba(0, 243, 255, 0.7);
+  animation: sc-dialog-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes sc-dialog-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+.sc-no-deck {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  color: rgba(226, 232, 240, 0.4);
+  margin: 0;
+}
+
+.sc-deck-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-deck-entry-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.75rem;
+  color: rgba(226, 232, 240, 0.6);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sc-deck-desc {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.55);
+  margin: 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Battle confirm — single row replacing the menu */
+
+.sc-battle-confirm {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.sc-confirm-text {
+  flex: 1;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.sc-confirm-btns {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sc-btn-yes,
+.sc-btn-no {
+  width: 150px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  padding: 10px 0;
+}
+
+.sc-btn-yes {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.78rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.15));
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  letter-spacing: 0.05em;
+}
+.sc-btn-yes:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(220, 38, 38, 0.28));
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+}
+
+.sc-btn-no {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(226, 232, 240, 0.5);
+}
+.sc-btn-no:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #e2e8f0;
+}
+
+/* Panel footer — back/leave nav */
+
+.sc-btn-dialog-back {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.88rem;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(226, 232, 240, 0.45);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.sc-btn-dialog-back:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(226, 232, 240, 0.8);
+}
+
+/* ── Dialog variable colors ─────────────────────────────────────────────────── */
+
+.dlg-var {
+  font-weight: 600;
+}
+
+/* ${player.name} — gold */
+.dlg-var-player { color: #ffd700; }
+
+/* ${actor[N].name} — cyan */
+.dlg-var-actor  { color: #7ec8e3; }
+
+/* ${deck[N].name/description} — mint green */
+.dlg-var-deck   { color: #6ee7b7; }
+
+/* ${prizepack[N].name} / ${actor[N].prize.name} — amber */
+.dlg-var-pack   { color: #fbbf24; }
+
+/* ${card[NNN].name} — rose */
+.dlg-var-card   { color: #fb7185; }
+
+/* ${city[id].name} / ${actor[N].city.name} — periwinkle */
+.dlg-var-city   { color: #a5b4fc; }

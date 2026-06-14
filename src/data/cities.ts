@@ -8,6 +8,8 @@
  * for Beginner City; the rest are editable best guesses.
  */
 
+import type { BattleRecords } from "@src/store/profile-store";
+
 export interface City {
   id: string;
   name: string;
@@ -46,36 +48,39 @@ const city = (
 
 export const CITIES: City[] = [
   // Confirmed roster.
-  city("beginner", "Beginner City", [2, 3, 4, 5], null), // Betamon, Agumon, Penguinmon, Babamon
+  city("beginner", "Beginner City", [2, 3, 4, 5], null),
   // Drafted rosters below — edit freely.
-  city("flame", "Flame City", [6, 7, 8], "beginner"), // Meramon, Phoenixmon, Veemon
-  city("jungle", "Jungle City", [9, 10, 11, 12], "flame"), // Vegiemon, Ninjamon, Veedramon, Wormmon
-  city("igloo", "Igloo City", [13, 14, 15, 16], "jungle"), // Frigimon, Whamon, Garurumon, Stingmon
-  city("junk", "Junk City", [17, 18, 19, 20], "igloo"), // Hagurumon, ShellNumemon, KingSukamon, Shadramon
-  city("dark", "Dark City", [65, 66, 67, 68], "junk"), // Bakemon, Devimon (V), SkullGreymon, Myotismon (V)
-  city("pyramid", "Pyramid City", [23, 24, 25], "dark"), // Centarumon, Tyrannomon, Angemon
-  city("sky", "Sky City", [30, 31, 32], "pyramid"), // Wizardmon, AeroVeedramon, Gatomon
-  city("steep-road", "Steep Road", [34, 35, 36, 37], "sky"), // Goburimon, DemiDevimon, Megadramon, Gigadramon
+  city("flame", "Flame City", [6, 7, 8], "beginner"),
+  city("jungle", "Jungle City", [9, 10, 11, 12], "flame"),
+  city("igloo", "Igloo City", [13, 14, 15, 16], "jungle"),
+  city("junk", "Junk City", [17, 18, 19, 20], "igloo"),
+  city("dark", "Dark City", [65, 66, 67, 68], "junk"),
+  city("pyramid", "Pyramid City", [23, 24, 25], "dark"),
+  city("sky", "Sky City", [30, 31, 32], "pyramid"),
+  city("steep-road", "Steep Road", [34, 35, 36, 37], "sky"),
   city(
     "wiseman-tower",
     "Wiseman Tower",
     [38, 39, 40, 41, 42, 43],
     "steep-road",
-  ), // Togemon … MetalGreymon
+  ),
   city(
     "infinity-tower",
     "Infinity Tower",
     [44, 45, 46, 98, 47],
     "wiseman-tower",
-  ), // Tuskmon, Phantomon, MegaSeadramon, Machinedramon, VenomMyotismon
-  city("desert-island", "Desert Island", [48, 49, 50, 51], "infinity-tower"), // Leomon, Devimon, MetalEtemon, Myotismon
+  ),
+  city("desert-island", "Desert Island", [48, 49, 50, 51], "infinity-tower"),
 ];
 
 export function getCityById(id: string): City | null {
   return CITIES.find((c) => c.id === id) ?? null;
 }
 
-import type { BattleRecords } from "@src/store/profile-store";
+/** Returns the city whose Battle Cafe contains the given actor, if any. */
+export function getCityByActorId(actorId: number): City | null {
+  return CITIES.find((c) => c.cafeActorIds.includes(actorId)) ?? null;
+}
 
 /** Wins against `actorId` in a profile's battle records. */
 export function winsAgainst(records: BattleRecords, actorId: number): number {
