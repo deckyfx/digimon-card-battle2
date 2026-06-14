@@ -8,7 +8,7 @@ import { profileStore } from "./deck-select";
  * previous city's cafe residents are all defeated. Free Battle keeps the
  * unrestricted opponent picker available.
  */
-export function WorldMapScreen(props: {
+export function ScreenWorldMap(props: {
   profile: PlayerProfile;
   onEnterCity: (city: City) => void;
   onFreeBattle: () => void;
@@ -54,8 +54,17 @@ export function WorldMapScreen(props: {
 
       <div class="setup-actions">
         <button onClick={props.onChangeProfile}>⇄ Change Profile</button>
-        <button onClick={props.onOpenBuilder}>🛠 Deck Builder</button>
+        <button onClick={props.onOpenBuilder}>🛠 Setup Deck</button>
         <button onClick={props.onFreeBattle}>⚔ Free Battle</button>
+        <button
+          onClick={() => {
+            window.history.pushState(null, "", "/debug");
+            window.dispatchEvent(new Event("popstate"));
+          }}
+          style={{ "border-style": "dashed", color: "#aaa" }}
+        >
+          🛠 Debug
+        </button>
       </div>
     </div>
   );

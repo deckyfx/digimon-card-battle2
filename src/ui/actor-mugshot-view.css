@@ -1,0 +1,70 @@
+/* ── ActorMugshotView ───────────────────────────────────────────────────────── */
+
+@keyframes amv-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes amv-scale {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.12); }
+}
+
+@keyframes amv-move {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+.amv-root {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* fill mode: expands to cover a position:relative parent with defined dimensions */
+.amv-root--fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Mugshot fills the inner screen area of the frame.
+   Frame is 78×69, screen inset is ~7.5px left/right, ~7px top/bottom,
+   giving the 63×55 mugshot exactly 80.8% width / 79.7% height. */
+.amv-mugshot {
+  position: absolute;
+  left: 9.6%;
+  top: 10.1%;
+  width: 80.8%;
+  height: 79.7%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.amv-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  image-rendering: pixelated;
+  pointer-events: none;
+  display: block;
+}
+
+/* Animation classes applied to .amv-root */
+
+.amv-anim-spin {
+  animation: amv-spin 2s linear infinite;
+}
+
+.amv-anim-scale {
+  animation: amv-scale 1.2s ease-in-out infinite;
+}
+
+.amv-anim-move {
+  animation: amv-move 1.8s ease-in-out infinite;
+}

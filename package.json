@@ -10,6 +10,7 @@
     "simulate": "bun run scripts/simulate.ts"
   },
   "dependencies": {
+    "gsap": "^3.15.0",
     "solid-js": "^1.9.0"
   },
   "devDependencies": {

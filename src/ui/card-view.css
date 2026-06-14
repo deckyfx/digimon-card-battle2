@@ -1,0 +1,107 @@
+/* Card 3D Setup:
+   - perspective on the WRAPPER (direct parent of rotating element) keeps the
+     vanishing point at the card's own centre — no Y-shift during rotationY.
+   - wrapper must NOT have transform-style:preserve-3d; perspective + preserve-3d
+     on the same element conflict and flatten the 3D context in most browsers.
+   - Only .card-inner needs preserve-3d so the two faces stay in 3D space. */
+.card-wrapper {
+  width: 200px;
+  height: 217px;
+  position: relative;
+  perspective: 1200px;
+}
+
+.card-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+}
+
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Front face */
+.card-front {
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Back face */
+.card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #0b0c10;
+  transform: rotateY(180deg);
+  border: 2px solid #00f3ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Corner badges */
+.card-badge-level {
+  position: absolute;
+  top: 20px;
+  left: 8px;
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  z-index: 10;
+}
+
+.card-badge-specialty {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  z-index: 10;
+}
+
+/* Card image — fills remaining space below badges */
+.card-image-container {
+  width: 100%;
+  flex: 1;
+  background-color: #000;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+  border-radius: 4px;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

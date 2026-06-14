@@ -1,7 +1,17 @@
-import { CardLevel, CardType, type AttackType, type MasterCard } from "@src/types";
+import {
+  CardLevel,
+  CardType,
+  type AttackType,
+  type MasterCard,
+} from "@src/types";
 import { ARMOR_PARTNER } from "@src/data/armor";
 import { createCombatantCtx, quantizeStat } from "./battle-context";
-import { BattleResolver, type BattleFx, type BattleOutcome, type BattleSide } from "./battle-resolver";
+import {
+  BattleResolver,
+  type BattleFx,
+  type BattleOutcome,
+  type BattleSide,
+} from "./battle-resolver";
 import { Rng } from "./rng";
 import { ScriptRunner, type SideZoneOps, type ZoneName } from "./script-runner";
 
@@ -10,7 +20,13 @@ import { ScriptRunner, type SideZoneOps, type ZoneName } from "./script-runner";
  * that start with an empty battlefield: the deployment can be cancelled or
  * switched freely until finalized, which advances to "digivolve".
  */
-export type Phase = "setup" | "deploy" | "digivolve" | "battle-select" | "battle-resolve" | "game-over";
+export type Phase =
+  | "setup"
+  | "deploy"
+  | "digivolve"
+  | "battle-select"
+  | "battle-resolve"
+  | "game-over";
 
 export type PlayerId = "player" | "cpu";
 
@@ -138,7 +154,11 @@ export class GameEngine {
   private armorWindowOpen = false;
 
   /** Battle in progress (phase "battle-resolve"), for UI rendering. */
-  activeBattle: { ownerId: PlayerId; owner: BattleSide; defender: BattleSide } | null = null;
+  activeBattle: {
+    ownerId: PlayerId;
+    owner: BattleSide;
+    defender: BattleSide;
+  } | null = null;
   /** Presentation cue of the last battle step (drives UI animations). */
   currentFx: { kind: BattleFx["kind"]; side: PlayerId } | null = null;
   private battleGen: Generator<BattleFx, BattleOutcome> | null = null;
@@ -154,7 +174,12 @@ export class GameEngine {
     playerDeck: MasterCard[],
     cpuDeck: MasterCard[],
     seed = Date.now(),
-    labels?: { playerName?: string; cpuName?: string; playerDeckName?: string; cpuDeckName?: string },
+    labels?: {
+      playerName?: string;
+      cpuName?: string;
+      playerDeckName?: string;
+      cpuDeckName?: string;
+    },
     sideDecks?: { player?: MasterCard[]; cpu?: MasterCard[] },
   ) {
     this.rng = new Rng(seed);
@@ -168,7 +193,13 @@ export class GameEngine {
         playerDeck,
         sideDecks?.player ?? [],
       ),
-      cpu: this.createPlayer("cpu", labels?.cpuName || "CPU", labels?.cpuDeckName ?? "", cpuDeck, sideDecks?.cpu ?? []),
+      cpu: this.createPlayer(
+        "cpu",
+        labels?.cpuName || "CPU",
+        labels?.cpuDeckName ?? "",
+        cpuDeck,
+        sideDecks?.cpu ?? [],
+      ),
     };
   }
 
@@ -186,7 +217,8 @@ export class GameEngine {
   startMatch(first: PlayerId | "random" = "random"): void {
     this.rng.shuffle(this.players.player.deck);
     this.rng.shuffle(this.players.cpu.deck);
-    this.turn = first === "random" ? (this.rng.next() < 0.5 ? "player" : "cpu") : first;
+    this.turn =
+      first === "random" ? (this.rng.next() < 0.5 ? "player" : "cpu") : first;
     this.pushLog(`Match start! ${this.players[this.turn].name} goes first.`);
     this.beginTurn();
   }
@@ -217,7 +249,9 @@ export class GameEngine {
         this.endMatch(this.opponentOf(p.id).id);
         return false;
       }
-      this.pushLog(`${p.name} has no Digimon in hand — discarding hand and redrawing.`);
+      this.pushLog(
+        `${p.name} has no Digimon in hand — discarding hand and redrawing.`,
+      );
       this.forcedRedraws++;
       p.trash.push(...p.hand.splice(0));
       this.drawToHandSize(p);
@@ -231,7 +265,8 @@ export class GameEngine {
       p.hand.push(p.deck.shift() as MasterCard);
       drawn++;
     }
-    if (drawn > 0) this.pushLog(`${p.name} draws ${drawn} card${drawn > 1 ? "s" : ""}.`);
+    if (drawn > 0)
+      this.pushLog(`${p.name} draws ${drawn} card${drawn > 1 ? "s" : ""}.`);
   }
 
   // ── Prep phase actions (current player only) ───────────────────────────
@@ -257,7 +292,9 @@ export class GameEngine {
     if (!this.canRedrawHand()) return false;
     this.armorWindowOpen = false;
     const p = this.current();
-    this.pushLog(`${p.name} trashes the hand (${p.hand.length} cards) and redraws.`);
+    this.pushLog(
+      `${p.name} trashes the hand (${p.hand.length} cards) and redraws.`,
+    );
     p.trash.push(...p.hand.splice(0));
     if (!this.drawPhase(p)) return true; // mulligan rule ended the match
     this.notify();
@@ -271,7 +308,8 @@ export class GameEngine {
   deploy(handIndex: number): boolean {
     const p = this.current();
     const card = p.hand[handIndex];
-    if (this.phase !== "deploy" || !card || !this.isDeployable(card)) return false;
+    if (this.phase !== "deploy" || !card || !this.isDeployable(card))
+      return false;
 
     if (p.active) {
       // Switch: return the uncommitted deployment to hand first.
@@ -308,7 +346,9 @@ export class GameEngine {
     if (this.phase !== "deploy" || !p.active) return false;
     this.turnActionTaken = true;
     this.phase = "digivolve";
-    this.pushLog(`${p.name} finalizes ${p.active.card.name} on the battlefield.`);
+    this.pushLog(
+      `${p.name} finalizes ${p.active.card.name} on the battlefield.`,
+    );
     // First-deploy Armor offer: partner on the field + its armor in the side deck.
     this.armorWindowOpen = this.armorForPartner(p, p.active.card) !== null;
     if (this.armorWindowOpen) {
@@ -321,7 +361,9 @@ export class GameEngine {
   /** The side-deck armor associated with `partner`, if any. */
   armorForPartner(p: PlayerState, partner: MasterCard): MasterCard | null {
     if (partner.is_partner !== 1) return null;
-    return p.armors.find((a) => ARMOR_PARTNER[a.number] === partner.number) ?? null;
+    return (
+      p.armors.find((a) => ARMOR_PARTNER[a.number] === partner.number) ?? null
+    );
   }
 
   /**
@@ -351,8 +393,16 @@ export class GameEngine {
     this.armorWindowOpen = false;
     this.turnActionTaken = true;
     const hp = quantizeStat(armor.hp * prev.penalty);
-    p.active = { card: armor, hp, maxHp: hp, penalty: prev.penalty, stack: [...prev.stack, prev.card] };
-    this.pushLog(`${p.name} Armor Digivolves ${prev.card.name} → ${armor.name}! HP ${hp}.`);
+    p.active = {
+      card: armor,
+      hp,
+      maxHp: hp,
+      penalty: prev.penalty,
+      stack: [...prev.stack, prev.card],
+    };
+    this.pushLog(
+      `${p.name} Armor Digivolves ${prev.card.name} → ${armor.name}! HP ${hp}.`,
+    );
     this.notify();
     return true;
   }
@@ -373,7 +423,13 @@ export class GameEngine {
   stockDp(handIndex: number): boolean {
     const p = this.current();
     const card = p.hand[handIndex];
-    if (this.phase !== "digivolve" || !p.active || !card || card.type !== CardType.Digimon) return false;
+    if (
+      this.phase !== "digivolve" ||
+      !p.active ||
+      !card ||
+      card.type !== CardType.Digimon
+    )
+      return false;
     if (this.dpStockedThisTurn || !this.canStockMoreDp(p)) return false;
 
     this.dpStockedThisTurn = true;
@@ -382,7 +438,9 @@ export class GameEngine {
     this.stockedCardThisTurn = card;
     p.hand.splice(handIndex, 1);
     p.dpSlot.push(card);
-    this.pushLog(`${p.name} stocks ${card.name} for ${card.dp_point} DP (total ${this.dpTotal(p)} DP).`);
+    this.pushLog(
+      `${p.name} stocks ${card.name} for ${card.dp_point} DP (total ${this.dpTotal(p)} DP).`,
+    );
     this.notify();
     return true;
   }
@@ -405,7 +463,9 @@ export class GameEngine {
     p.hand.push(card);
     this.stockedCardThisTurn = null;
     this.dpStockedThisTurn = false;
-    this.pushLog(`${p.name} takes ${card.name} back from the DP slot (total ${this.dpTotal(p)} DP).`);
+    this.pushLog(
+      `${p.name} takes ${card.name} back from the DP slot (total ${this.dpTotal(p)} DP).`,
+    );
     this.notify();
     return true;
   }
@@ -416,15 +476,21 @@ export class GameEngine {
     if (!p.active || card.type !== CardType.Digimon) return false;
     const from = p.active.card.level;
     const valid =
-      (from === CardLevel.R && card.level === CardLevel.C) || (from === CardLevel.C && card.level === CardLevel.U);
-    return valid && card.specialty === p.active.card.specialty && this.dpTotal(p) >= card.dp_required;
+      (from === CardLevel.R && card.level === CardLevel.C) ||
+      (from === CardLevel.C && card.level === CardLevel.U);
+    return (
+      valid &&
+      card.specialty === p.active.card.specialty &&
+      this.dpTotal(p) >= card.dp_required
+    );
   }
 
   /** Natural digivolution: consume the DP slot, inherit the penalty. */
   evolve(handIndex: number): boolean {
     const p = this.current();
     const card = p.hand[handIndex];
-    if (this.phase !== "digivolve" || !card || !this.canEvolve(p, card)) return false;
+    if (this.phase !== "digivolve" || !card || !this.canEvolve(p, card))
+      return false;
 
     const prev = p.active as ActiveDigimon;
     this.turnActionTaken = true;
@@ -435,8 +501,16 @@ export class GameEngine {
     const penalty = prev.penalty; // penalty is inherited
     const hp = quantizeStat(card.hp * penalty);
     // The previous form stays on the battlefield, stacked underneath.
-    p.active = { card, hp, maxHp: hp, penalty, stack: [...prev.stack, prev.card] };
-    this.pushLog(`${p.name} digivolves ${prev.card.name} → ${card.name}! HP ${hp}. DP stock reset to 0.`);
+    p.active = {
+      card,
+      hp,
+      maxHp: hp,
+      penalty,
+      stack: [...prev.stack, prev.card],
+    };
+    this.pushLog(
+      `${p.name} digivolves ${prev.card.name} → ${card.name}! HP ${hp}. DP stock reset to 0.`,
+    );
     this.notify();
     return true;
   }
@@ -452,7 +526,11 @@ export class GameEngine {
   }
 
   private nextLevelOf(level: CardLevel): CardLevel | null {
-    return level === CardLevel.R ? CardLevel.C : level === CardLevel.C ? CardLevel.U : null;
+    return level === CardLevel.R
+      ? CardLevel.C
+      : level === CardLevel.C
+        ? CardLevel.U
+        : null;
   }
 
   /**
@@ -460,7 +538,7 @@ export class GameEngine {
    * - download:    any Digimon, no checks (battlefield stack will be trashed).
    * - armorcrush:  active Armor → C or U, same specialty, DP checked.
    * - special:     next level, any specialty, DP requirement reduced by 20.
-   * - mutant:      same level, same specialty, DP requirement checked.
+   * - mutant:      same level, ignore specialty, DP requirement checked.
    * - warp:        active R → target U, same specialty, DP requirement checked.
    * - speed:       next level, same specialty, no DP check, active not penalized.
    * - dearmor:     no hand target (returns the armor to the side deck).
@@ -475,7 +553,8 @@ export class GameEngine {
     return p.hand
       .map((card, index) => ({ card, index }))
       .filter(({ card }) => {
-        if (card.type !== CardType.Digimon || card.level === CardLevel.A) return false;
+        if (card.type !== CardType.Digimon || card.level === CardLevel.A)
+          return false;
         switch (kind) {
           case "download":
             return true;
@@ -487,11 +566,12 @@ export class GameEngine {
               dp >= card.dp_required
             );
           case "special":
-            return card.level === next && dp >= Math.max(0, card.dp_required - 20);
+            return (
+              card.level === next && dp >= Math.max(0, card.dp_required - 20)
+            );
           case "mutant":
             return (
               card.level === active.card.level &&
-              card.specialty === active.card.specialty &&
               dp >= card.dp_required &&
               card !== active.card
             );
@@ -503,7 +583,11 @@ export class GameEngine {
               dp >= card.dp_required
             );
           case "speed":
-            return active.penalty >= 1 && card.level === next && card.specialty === active.card.specialty;
+            return (
+              active.penalty >= 1 &&
+              card.level === next &&
+              card.specialty === active.card.specialty
+            );
           case "dearmor":
           case "devolve":
             return false;
@@ -517,12 +601,20 @@ export class GameEngine {
    * stacked). Armor forms are exempt — only De-Armor can undo an armor.
    */
   canDevolve(p: PlayerState): boolean {
-    return p.active !== null && p.active.stack.length >= 1 && p.active.card.level !== CardLevel.A;
+    return (
+      p.active !== null &&
+      p.active.stack.length >= 1 &&
+      p.active.card.level !== CardLevel.A
+    );
   }
 
   /** True if De-Armor can act: an Armor form is active with its partner stacked under it. */
   canDearmor(p: PlayerState): boolean {
-    return p.active !== null && p.active.card.level === CardLevel.A && p.active.stack.length >= 1;
+    return (
+      p.active !== null &&
+      p.active.card.level === CardLevel.A &&
+      p.active.stack.length >= 1
+    );
   }
 
   /** Returns an in-play armor card to the owner's hidden side deck. */
@@ -539,7 +631,13 @@ export class GameEngine {
     const p = this.current();
     const option = p.hand[optionIndex];
     const kind = option ? this.digivolveOptionKind(option) : null;
-    if (this.phase !== "digivolve" || !option || !kind || this.digivolveOptionUsedThisTurn) return false;
+    if (
+      this.phase !== "digivolve" ||
+      !option ||
+      !kind ||
+      this.digivolveOptionUsedThisTurn
+    )
+      return false;
 
     const label = DIGIVOLVE_OPTION_LABEL[kind];
     const noTargetKinds = kind === "devolve" || kind === "dearmor";
@@ -549,7 +647,11 @@ export class GameEngine {
     const targets = this.digivolveOptionTargets(p, kind);
     // When valid targets exist the player must choose one explicitly —
     // never auto-pick. Without targets the option fizzles (trashed below).
-    if (!noTargetKinds && targets.length > 0 && (targetIndex === undefined || !targets.includes(targetIndex))) {
+    if (
+      !noTargetKinds &&
+      targets.length > 0 &&
+      (targetIndex === undefined || !targets.includes(targetIndex))
+    ) {
       return false;
     }
 
@@ -558,7 +660,10 @@ export class GameEngine {
     this.turnActionTaken = true;
     this.armorWindowOpen = false;
     this.digivolveOptionUsedThisTurn = true;
-    const chosen = targetIndex !== undefined && targets.includes(targetIndex) ? targetIndex : undefined;
+    const chosen =
+      targetIndex !== undefined && targets.includes(targetIndex)
+        ? targetIndex
+        : undefined;
     const target = chosen !== undefined ? p.hand[chosen] : undefined;
 
     p.hand.splice(p.hand.indexOf(option), 1);
@@ -566,7 +671,9 @@ export class GameEngine {
 
     if (kind === "dearmor") {
       if (!this.canDearmor(p)) {
-        this.pushLog(`${p.name} plays ${label} — no effect (no Armor Digimon). Card trashed.`);
+        this.pushLog(
+          `${p.name} plays ${label} — no effect (no Armor Digimon). Card trashed.`,
+        );
         this.notify();
         return true;
       }
@@ -575,15 +682,25 @@ export class GameEngine {
       this.returnArmorToSideDeck(p, active.card);
       // The partner underneath is revealed at FULL HP.
       const hp = quantizeStat(revealed.hp * active.penalty);
-      p.active = { card: revealed, hp, maxHp: hp, penalty: active.penalty, stack: active.stack };
-      this.pushLog(`${p.name} plays ${label}: ${revealed.name} is revealed at full HP ${hp}!`);
+      p.active = {
+        card: revealed,
+        hp,
+        maxHp: hp,
+        penalty: active.penalty,
+        stack: active.stack,
+      };
+      this.pushLog(
+        `${p.name} plays ${label}: ${revealed.name} is revealed at full HP ${hp}!`,
+      );
       this.notify();
       return true;
     }
 
     if (kind === "devolve") {
       if (!this.canDevolve(p)) {
-        this.pushLog(`${p.name} plays ${label} — no effect (nothing stacked). Card trashed.`);
+        this.pushLog(
+          `${p.name} plays ${label} — no effect (nothing stacked). Card trashed.`,
+        );
         this.notify();
         return true;
       }
@@ -592,14 +709,24 @@ export class GameEngine {
       p.trash.push(active.card);
       // Revealed Digimon returns with doubled full HP (penalty still applies).
       const hp = quantizeStat(revealed.hp * active.penalty * 2);
-      p.active = { card: revealed, hp, maxHp: hp, penalty: active.penalty, stack: active.stack };
-      this.pushLog(`${p.name} plays ${label}: devolves to ${revealed.name} with doubled HP ${hp}! DP slot kept.`);
+      p.active = {
+        card: revealed,
+        hp,
+        maxHp: hp,
+        penalty: active.penalty,
+        stack: active.stack,
+      };
+      this.pushLog(
+        `${p.name} plays ${label}: devolves to ${revealed.name} with doubled HP ${hp}! DP slot kept.`,
+      );
       this.notify();
       return true;
     }
 
     if (!target || !p.active) {
-      this.pushLog(`${p.name} plays ${label} — no effect (no valid target). Card trashed.`);
+      this.pushLog(
+        `${p.name} plays ${label} — no effect (no valid target). Card trashed.`,
+      );
       this.notify();
       return true;
     }
@@ -611,7 +738,8 @@ export class GameEngine {
     if (kind === "download") {
       // Whole battlefield is trashed; only the new Digimon remains —
       // except an in-play armor card, which returns to the side deck.
-      if (prev.card.level === CardLevel.A) this.returnArmorToSideDeck(p, prev.card);
+      if (prev.card.level === CardLevel.A)
+        this.returnArmorToSideDeck(p, prev.card);
       else p.trash.push(prev.card);
       p.trash.push(...prev.stack);
       stack = [];
@@ -625,7 +753,12 @@ export class GameEngine {
     }
 
     let dpNote = "DP slot kept";
-    if (kind === "armorcrush" || kind === "special" || kind === "mutant" || kind === "warp") {
+    if (
+      kind === "armorcrush" ||
+      kind === "special" ||
+      kind === "mutant" ||
+      kind === "warp"
+    ) {
       p.trash.push(...p.dpSlot.splice(0));
       dpNote = "DP stock trashed";
     }
@@ -633,13 +766,17 @@ export class GameEngine {
     // Download/Mutant/Special remove all penalties. Speed requires an
     // unpenalized Digimon, and Warp only works from R (never penalized).
     // ArmorCrush lines come from a partner Rookie, so they carry no penalty.
-    const removesPenalty = kind === "download" || kind === "mutant" || kind === "special";
+    const removesPenalty =
+      kind === "download" || kind === "mutant" || kind === "special";
     const penalty = removesPenalty ? 1 : prev.penalty;
-    const penaltyNote = removesPenalty && prev.penalty < 1 ? " Penalty removed!" : "";
+    const penaltyNote =
+      removesPenalty && prev.penalty < 1 ? " Penalty removed!" : "";
 
     const hp = quantizeStat(target.hp * penalty);
     p.active = { card: target, hp, maxHp: hp, penalty, stack };
-    this.pushLog(`${p.name} plays ${label}: ${prev.card.name} → ${target.name}! HP ${hp}. ${dpNote}.${penaltyNote}`);
+    this.pushLog(
+      `${p.name} plays ${label}: ${prev.card.name} → ${target.name}! HP ${hp}. ${dpNote}.${penaltyNote}`,
+    );
     this.notify();
     return true;
   }
@@ -651,7 +788,9 @@ export class GameEngine {
     this.armorWindowOpen = false;
 
     if (!this.opponentOf(p.id).active) {
-      this.pushLog(`${this.opponentOf(p.id).name} has no active Digimon — battle skipped.`);
+      this.pushLog(
+        `${this.opponentOf(p.id).name} has no active Digimon — battle skipped.`,
+      );
       this.endTurn();
     } else {
       this.phase = "battle-select";
@@ -673,7 +812,11 @@ export class GameEngine {
 
     const ownerSide = this.buildSide(owner, ownerChoice);
     const defenderSide = this.buildSide(defender, defenderChoice);
-    this.activeBattle = { ownerId: owner.id, owner: ownerSide, defender: defenderSide };
+    this.activeBattle = {
+      ownerId: owner.id,
+      owner: ownerSide,
+      defender: defenderSide,
+    };
     this.battleGen = this.resolver.resolveSteps(ownerSide, defenderSide);
     this.phase = "battle-resolve";
     this.notify();
@@ -689,7 +832,8 @@ export class GameEngine {
 
     // Live-sync HP after every step so the UI animates each change.
     if (ownerP.active) ownerP.active.hp = quantizeStat(ab.owner.ctx.hp);
-    if (defenderP.active) defenderP.active.hp = quantizeStat(ab.defender.ctx.hp);
+    if (defenderP.active)
+      defenderP.active.hp = quantizeStat(ab.defender.ctx.hp);
 
     if (!result.done) {
       this.currentFx = {
@@ -708,7 +852,10 @@ export class GameEngine {
   }
 
   /** Headless convenience: runs an entire battle synchronously (AI/sim). */
-  resolveBattlePhase(ownerChoice: BattleChoice, defenderChoice: BattleChoice): void {
+  resolveBattlePhase(
+    ownerChoice: BattleChoice,
+    defenderChoice: BattleChoice,
+  ): void {
     this.startBattle(ownerChoice, defenderChoice);
     while (this.battleStep()) {
       // advance until the battle concludes
@@ -723,13 +870,23 @@ export class GameEngine {
     outcome: BattleOutcome,
   ): void {
     // Write battle results back to persistent state.
-    this.applyBattleResult(owner, ownerSide, outcome.koed === "owner" && !outcome.revived);
-    this.applyBattleResult(defender, defenderSide, outcome.koed === "defender" && !outcome.revived);
+    this.applyBattleResult(
+      owner,
+      ownerSide,
+      outcome.koed === "owner" && !outcome.revived,
+    );
+    this.applyBattleResult(
+      defender,
+      defenderSide,
+      outcome.koed === "defender" && !outcome.revived,
+    );
 
     if (outcome.scorer) {
       const scorer = outcome.scorer === "owner" ? owner : defender;
       scorer.score++;
-      this.pushLog(`${scorer.name} now has ${scorer.score} point${scorer.score > 1 ? "s" : ""}.`);
+      this.pushLog(
+        `${scorer.name} now has ${scorer.score} point${scorer.score > 1 ? "s" : ""}.`,
+      );
       if (scorer.score >= WIN_SCORE) {
         this.endMatch(scorer.id);
         return;
@@ -752,7 +909,9 @@ export class GameEngine {
     } else if (choice.supportHandIndex !== null) {
       const chosen = p.hand[choice.supportHandIndex];
       if (chosen && !this.isLegalSupport(chosen)) {
-        this.pushLog(`${chosen.name} cannot be used as a battle support — ignored.`);
+        this.pushLog(
+          `${chosen.name} cannot be used as a battle support — ignored.`,
+        );
       } else {
         support = p.hand.splice(choice.supportHandIndex, 1)[0] ?? null;
       }
@@ -780,13 +939,18 @@ export class GameEngine {
     };
   }
 
-  private applyBattleResult(p: PlayerState, side: BattleSide, koed: boolean): void {
+  private applyBattleResult(
+    p: PlayerState,
+    side: BattleSide,
+    koed: boolean,
+  ): void {
     if (side.support) p.trash.push(side.support); // used supports go to trash
     if (!p.active) return; // effect commands may have already cleared it
     if (koed) {
       // The entire evolution stack is defeated together — except an armor
       // card, which is never trashed: it returns to the hidden side deck.
-      if (p.active.card.level === CardLevel.A) this.returnArmorToSideDeck(p, p.active.card);
+      if (p.active.card.level === CardLevel.A)
+        this.returnArmorToSideDeck(p, p.active.card);
       else p.trash.push(p.active.card);
       p.trash.push(...p.active.stack);
       p.active = null;
@@ -820,7 +984,10 @@ export class GameEngine {
 
   /** DP total of the slot, capped at {@link DP_VALUE_CAP}. */
   dpTotal(p: PlayerState): number {
-    return Math.min(DP_VALUE_CAP, p.dpSlot.reduce((sum, c) => sum + c.dp_point, 0));
+    return Math.min(
+      DP_VALUE_CAP,
+      p.dpSlot.reduce((sum, c) => sum + c.dp_point, 0),
+    );
   }
 
   isDeployable(card: MasterCard): boolean {
@@ -874,7 +1041,9 @@ export class GameEngine {
           moved.push(...src.splice(idx, 1));
         }
         dst.unshift(...moved);
-        this.pushLog(`${p.name}: ${n} card${n > 1 ? "s" : ""} moved ${from} → ${to} (effect).`);
+        this.pushLog(
+          `${p.name}: ${n} card${n > 1 ? "s" : ""} moved ${from} → ${to} (effect).`,
+        );
       },
       shuffleDeck: () => {
         this.rng.shuffle(p.deck);

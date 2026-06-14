@@ -1,0 +1,581 @@
+.debug-root {
+  font-family: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+  background-color: #0d0f14;
+  color: #e2e8f0;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  background-image: 
+    linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid rgba(0, 243, 255, 0.2);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.debug-title {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #00f3ff 0%, #9d4edd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+  letter-spacing: 2px;
+}
+
+.debug-nav {
+  display: flex;
+  gap: 12px;
+}
+
+.debug-btn {
+  background: rgba(13, 15, 20, 0.8);
+  border: 1px solid rgba(0, 243, 255, 0.4);
+  color: #00f3ff;
+  padding: 8px 16px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.debug-btn:hover {
+  background: rgba(0, 243, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+  border-color: #00f3ff;
+  transform: translateY(-1px);
+}
+
+.debug-btn.active {
+  background: linear-gradient(135deg, #00f3ff 0%, #7b2cbf 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+}
+
+.debug-btn-back {
+  border-color: rgba(226, 232, 240, 0.3);
+  color: #e2e8f0;
+}
+
+.debug-btn-back:hover {
+  background: rgba(226, 232, 240, 0.1);
+  box-shadow: none;
+  border-color: #e2e8f0;
+}
+
+.debug-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+
+.debug-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glass panel */
+.debug-panel {
+  background: rgba(20, 24, 33, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #00f3ff;
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.debug-panel-purple {
+  border-left-color: #9d4edd;
+}
+
+.debug-panel h2 {
+  font-family: "Audiowide", sans-serif;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+
+/* Simulation debug Styles */
+.sim-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+}
+
+.sim-controls label {
+  display: block;
+  font-weight: 600;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  color: rgba(226, 232, 240, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sim-select, .sim-input {
+  width: 100%;
+  background: #0d0f14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 8px 12px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  border-radius: 4px;
+}
+
+.sim-select:focus, .sim-input:focus {
+  border-color: #00f3ff;
+  outline: none;
+}
+
+.sim-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sim-stat-card {
+  background: rgba(13, 15, 20, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.sim-stat-val {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #00f3ff;
+}
+
+.sim-stat-val.loss {
+  color: #ff0055;
+}
+
+.sim-stat-val.warn {
+  color: #ffb703;
+}
+
+.sim-stat-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.5);
+  margin-top: 4px;
+}
+
+.sim-progress-bar-container {
+  background: rgba(255, 255, 255, 0.05);
+  height: 8px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sim-progress-bar {
+  background: linear-gradient(90deg, #00f3ff, #9d4edd);
+  height: 100%;
+  transition: width 0.1s linear;
+}
+
+.sim-log-panel {
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  height: 380px;
+  overflow-y: auto;
+  font-family: "Exo 2", monospace;
+  font-size: 0.85rem;
+  padding: 12px;
+  white-space: pre-wrap;
+  color: #a0aec0;
+}
+
+.sim-log-entry {
+  margin-bottom: 4px;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  padding-bottom: 4px;
+}
+
+.sim-log-entry.win {
+  color: #00ffaa;
+  font-weight: bold;
+}
+
+.sim-log-entry.warn {
+  color: #ffb703;
+}
+
+/* Sandbox debug Styles */
+.sandbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.sandbox-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sandbox-textarea {
+  width: 100%;
+  height: 180px;
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #00ffaa;
+  font-family: monospace;
+  font-size: 0.9rem;
+  padding: 10px;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.sandbox-textarea:focus {
+  border-color: #00f3ff;
+  outline: none;
+}
+
+.sandbox-variables {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.sandbox-var-box {
+  background: rgba(13, 15, 20, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.sandbox-var-box label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.5);
+  margin-bottom: 4px;
+}
+
+.sandbox-results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sandbox-state-diff {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sandbox-state-col {
+  background: rgba(9, 10, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.sandbox-state-col h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+  font-size: 0.85rem;
+  color: #00f3ff;
+  text-transform: uppercase;
+}
+
+.diff-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 2px 0;
+}
+
+.diff-row span.val-changed {
+  color: #00ffaa;
+  font-weight: bold;
+}
+
+.sandbox-commands {
+  background: #090a0f;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  min-height: 80px;
+}
+
+.sandbox-cmd-item {
+  color: #00ffaa;
+  margin-bottom: 4px;
+}
+
+.sandbox-cmd-empty {
+  color: rgba(226, 232, 240, 0.3);
+  font-style: italic;
+}
+
+/* Card Explorer Styles */
+.explorer-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.explorer-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+}
+
+.explorer-table-container {
+  max-height: 480px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.3) transparent;
+}
+
+.explorer-table-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.explorer-table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.explorer-table-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 2px;
+}
+
+.explorer-table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.6);
+}
+
+.explorer-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.explorer-table th, .explorer-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.explorer-table th {
+  background: #090a0f;
+  color: rgba(226, 232, 240, 0.7);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.explorer-table tr:hover td {
+  background: rgba(0, 243, 255, 0.05);
+}
+
+.explorer-table tr.selected td {
+  background: rgba(0, 243, 255, 0.12);
+  border-bottom-color: rgba(0, 243, 255, 0.3);
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(0, 243, 255, 0.07);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.8);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.badge-fire { background: #d946ef; color: #fff; }
+.badge-ice { background: #3b82f6; color: #fff; }
+.badge-nature { background: #22c55e; color: #fff; }
+.badge-darkness { background: #6366f1; color: #fff; }
+.badge-rare { background: #f59e0b; color: #fff; }
+
+.badge-rookie { border: 1px solid #22c55e; color: #22c55e; }
+.badge-champion { border: 1px solid #3b82f6; color: #3b82f6; }
+.badge-ultimate { border: 1px solid #d946ef; color: #d946ef; }
+.badge-armor { border: 1px solid #f59e0b; color: #f59e0b; }
+.badge-option { border: 1px solid rgba(226, 232, 240, 0.4); color: rgba(226, 232, 240, 0.7); }
+
+.explorer-detail-panel {
+  background: rgba(9, 10, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 16px;
+  height: 480px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.3) transparent;
+}
+
+.explorer-detail-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.explorer-detail-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.explorer-detail-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 2px;
+}
+
+.explorer-detail-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.6);
+}
+
+/* Card Animation Lab Styles */
+.animation-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.card-stage-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, rgba(20, 24, 33, 0.8) 0%, rgba(5, 6, 9, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── CardAnimationTab helpers (GSAP-driven) ─────────────────────────────── */
+
+/* Spin loop is now handled by GSAP, no CSS keyframes needed */
+
+.anim-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.55);
+  margin-bottom: 4px;
+}
+
+.anim-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin: 2px 0;
+}
+
+.anim-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.anim-toggle input[type="checkbox"] {
+  accent-color: #00f3ff;
+  width: 15px;
+  height: 15px;
+}
+
+.anim-preset-btn {
+  font-size: 0.85rem !important;
+  padding: 7px 4px !important;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.anim-preset-btn:hover:not(:disabled) {
+  background: rgba(0, 243, 255, 0.12);
+  box-shadow: 0 0 14px rgba(0, 243, 255, 0.25);
+}
+
+.anim-preset-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* ── Board Design fullboard mode ─────────────────────────────────────────── */
+
+/* Debug chrome floats above the Portal board (z-index 5) */
+.bd-fullboard {
+  position: relative;
+  z-index: 10;
+  /* Let background show through so the board is visible behind chrome */
+  background: transparent;
+}
+
+.bd-fullboard .debug-header,
+.bd-fullboard .debug-tabs {
+  position: relative;
+  background: rgba(13, 15, 20, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hide the empty content well — board renders via Portal, not here */
+.bd-fullboard .debug-content {
+  display: none;
+}

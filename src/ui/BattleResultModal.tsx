@@ -1,4 +1,4 @@
-import { For, Show, createSignal } from "solid-js";
+import { For, Show, createSignal, createMemo } from "solid-js";
 import type { MasterCard } from "@src/types";
 import type { GameEngine } from "@src/engine/game-engine";
 import { CardView, setInspectedCard } from "./CardView";
@@ -30,7 +30,7 @@ export function BattleResultModal(props: {
 }) {
   const [step, setStep] = createSignal<"result" | "exp" | "prize">("result");
   const won = () => props.g.winner === "player";
-  const rewards = () => props.claimRewards();
+  const rewards = createMemo(() => props.claimRewards());
   const hasPrize = () => rewards().packName !== null || rewards().bonusCards.length > 0;
 
   return (

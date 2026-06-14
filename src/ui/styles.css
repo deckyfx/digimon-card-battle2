@@ -30,7 +30,8 @@
   --rail-w: 64px;
   /* left rail + 4 cards + gaps + right rail + area padding/border */
   --board-w: calc(
-    2 * (var(--rail-w) + var(--card-gap)) + 4 * var(--card-w) + 3 * var(--card-gap) + 2 * var(--area-pad) + 2px
+    2 * (var(--rail-w) + var(--card-gap)) + 4 * var(--card-w) + 3 *
+      var(--card-gap) + 2 * var(--area-pad) + 2px
   );
 }
 
@@ -43,6 +44,12 @@
 body {
   margin: 0;
   padding: 12px;
+  background-color: #0d0f14;
+  background-image:
+    linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  min-height: 100vh;
 }
 
 .layout {
@@ -190,7 +197,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* Label with an inline action on the right (e.g. Deck Builder shortcut). */
+/* Label with an inline action on the right (e.g. Setup Deck shortcut). */
 .label-row {
   display: flex;
   justify-content: space-between;
@@ -290,7 +297,9 @@ button.mini {
   padding: 7px 16px;
   box-shadow: 2px 3px 0 #1a1a1acc;
   z-index: 5;
-  animation: bubble-pop 0.3s ease-out, bubble-bounce 2.2s ease-in-out 0.3s infinite;
+  animation:
+    bubble-pop 0.3s ease-out,
+    bubble-bounce 2.2s ease-in-out 0.3s infinite;
 }
 
 /* Pop in, then keep gently bouncing like a manga balloon begging attention. */
@@ -347,7 +356,8 @@ button.mini {
   border: none;
   padding: 2px 4px;
   color: #1a1a1a;
-  font-family: "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Segoe Print", cursive;
+  font-family:
+    "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Segoe Print", cursive;
   font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
@@ -366,7 +376,8 @@ button.mini {
 /* Non-clickable balloon hint (e.g. "Pick target →"). */
 .bubble-hint {
   color: #8a4a1a;
-  font-family: "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Segoe Print", cursive;
+  font-family:
+    "Comic Sans MS", "Comic Neue", "Chalkboard SE", "Segoe Print", cursive;
   font-size: 0.74rem;
   font-weight: 700;
   white-space: nowrap;
@@ -650,7 +661,7 @@ button.mini {
   border: 2px solid #4a5070;
 }
 
-/* ── Deck builder ───────────────────────────────────────────────── */
+/* ── Setup Deck ───────────────────────────────────────────────── */
 .builder-columns {
   display: grid;
   grid-template-columns: minmax(380px, 1fr) 420px 300px;
@@ -761,7 +772,9 @@ button.mini {
   height: 110px;
   object-fit: contain;
   filter: drop-shadow(0 0 18px #ffffff66) drop-shadow(0 4px 10px #00000088);
-  animation: attack-reveal-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1), attack-reveal-pulse 1.2s ease-in-out 0.45s infinite;
+  animation:
+    attack-reveal-pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1),
+    attack-reveal-pulse 1.2s ease-in-out 0.45s infinite;
 }
 
 @keyframes attack-reveal-pop {
@@ -811,7 +824,9 @@ button.mini {
   border: 2px solid #4a5070;
   border-radius: 6px;
   background: #1c1f2e;
-  transition: background 0.4s ease, border-color 0.4s ease;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease;
 }
 
 .win-light.on {
@@ -870,7 +885,9 @@ button.mini {
   gap: 4px;
   opacity: 0;
   transform: translateY(25px);
-  transition: opacity 0.4s ease, transform 0.6s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.6s ease;
 }
 
 .turn-tab.on {
@@ -918,7 +935,13 @@ button.mini {
   font-weight: 700;
   color: #ffc66d;
   border-color: #d4a017;
-  background: repeating-linear-gradient(45deg, #232842, #232842 8px, #1c1f2e 8px, #1c1f2e 16px);
+  background: repeating-linear-gradient(
+    45deg,
+    #232842,
+    #232842 8px,
+    #1c1f2e 8px,
+    #1c1f2e 16px
+  );
 }
 
 .vs-cpu {
@@ -1239,7 +1262,9 @@ button.primary:hover:not(:disabled) {
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
   padding-bottom: 6px;
 }
 

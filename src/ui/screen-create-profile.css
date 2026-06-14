@@ -1,0 +1,558 @@
+/* ── Screen: Create Profile (wizard) ────────────────────────────────────── */
+
+.scp-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 24px 80px;
+  box-sizing: border-box;
+}
+
+/* ── Step breadcrumb ────────────────────────────────────────────────────── */
+
+.scp-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 48px;
+}
+
+.scp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.scp-step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.25s;
+}
+
+.scp-step--active .scp-step-dot {
+  border-color: #00f3ff;
+  color: #00f3ff;
+  background: rgba(0, 243, 255, 0.08);
+  box-shadow: 0 0 16px rgba(0, 243, 255, 0.25);
+}
+
+.scp-step--done .scp-step-dot {
+  border-color: #4ade80;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.scp-step-label {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.25);
+  transition: color 0.25s;
+}
+
+.scp-step--active .scp-step-label {
+  color: rgba(0, 243, 255, 0.75);
+}
+
+.scp-step--done .scp-step-label {
+  color: rgba(74, 222, 128, 0.6);
+}
+
+.scp-step-line {
+  width: 64px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 8px;
+  margin-bottom: 22px; /* aligns with dot centre */
+  border-radius: 1px;
+  transition: background 0.25s;
+}
+
+.scp-step-line--done {
+  background: rgba(74, 222, 128, 0.4);
+}
+
+/* ── Panel ──────────────────────────────────────────────────────────────── */
+
+.scp-panel {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(20, 24, 33, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 40px 40px 32px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.scp-panel--wide {
+  max-width: 860px;
+}
+
+.scp-panel-title {
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
+}
+
+.scp-panel-desc {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  color: rgba(226, 232, 240, 0.45);
+  margin: 0 0 28px;
+}
+
+/* ── Name input ─────────────────────────────────────────────────────────── */
+
+.scp-name-input {
+  display: block;
+  width: 100%;
+  font-family: "Audiowide", "Segoe UI", sans-serif;
+  font-size: 1.3rem;
+  padding: 16px 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #fff;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 32px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.scp-name-input:focus {
+  border-color: #00f3ff;
+  box-shadow: 0 0 0 3px rgba(0, 243, 255, 0.1);
+}
+
+.scp-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Avatar step ────────────────────────────────────────────────────────── */
+
+.scp-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+}
+
+.scp-avatar-frame {
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(0, 243, 255, 0.25);
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scp-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scp-avatar-empty {
+  font-family: "Audiowide", sans-serif;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.12);
+}
+
+.scp-avatar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scp-avatar-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.05rem;
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.scp-btn-choose {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.78rem;
+  padding: 9px 18px;
+  background: transparent;
+  border: 1px solid rgba(0, 243, 255, 0.45);
+  color: #00f3ff;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+  width: fit-content;
+}
+
+.scp-btn-choose:hover {
+  background: rgba(0, 243, 255, 0.08);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+}
+
+/* ── Partner step ───────────────────────────────────────────────────────── */
+
+.scp-partners {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.scp-partner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 16px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  flex: 1;
+  max-width: 260px;
+  /* reset button styles */
+  font-family: inherit;
+  text-align: center;
+}
+
+.scp-partner:hover {
+  border-color: color-mix(in srgb, var(--partner-color) 50%, transparent);
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--partner-color) 15%, transparent);
+}
+
+.scp-partner--selected {
+  border-color: var(--partner-color);
+  background: color-mix(in srgb, var(--partner-color) 6%, rgba(0,0,0,0.4));
+  box-shadow: 0 0 28px color-mix(in srgb, var(--partner-color) 25%, transparent);
+}
+
+/* Card scaling: the card is always 200×217; we scale it to fit the column */
+.scp-partner-card-outer {
+  --card-scale: 0.85;
+  width: calc(200px * var(--card-scale));
+  height: calc(217px * var(--card-scale));
+  overflow: hidden;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.scp-partner-card-inner {
+  width: 200px;
+  height: 217px;
+  transform: scale(var(--card-scale, 0.85));
+  transform-origin: top left;
+}
+
+@media (max-width: 720px) {
+  .scp-partners { gap: 12px; }
+  .scp-partner  { padding: 14px 10px 12px; }
+  .scp-partner-card-outer { --card-scale: 0.65; }
+}
+
+@media (max-width: 500px) {
+  .scp-partners { flex-direction: column; align-items: center; }
+  .scp-partner  { width: 100%; max-width: 280px; flex-direction: row; }
+  .scp-partner-card-outer { --card-scale: 0.7; }
+}
+
+.scp-partner-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.scp-partner-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.scp-partner-spec {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--partner-color) 80%, rgba(226,232,240,0.5));
+  letter-spacing: 0.04em;
+}
+
+.scp-partner-check {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--partner-color);
+  color: #000;
+  font-size: 0.8rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Actions row ────────────────────────────────────────────────────────── */
+
+.scp-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.scp-btn-primary {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #00f3ff, #9d4edd);
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  transition: opacity 0.2s, box-shadow 0.2s;
+}
+
+.scp-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.35);
+}
+
+.scp-btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.scp-btn-ghost {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  padding: 11px 20px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(226, 232, 240, 0.5);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scp-btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+
+.scp-error {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+/* ── Avatar dialog ──────────────────────────────────────────────────────── */
+
+.scp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.scp-dialog {
+  background: rgba(13, 15, 22, 0.97);
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+}
+
+.scp-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.scp-dialog-title {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1rem;
+  color: #00f3ff;
+  letter-spacing: 0.06em;
+}
+
+.scp-dialog-close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.scp-dialog-close:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+/*
+ * Dialog body: flex column, overflow hidden.
+ * ActorPicker's root <div> becomes a CSS grid so the selected preview +
+ * search bar stay pinned at the top; only the portrait grid scrolls.
+ */
+.scp-dialog-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  padding: 16px 24px 0;
+}
+
+/* ActorPicker root wrapper → two-row grid */
+.scp-dialog-body > div {
+  display: grid;
+  grid-template-areas:
+    "selected search"
+    "grid     grid";
+  grid-template-columns: 190px 1fr;
+  grid-template-rows: auto 1fr;
+  column-gap: 16px;
+  row-gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Pinned: selected actor (top-left) ────────────────────────────────── */
+.scp-dialog-body .actor-selected {
+  grid-area: selected;
+  margin: 0;
+  align-self: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.scp-dialog-body .actor-selected .actor-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scp-dialog-body .actor-selected .portrait {
+  width: 72px;
+  height: 64px;
+  border-radius: 6px;
+}
+
+/* ── Pinned: search input (top-right) ────────────────────────────────── */
+.scp-dialog-body > div > input {
+  grid-area: search;
+  align-self: center;
+  justify-self: end;
+  width: 50%;
+  min-width: 160px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  padding: 9px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.scp-dialog-body > div > input:focus {
+  border-color: rgba(0, 243, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(0, 243, 255, 0.08);
+}
+
+/* ── Scrollable: portrait grid (fills remaining height) ──────────────── */
+.scp-dialog-body .actor-grid {
+  grid-area: grid;
+  /* CSS grid: fills each row, no blank space on the right */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px;
+  align-content: start;
+  max-height: none;
+  overflow-y: auto;
+  padding-bottom: 16px;
+  /* custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.3) transparent;
+}
+
+.scp-dialog-body .actor-grid::-webkit-scrollbar        { width: 4px; }
+.scp-dialog-body .actor-grid::-webkit-scrollbar-track  { background: transparent; }
+.scp-dialog-body .actor-grid::-webkit-scrollbar-thumb  { background: rgba(0, 243, 255, 0.3); border-radius: 2px; }
+.scp-dialog-body .actor-grid::-webkit-scrollbar-thumb:hover { background: rgba(0, 243, 255, 0.6); }
+
+.scp-dialog-body .actor-grid .portrait {
+  width: 100%;
+  height: 78px;
+  border-radius: 6px;
+}
+
+/* ── Dialog footer ───────────────────────────────────────────────────── */
+.scp-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}

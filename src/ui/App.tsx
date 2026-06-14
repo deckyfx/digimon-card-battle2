@@ -7,11 +7,12 @@ import type { PlayerProfile } from "@src/store/profile-store";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { getPackById, openPack } from "@src/data/prize-packs";
 import { getCityById, type City } from "@src/data/cities";
-import { DeckBuilder } from "./DeckBuilder";
-import { ProfilesScreen } from "./ProfilesScreen";
-import { SetupScreen } from "./SetupScreen";
-import { WorldMapScreen } from "./WorldMapScreen";
-import { CityScreen } from "./CityScreen";
+import { ScreenSetupDeck } from "./ScreenSetupDeck";
+import { ProfilesScreen } from "./ScreenProfiles";
+import { ScreenWelcome } from "./ScreenWelcome";
+import { ScreenSetupBattle } from "./SetupScreen";
+import { ScreenWorldMap } from "./ScreenWorldMap";
+import { ScreenCity } from "./ScreenCity";
 import { BattleResultModal, type MatchRewards } from "./BattleResultModal";
 import { LogArea } from "./LogArea";
 import { ControlPanel } from "./ControlPanel";
@@ -41,7 +42,7 @@ export function App() {
   const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
   const [setupError, setSetupError] = createSignal("");
   // App opens on profile management; the world map is the scenario hub.
-  const [view, setView] = createSignal<"profiles" | "world" | "city" | "setup" | "builder">("profiles");
+  const [view, setView] = createSignal<"ScreenProfiles" | "welcome" | "world" | "city" | "setup" | "builder">("ScreenProfiles");
   const [profile, setProfile] = createSignal<PlayerProfile | null>(null);
   /** City currently being visited (view "city" / scenario duels). */
   const [activeCityId, setActiveCityId] = createSignal<string | null>(null);
@@ -55,7 +56,7 @@ export function App() {
   const selectProfile = (p: PlayerProfile) => {
     setProfile(p);
     setPlayerDeck(p.decks[0] ? `${CUSTOM_PREFIX}${p.decks[0].id}` : "");
-    setView("world");
+    setView("welcome");
   };
 
   /** Enter a city resident duel: opponent locked, lobby = the city. */
@@ -271,11 +272,17 @@ export function App() {
         when={game()}
         fallback={
           <>
-            <Show when={view() === "profiles"}>
+            <Show when={view() === "ScreenProfiles"}>
               <ProfilesScreen store={profileStore} onSelect={selectProfile} />
             </Show>
+            <Show when={view() === "welcome" && profile()}>
+              <ScreenWelcome
+                profile={profile() as PlayerProfile}
+                onContinue={() => setView("world")}
+              />
+            </Show>
             <Show when={view() === "world" && profile()}>
-              <WorldMapScreen
+              <ScreenWorldMap
                 profile={profile() as PlayerProfile}
                 onEnterCity={(city: City) => {
                   setActiveCityId(city.id);
@@ -285,7 +292,7 @@ export function App() {
                   setBattleOrigin("free");
                   setView("setup");
                 }}
-                onChangeProfile={() => setView("profiles")}
+                onChangeProfile={() => setView("ScreenProfiles")}
                 onOpenBuilder={() => {
                   builderOrigin = "world";
                   setView("builder");
@@ -293,7 +300,7 @@ export function App() {
               />
             </Show>
             <Show when={view() === "city" && profile() && getCityById(activeCityId() ?? "")}>
-              <CityScreen
+              <ScreenCity
                 city={getCityById(activeCityId() ?? "") as City}
                 profile={profile() as PlayerProfile}
                 onFight={(actorId) => fightResident(activeCityId() as string, actorId)}
@@ -301,7 +308,7 @@ export function App() {
               />
             </Show>
             <Show when={view() === "setup" && profile()}>
-              <SetupScreen
+              <ScreenSetupBattle
                 profile={profile() as PlayerProfile}
                 playerDeck={playerDeck()}
                 setPlayerDeck={setPlayerDeck}
@@ -327,12 +334,12 @@ export function App() {
                   builderOrigin = "setup";
                   setView("builder");
                 }}
-                onChangeProfile={() => setView("profiles")}
+                onChangeProfile={() => setView("ScreenProfiles")}
                 onStart={startMatch}
               />
             </Show>
             <Show when={view() === "builder" && profile()}>
-              <DeckBuilder
+              <ScreenSetupDeck
                 store={profileStore}
                 profileId={(profile() as PlayerProfile).id}
                 onBack={() => {
