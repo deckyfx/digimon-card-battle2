@@ -2,6 +2,7 @@ import { For, Show, createSignal } from "solid-js";
 import { Portal } from "solid-js/web";
 import { getActorById } from "@src/data/actors";
 import { MASTER_CARDS } from "@src/data/master-cards";
+import { PARTNERS as ALL_PARTNERS, type PartnerId } from "@src/data/partners";
 import { type PlayerProfile, type ProfileStore } from "@src/store/profile-store";
 import { DigiCardFront } from "./DigiCard";
 import { ActorPicker } from "./ActorPicker";
@@ -9,11 +10,12 @@ import "./screen-create-profile.css";
 
 const CARD_BY_NUMBER = new Map(MASTER_CARDS.map((c) => [c.number, c]));
 
-const PARTNERS = [
-  { cardNumber: "175", deckId: 121, name: "Veemon",       specialty: "Fire",   color: "#e85050" },
-  { cardNumber: "182", deckId: 122, name: "Hawkmon",      specialty: "Nature", color: "#4ade80" },
-  { cardNumber: "190", deckId: 123, name: "Armadillomon", specialty: "Rare",   color: "#ffd700" },
-] as const;
+/** Starter partners available at profile creation (DIGIVICE_A pool). */
+const STARTER_PARTNERS: { partnerId: PartnerId; deckId: number; specialty: string; color: string }[] = [
+  { partnerId: "veemon",       deckId: 121, specialty: "Fire",   color: "#e85050" },
+  { partnerId: "hawkmon",      deckId: 122, specialty: "Nature", color: "#4ade80" },
+  { partnerId: "armadillomon", deckId: 123, specialty: "Rare",   color: "#ffd700" },
+];
 
 type Step = 1 | 2 | 3;
 
@@ -27,19 +29,21 @@ export function ScreenCreateProfile(props: {
   const [avatarActorId, setAvatarActorId] = createSignal(0);
   const [avatarOpen, setAvatarOpen] = createSignal(false);
   const [pendingAvatarId, setPendingAvatarId] = createSignal(0);
-  const [partnerId, setPartnerId] = createSignal<number | null>(null);
+  const [partnerId, setPartnerId] = createSignal<PartnerId | null>(null);
   const [error, setError] = createSignal("");
 
   const avatar = () => getActorById(avatarActorId());
 
   const create = () => {
     setError("");
-    if (partnerId() === null) { setError("Select a partner to continue."); return; }
+    const chosen = STARTER_PARTNERS.find((p) => p.partnerId === partnerId());
+    if (!chosen) { setError("Select a partner to continue."); return; }
     try {
       const profile = props.store.create({
         name: name().trim(),
         avatarActorId: avatarActorId(),
-        starterDeckId: partnerId() as number,
+        starterDeckId: chosen.deckId,
+        starterPartnerId: chosen.partnerId,
       });
       props.onDone(profile);
     } catch (e) {
@@ -128,16 +132,17 @@ export function ScreenCreateProfile(props: {
           <p class="scp-panel-desc">Your partner determines your starting deck and specialty.</p>
 
           <div class="scp-partners">
-            <For each={PARTNERS}>
+            <For each={STARTER_PARTNERS}>
               {(p) => {
-                const card = CARD_BY_NUMBER.get(p.cardNumber);
-                const selected = () => partnerId() === p.deckId;
+                const def = ALL_PARTNERS.find((d) => d.id === p.partnerId)!;
+                const card = CARD_BY_NUMBER.get(def.cardNumber);
+                const selected = () => partnerId() === p.partnerId;
                 return (
                   <button
                     class="scp-partner"
                     classList={{ "scp-partner--selected": selected() }}
                     style={{ "--partner-color": p.color }}
-                    onClick={() => setPartnerId(p.deckId)}
+                    onClick={() => setPartnerId(p.partnerId)}
                   >
                     <div class="scp-partner-card-outer">
                       <div class="scp-partner-card-inner">
@@ -147,7 +152,7 @@ export function ScreenCreateProfile(props: {
                       </div>
                     </div>
                     <div class="scp-partner-label">
-                      <span class="scp-partner-name">{p.name}</span>
+                      <span class="scp-partner-name">{def.name}</span>
                       <span class="scp-partner-spec">{p.specialty} · Rookie</span>
                     </div>
                     <Show when={selected()}>

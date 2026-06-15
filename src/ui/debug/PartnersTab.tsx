@@ -1,4 +1,5 @@
 import { createSignal, For, Show, createMemo } from "solid-js";
+import { DebugProfilePicker } from "./DebugProfilePicker";
 import { PARTNERS, PARTNER_PROGRESSIONS, partnerLevelFromExp, partnerExpForLevel, partnerExpToNextLevel, PARTNER_MAX_LEVEL, PARTNER_MAX_EXP } from "@src/data/partners";
 import type { PartnerId } from "@src/data/partners";
 import { DIGIPARTS } from "@src/data/digiparts";
@@ -132,22 +133,12 @@ export function PartnersTab() {
       {/* Profile selector */}
       <div class="debug-section">
         <h3 class="debug-section-title">Profile</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <For each={profiles()}>
-            {(p) => (
-              <button
-                class="debug-btn"
-                classList={{ active: selectedProfileId() === p.id }}
-                onClick={() => { setSelectedProfileId(p.id); setSelectedPartnerId(null); }}
-              >
-                {p.name}
-              </button>
-            )}
-          </For>
-          <Show when={profiles().length === 0}>
-            <span style="color:#888">No profiles found.</span>
-          </Show>
-        </div>
+        <DebugProfilePicker
+          profiles={profiles()}
+          selectedId={selectedProfileId()}
+          onSelect={(id) => { setSelectedProfileId(id); setSelectedPartnerId(null); }}
+          extra={(p) => `${p.partners.length}/3 partners`}
+        />
       </div>
 
       <Show when={lastMessage()}>

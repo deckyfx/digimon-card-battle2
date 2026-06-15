@@ -4,6 +4,7 @@ import type { MasterCard } from "@src/types";
 import { profileStore } from "@src/ui/deck-select";
 import type { PlayerProfile } from "@src/store/profile-store";
 import { MAX_BAG_COPIES } from "@src/store/profile-store";
+import { DebugProfilePicker } from "./DebugProfilePicker";
 
 export function CardsTab() {
   const [profiles, setProfiles] = createSignal(profileStore.list());
@@ -70,28 +71,17 @@ export function CardsTab() {
       {/* Profile selector */}
       <div class="debug-section">
         <h3 class="debug-section-title">Profile</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <For each={profiles()}>
-            {(p) => (
-              <button
-                class="debug-btn"
-                classList={{ active: selectedProfileId() === p.id }}
-                onClick={() => setSelectedProfileId(p.id)}
-              >
-                {p.name}
-              </button>
-            )}
-          </For>
-          <Show when={profiles().length === 0}>
-            <span style="color:#888">No profiles found.</span>
-          </Show>
-        </div>
+        <DebugProfilePicker
+          profiles={profiles()}
+          selectedId={selectedProfileId()}
+          onSelect={setSelectedProfileId}
+          extra={(p) => `${Object.values(p.bag).reduce((a, b) => a + b, 0)} cards`}
+        />
         <Show when={activeProfile()}>
           {(p) => (
             <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
               <span style="color:#aaa;font-size:0.9rem">
-                Selected: <strong style="color:#00f3ff">{p().name}</strong> — bag:{" "}
-                {Object.values(p().bag).reduce((a, b) => a + b, 0)} cards total
+                Bag: <strong style="color:#00f3ff">{Object.values(p().bag).reduce((a, b) => a + b, 0)}</strong> cards total
               </span>
               <button class="debug-btn" style="padding:4px 10px;font-size:0.8rem" onClick={() => setAllCards(p())}>
                 Grant ALL cards (max)

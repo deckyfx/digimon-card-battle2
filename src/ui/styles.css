@@ -1378,6 +1378,139 @@ button.primary:hover:not(:disabled) {
   padding: 22px;
 }
 
+/* ── Partner Growth modal ───────────────────────────────────────────────── */
+
+.modal-partner-exp {
+  min-width: 520px;
+  max-width: 680px;
+}
+
+.partner-exp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 8px 0 14px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.partner-exp-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+/* Rookie card thumbnail floats left; CardView handles its own sizing. */
+.partner-exp-card {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+}
+
+/* Right-hand stats column. */
+.partner-exp-stats {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.partner-exp-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.partner-exp-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1rem;
+  color: #e8e8ee;
+}
+
+.partner-exp-level {
+  color: #9aa3c7;
+  font-size: 0.88rem;
+}
+
+.partner-exp-levelup {
+  color: #ffd75e;
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.82rem;
+  animation: partner-levelup-pulse 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes partner-levelup-pulse {
+  from { color: #ffd75e; }
+  to   { color: #ff9900; }
+}
+
+.partner-exp-gained {
+  color: #6be88a;
+  font-size: 0.88rem;
+}
+
+/* 4-column grid: label | value, repeating for each stat. */
+.partner-exp-statgrid {
+  display: grid;
+  grid-template-columns: 2ch 1fr 2ch 1fr;
+  gap: 2px 10px;
+  font-size: 0.82rem;
+  color: #c0c8e8;
+  margin: 2px 0;
+}
+
+/* Bonus increment in bright green so it reads separately from the base. */
+.partner-bonus {
+  color: #6be88a;
+  font-size: 0.75rem;
+}
+
+.partner-exp-exprow,
+.partner-exp-nextrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+}
+
+.partner-exp-label {
+  color: #9aa3c7;
+  min-width: 52px;
+}
+
+.partner-exp-num {
+  color: #ffd75e;
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.9rem;
+}
+
+.partner-exp-digiparts {
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+
+.partner-exp-dp-label {
+  color: #9aa3c7;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.partner-exp-dp-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.partner-exp-digipart {
+  background: #1a2040;
+  border: 1px solid #4a5070;
+  border-radius: 3px;
+  padding: 2px 7px;
+  color: #c8d8ff;
+  font-size: 0.78rem;
+}
+
 select,
 input[type="text"] {
   background: #232842;
@@ -1386,4 +1519,475 @@ input[type="text"] {
   border-radius: 4px;
   padding: 4px;
   font-size: 0.78rem;
+}
+
+/* ── Inventory Modal ──────────────────────────────────────────────────────── */
+
+.inv-modal {
+  min-width: 480px;
+  max-width: 640px;
+  text-align: left;
+  padding: 0;
+  overflow: hidden;
+}
+
+.inv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px 12px;
+  border-bottom: 1px solid #3a3f55;
+}
+
+.inv-title {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.95rem;
+  color: #ffc66d;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.inv-empty {
+  color: #9aa3c7;
+  text-align: center;
+  padding: 32px;
+  font-size: 0.9rem;
+}
+
+.inv-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.inv-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border-bottom: 1px solid #3a3f5540;
+  transition: background 0.15s;
+}
+
+.inv-row:last-child {
+  border-bottom: none;
+}
+
+.inv-row:hover {
+  background: #232842;
+}
+
+.inv-item-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.inv-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.inv-item-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.8rem;
+  color: #e8e8ee;
+  margin-bottom: 4px;
+}
+
+.inv-item-desc {
+  font-size: 0.76rem;
+  color: #9aa3c7;
+  line-height: 1.4;
+}
+
+.inv-item-action {
+  flex-shrink: 0;
+}
+
+.inv-use-btn {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.inv-use-btn--used {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ── Digivice Dialog (stacks over InventoryModal) ─────────────────────────── */
+
+.dvd-overlay {
+  z-index: 200;
+}
+
+.dvd-dialog {
+  z-index: 300;
+  max-width: 900px;
+}
+
+.dvd-dialog-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+/* Center and wrap for pools with 2 choices (Patamon/Gatomon). */
+.dvd-partners {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Partners Modal ───────────────────────────────────────────────────────── */
+
+.pm-overlay {
+  z-index: 80;
+}
+
+.pm-modal {
+  max-width: 640px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #2a2d3a;
+}
+
+.pm-title {
+  font-family: "Audiowide", sans-serif;
+  color: #ffd700;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Tabs */
+.pm-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 10px 16px 0;
+  background: #1a1c28;
+}
+
+.pm-tab {
+  padding: 8px 18px;
+  border: 1px solid #2a2d3a;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: #1e2030;
+  color: #888;
+  cursor: pointer;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.95rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pm-tab--active {
+  background: #22243a;
+  color: var(--partner-color, #ffd700);
+  border-color: var(--partner-color, #ffd700);
+}
+
+/* Detail panel */
+.pm-detail {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pm-identity {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.pm-card-wrap {
+  flex-shrink: 0;
+  width: 100px;
+  transform: scale(0.56);
+  transform-origin: top left;
+  height: 80px; /* visually correct after scale */
+  overflow: visible;
+}
+
+.pm-identity-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pm-partner-name {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1.1rem;
+}
+
+.pm-partner-spec {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* EXP bar */
+.pm-exp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pm-exp-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+.pm-level {
+  color: #ffd700;
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+}
+
+.pm-exp-num {
+  color: #888;
+}
+
+.pm-exp-bar-bg {
+  height: 6px;
+  background: #2a2d3a;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pm-exp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22d3ee);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+/* Stat bonuses row */
+.pm-stat-bonuses {
+  display: flex;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: #aaa;
+  flex-wrap: wrap;
+}
+
+/* Sections (armor, digiparts) */
+.pm-section {
+  background: #1a1c28;
+  border: 1px solid #2a2d3a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pm-section-title {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.82rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Armor */
+.pm-armor-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pm-armor-card {
+  width: 72px;
+  transform: scale(0.4);
+  transform-origin: top left;
+  height: 58px;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.pm-armor-empty {
+  width: 72px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #3a3d4a;
+  border-radius: 4px;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.pm-armor-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pm-armor-name {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+/* Buttons */
+.pm-btn {
+  padding: 5px 14px;
+  border: 1px solid #4a4d5a;
+  border-radius: 4px;
+  background: #22243a;
+  color: #ddd;
+  cursor: pointer;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.88rem;
+  align-self: flex-start;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pm-btn:hover {
+  border-color: #ffd700;
+  background: #2a2d3a;
+}
+
+.pm-btn--small {
+  padding: 3px 10px;
+  font-size: 0.82rem;
+}
+
+/* Picker (shared for armor + digiparts) */
+.pm-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: #14161f;
+  border: 1px solid #2a2d3a;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.pm-pick-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border: 1px solid #3a3d4a;
+  border-radius: 5px;
+  background: #1e2030;
+  color: #ccc;
+  cursor: pointer;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.88rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pm-pick-item:hover:not(:disabled) {
+  border-color: #ffd700;
+  background: #22243a;
+}
+
+.pm-pick-selected {
+  border-color: #ffd700 !important;
+  background: #2a2c1a !important;
+  color: #ffd700;
+}
+
+.pm-pick-none {
+  color: #888;
+  font-style: italic;
+}
+
+.pm-pick-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pm-pick-mini {
+  width: 44px;
+  transform: scale(0.245);
+  transform-origin: top left;
+  height: 35px;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+/* DigiParts slots */
+.pm-parts-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pm-part-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid #2a2d3a;
+  border-radius: 5px;
+  background: #14161f;
+  min-height: 34px;
+}
+
+.pm-part-slot--empty {
+  border-style: dashed;
+  color: #555;
+}
+
+.pm-part-name {
+  flex: 1;
+  font-size: 0.88rem;
+}
+
+.pm-part-group {
+  font-size: 0.75rem;
+  color: #888;
+  background: #22243a;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.pm-part-lv-req {
+  font-size: 0.75rem;
+  color: #e85050;
+}
+
+.pm-part-unequip {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.pm-part-unequip:hover {
+  color: #e85050;
+}
+
+.pm-picker--parts {
+  flex-direction: column;
+}
+
+/* Muted text */
+.pm-muted {
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.pm-muted--center {
+  text-align: center;
+  padding: 12px 0;
 }

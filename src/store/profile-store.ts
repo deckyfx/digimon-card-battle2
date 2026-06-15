@@ -8,6 +8,8 @@ import {
   PARTNERS,
   type PartnerId,
 } from "@src/data/partners";
+import type { GameFlagKey, PlayerFlags } from "@src/data/game-flags";
+import { KeyItem, type KeyItemKey, type PlayerKeyItems } from "@src/data/key-items";
 import { CardLevel } from "@src/types";
 import {
   DECK_SIZE,
@@ -60,16 +62,16 @@ export interface PlayerProfile {
   exp: number;
   /** Win/loss tallies per opponent actor id (drives city unlocks). */
   records: BattleRecords;
+  /** Typed story flags set by event commands — keys are GameFlagKey values. */
+  flags: PlayerFlags;
+  /** Key items owned by the player (item key → quantity). */
+  keyItems: PlayerKeyItems;
   /**
-   * Persistent story flags set by CafeBattle.onWin and checked by the
-   * progression engine. Keys are free-form strings (e.g. "betamon_tutorial_defeated").
+   * Dialog ids (event ids) the player has already seen the intro for.
+   * Used by the UI to skip intro dialogs on repeat visits — pure UI bookkeeping,
+   * not story-state. Do not use for progression checks; use `flags` for that.
    */
-  flags: Record<string, boolean>;
-  /**
-   * City cafe rosters overridden by progression (cityId → cafeBattleIds).
-   * If absent for a city the static city.cafeBattleIds is used instead.
-   */
-  cityRosters: Record<string, number[]>;
+  seenDialogs: string[];
   /**
    * Active partners (max 3). Ordered: first = primary.
    * Partners are unlocked via {@link ProfileStore.unlockPartner}.
@@ -175,7 +177,8 @@ export class ProfileStore {
           );
         }
         const { defeated: _legacy, ...rest } = p;
-        return { ...rest, exp: p.exp ?? 0, records, flags: p.flags ?? {}, cityRosters: p.cityRosters ?? {}, partners: p.partners ?? [] };
+        const { cityRosters: _legacy2, ...rest2 } = rest as typeof rest & { cityRosters?: unknown };
+        return { ...rest2, exp: p.exp ?? 0, records, flags: p.flags ?? {}, keyItems: (p as PlayerProfile & { keyItems?: PlayerKeyItems }).keyItems ?? {}, seenDialogs: (p as PlayerProfile & { seenDialogs?: string[] }).seenDialogs ?? [], partners: p.partners ?? [] };
       });
     } catch {
       return [];
@@ -188,12 +191,14 @@ export class ProfileStore {
 
   /**
    * Creates a profile: the chosen starter deck's 30 cards are granted to
-   * the bag and assembled as the profile's first deck.
+   * the bag and assembled as the profile's first deck. The chosen partner is
+   * unlocked immediately and DIGIVICE_A is granted as a trophy.
    */
   create(input: {
     name: string;
     avatarActorId: number;
     starterDeckId: number;
+    starterPartnerId: PartnerId;
   }): PlayerProfile {
     const name = input.name.trim();
     if (!name) throw new Error("Profile name is required.");
@@ -237,13 +242,19 @@ export class ProfileStore {
       exp: 0,
       records: {},
       flags: {},
-      cityRosters: {},
+      keyItems: {},
+      seenDialogs: [],
       partners: [],
       createdAt: now,
       updatedAt: now,
     };
     this.persist([profile, ...this.list()]);
-    return profile;
+
+    // Unlock the chosen starter partner and grant DIGIVICE_A as a trophy.
+    this.unlockPartner(profile.id, input.starterPartnerId);
+    this.giveKeyItem(profile.id, KeyItem.DIGIVICE_A);
+
+    return this.get(profile.id)!;
   }
 
   delete(id: string): boolean {
@@ -436,16 +447,31 @@ export class ProfileStore {
     return this.update(profile);
   }
 
-  setFlag(profileId: string, key: string, value: boolean): PlayerProfile {
+  setFlag(profileId: string, key: GameFlagKey, value: boolean): PlayerProfile {
     const profile = this.require(profileId);
     profile.flags = { ...profile.flags, [key]: value };
     return this.update(profile);
   }
 
-  applyCityRoster(profileId: string, cityId: string, cafeBattleIds: number[]): PlayerProfile {
+  /** Adds `qty` (default 1) of a key item to the player's inventory. */
+  giveKeyItem(profileId: string, item: KeyItemKey, qty = 1): PlayerProfile {
     const profile = this.require(profileId);
-    profile.cityRosters = { ...profile.cityRosters, [cityId]: cafeBattleIds };
+    profile.keyItems = { ...profile.keyItems, [item]: (profile.keyItems[item] ?? 0) + qty };
     return this.update(profile);
+  }
+
+  /** Records that the player has seen an event's intro dialog. */
+  markDialogSeen(profileId: string, eventId: string): PlayerProfile {
+    const profile = this.require(profileId);
+    if (!profile.seenDialogs.includes(eventId)) {
+      profile.seenDialogs = [...profile.seenDialogs, eventId];
+    }
+    return this.update(profile);
+  }
+
+  /** Returns true if the player has already seen the intro for this event. */
+  hasSeenDialog(profile: PlayerProfile, eventId: string): boolean {
+    return profile.seenDialogs.includes(eventId);
   }
 
   // ---------------------------------------------------------------------------

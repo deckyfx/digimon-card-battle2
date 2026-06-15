@@ -2,21 +2,32 @@ import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
 import type { City } from "@src/data/cities";
 import { getCityById, getCityByActorId } from "@src/data/cities";
 import { getActorById, type Actor } from "@src/data/actors";
-import { getCafeBattleById, type CafeBattle } from "@src/data/battle-cafe-datas";
 import { getDeckById } from "@src/data/prebuilt-decks";
 import { getPackById } from "@src/data/prize-packs";
 import { MASTER_CARDS } from "@src/data/master-cards";
-import { getTalkDialog, getDialogById, type DialogLine } from "@src/data/dialogs";
+import { getDialogById, type DialogLine } from "@src/data/dialogs";
 import { resolveSegments } from "@src/data/dialog-resolver";
 import type { PlayerProfile } from "@src/store/profile-store";
-import { runTrigger } from "@src/engine/progression-engine";
-import { PROGRESSION_SCRIPTS } from "@src/data/progression-scripts";
+import { getMapById } from "@src/data/maps";
+import {
+  resolveMap,
+  resolveVisitors,
+  type EventScript,
+  type EventCommand,
+  type MapId,
+} from "@src/engine/event-engine";
 import { DeckColorBar } from "./DeckColorBar";
 import { ActorMugshotView } from "./ActorMugshotView";
+import { TypedText, type TypedTextHandle } from "./TypedText";
 import "./screen-city.css";
 
 type CityView = "menu" | "cafe" | "interact";
 type InteractAction = "options" | "talk" | "deckinfo" | "battle-confirm" | "post-win" | "post-lose";
+
+interface ResolvedSlot {
+  eventId: string | null;
+  script: EventScript;
+}
 
 /**
  * ScreenCity: city interior with Battle Cafe and Battle Arena entry points.
@@ -25,70 +36,69 @@ type InteractAction = "options" | "talk" | "deckinfo" | "battle-confirm" | "post
 export function ScreenCity(props: {
   city: City;
   profile: PlayerProfile;
-  onFight: (actorId: number, cafeBattleId: number) => void;
-  onFlagSet: (key: string, value: boolean) => void;
+  /** Fight: actor id, deck id, stable event id (null for visitors), captured dialog. */
+  onFight: (
+    actorId: number,
+    deckId: number,
+    eventId: string | null,
+    capturedDialog: { winDialogId?: number; loseLine?: string; onWin: EventCommand[] },
+  ) => void;
+  /** Called when the player finishes the intro dialog for a stable event. */
+  onMarkDialogSeen: (eventId: string) => void;
   onBack: () => void;
-  pendingPostBattle?: { cafeBattleId: number; result: "win" | "lose" } | null;
+  pendingPostBattle?: {
+    actorId: number;
+    eventId: string | null;
+    result: "win" | "lose";
+    winDialogId?: number;
+    loseLine?: string;
+  } | null;
   onPostBattleConsumed?: () => void;
 }) {
   // ── Signals ──────────────────────────────────────────────────────────────
   const [view, setView] = createSignal<CityView>("menu");
+  const [selectedEventId, setSelectedEventId] = createSignal<string | null>(null);
+  const [selectedScript, setSelectedScript] = createSignal<EventScript | null>(null);
   const [selectedActor, setSelectedActor] = createSignal<Actor | null>(null);
-  const [selectedBattle, setSelectedBattle] = createSignal<CafeBattle | null>(null);
   const [action, setAction] = createSignal<InteractAction>("options");
   const [arenaNotice, setArenaNotice] = createSignal(false);
   const [lineIndex, setLineIndex] = createSignal(0);
-  const [cafeBattleVisitors, setCafeBattleVisitors] = createSignal<number[]>([]);
+  /** Visitor scripts rolled once when the player enters the cafe. */
+  const [visitorScripts, setVisitorScripts] = createSignal<EventScript[]>([]);
   /** True while waiting for the read-delay before transitioning to battle setup. */
   const [launchingBattle, setLaunchingBattle] = createSignal(false);
 
-  // Post-battle dialog lines (win = multi-line from Dialog; lose = single line).
+  // Post-battle multi-line win dialog.
   const [postLines, setPostLines] = createSignal<DialogLine[]>([]);
   const [postLineIndex, setPostLineIndex] = createSignal(0);
+  /** Single-line lose message captured from fight start. */
+  const [postLoseLine, setPostLoseLine] = createSignal("");
 
-  // React to pendingPostBattle: opens the interact view with the right post-battle
-  // dialog. createEffect tracks props.pendingPostBattle reactively so it fires
-  // correctly after the parent's batch update (including the setView("city") call).
-  createEffect(() => {
-    const pending = props.pendingPostBattle;
-    if (!pending) return;
-
-    const battle = getCafeBattleById(pending.cafeBattleId);
-    const actor  = battle ? (getActorById(battle.actorId) ?? null) : null;
-    if (!battle || !actor) return;
-
-    setSelectedBattle(battle);
-    setSelectedActor(actor);
-    setLineIndex(0);
-    setArenaNotice(false);
-
-    if (pending.result === "win") {
-      const dlg = battle.winDialog != null ? getDialogById(battle.winDialog) : undefined;
-      if (dlg && dlg.lines.length > 0) {
-        setPostLines(dlg.lines);
-        setPostLineIndex(0);
-        setAction("post-win");
-      } else {
-        setAction("options");
-      }
-    } else if (battle.loseLine) {
-      setPostLineIndex(0);
-      setAction("post-lose");
-    } else {
-      setAction("options");
-    }
-
-    setView("interact");
-    props.onPostBattleConsumed?.();
-  });
-
-  /** Effective cafe roster: progression override first, then static city data. */
-  const effectiveRoster = () => props.profile.cityRosters[props.city.id] ?? props.city.cafeBattleIds;
+  // ── Derived state ─────────────────────────────────────────────────────────
 
   const playerActor = () => getActorById(props.profile.avatarActorId);
   const wins = (id: number) => props.profile.records[id]?.wins ?? 0;
 
-  // Dialog context for template variable resolution
+  /**
+   * Stable event slots — re-derived from profile flags on every render so the
+   * cafe grid updates immediately after a win without re-entering the city.
+   */
+  const resolvedStableSlots = createMemo((): ResolvedSlot[] => {
+    const map = getMapById(props.city.id as MapId);
+    if (!map) return [];
+    return resolveMap(map, props.profile.flags).map(({ event, script }) => ({
+      eventId: event.id,
+      script,
+    }));
+  });
+
+  /** All slots: stable events first, then this visit's visitors. */
+  const allCafeSlots = (): ResolvedSlot[] => [
+    ...resolvedStableSlots(),
+    ...visitorScripts().map((script) => ({ eventId: null as string | null, script })),
+  ];
+
+  // Dialog context for template variable resolution.
   const dialogCtx = createMemo(() => ({
     player: props.profile,
     actorById: (id: number) => getActorById(id),
@@ -99,40 +109,79 @@ export function ScreenCity(props: {
     actorCityName: (actorId: number) => getCityByActorId(actorId)?.name,
   }));
 
-  // Active dialog for the current actor's Talk action
-  const activeDialog = createMemo(() => {
-    const actor = selectedActor();
-    return actor ? getTalkDialog(actor.id) : undefined;
-  });
-
-  const dialogLines = () => {
-    const battle = selectedBattle();
-    if (battle && props.profile.flags[`intro_seen_${battle.id}`]) return [];
-    return activeDialog()?.lines ?? [];
+  /**
+   * Intro dialog lines for the currently selected event.
+   * Returns [] when: no introDialogId, already seen (stable events only),
+   * or dialog has no lines.
+   */
+  const dialogLines = (): DialogLine[] => {
+    const script = selectedScript();
+    const introId = script?.dialog?.introDialogId;
+    if (!introId) return [];
+    const eventId = selectedEventId();
+    if (eventId && props.profile.seenDialogs.includes(eventId)) return [];
+    return getDialogById(introId)?.lines ?? [];
   };
+
   const currentLine = () => dialogLines()[lineIndex()];
   const isLastLine = () => lineIndex() >= dialogLines().length - 1;
-
-  // Who is speaking on the current line: 0 = player, else opponent
   const speakingActorId = () => currentLine()?.actor ?? -1;
   const playerSpeaking = () => speakingActorId() === 0;
 
-  // Post-battle line helpers
-  const postCurrentLine    = () => postLines()[postLineIndex()];
-  const isLastPostLine     = () => postLineIndex() >= postLines().length - 1;
-  const postSpeakingActor  = () => postCurrentLine()?.actor ?? -1;
+  // Post-battle dialog helpers.
+  const postCurrentLine = () => postLines()[postLineIndex()];
+  const isLastPostLine = () => postLineIndex() >= postLines().length - 1;
+  const postSpeakingActor = () => postCurrentLine()?.actor ?? -1;
   const postPlayerSpeaking = () => postSpeakingActor() === 0;
 
-  const advancePostLine = () => {
-    if (isLastPostLine()) {
-      setAction("options");
-    } else {
-      setPostLineIndex((n) => n + 1);
-    }
-  };
+  // ── React to pendingPostBattle ────────────────────────────────────────────
+  createEffect(() => {
+    const pending = props.pendingPostBattle;
+    if (!pending) return;
 
-  const openResident = (battle: CafeBattle, actor: Actor) => {
-    setSelectedBattle(battle);
+    const actor = getActorById(pending.actorId) ?? null;
+    if (!actor) { props.onPostBattleConsumed?.(); return; }
+
+    setSelectedEventId(pending.eventId);
+    setSelectedActor(actor);
+    // Re-derive the script from the updated profile flags (win may have set flags).
+    if (pending.eventId) {
+      const updated = resolvedStableSlots().find((s) => s.eventId === pending.eventId);
+      setSelectedScript(updated?.script ?? null);
+    } else {
+      setSelectedScript(null); // visitor — no re-derivation needed
+    }
+    setLineIndex(0);
+    setArenaNotice(false);
+
+    if (pending.result === "win" && pending.winDialogId != null) {
+      const dlg = getDialogById(pending.winDialogId);
+      if (dlg && dlg.lines.length > 0) {
+        setPostLines(dlg.lines);
+        setPostLineIndex(0);
+        setAction("post-win");
+      } else {
+        setAction("options");
+      }
+    } else if (pending.result === "lose" && pending.loseLine) {
+      setPostLoseLine(pending.loseLine);
+      setPostLineIndex(0);
+      setAction("post-lose");
+    } else {
+      setAction("options");
+    }
+
+    setView("interact");
+    props.onPostBattleConsumed?.();
+  });
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
+
+  const openResident = (slot: ResolvedSlot) => {
+    const actor = slot.script.actorId ? (getActorById(slot.script.actorId) ?? null) : null;
+    if (!actor) return;
+    setSelectedEventId(slot.eventId);
+    setSelectedScript(slot.script);
     setSelectedActor(actor);
     setLineIndex(0);
     setAction("options");
@@ -147,10 +196,10 @@ export function ScreenCity(props: {
 
   const advanceLine = () => {
     if (isLastLine()) {
-      // Persist that this CafeBattle's intro has been seen so recurLine shows next time.
-      const battle = selectedBattle();
-      if (battle && activeDialog()) {
-        props.onFlagSet(`intro_seen_${battle.id}`, true);
+      // Mark intro dialog seen for stable events.
+      const eventId = selectedEventId();
+      if (eventId && selectedScript()?.dialog?.introDialogId) {
+        props.onMarkDialogSeen(eventId);
       }
       setAction("options");
     } else {
@@ -158,8 +207,16 @@ export function ScreenCity(props: {
     }
   };
 
+  const advancePostLine = () => {
+    if (isLastPostLine()) {
+      setAction("options");
+    } else {
+      setPostLineIndex((n) => n + 1);
+    }
+  };
+
   const goBack = () => {
-    if (launchingBattle()) return; // don't navigate mid-transition
+    if (launchingBattle()) return;
     if (view() === "menu") {
       props.onBack();
     } else if (view() === "cafe") {
@@ -177,6 +234,17 @@ export function ScreenCity(props: {
     if (view() === "menu") return "← World Map";
     return "← Back";
   };
+
+  // ── Typed-text handles — one per speech bubble slot ───────────────────────
+  // Each handle is set synchronously by TypedText's onHandle callback on
+  // render, so it's always valid when its bubble is visible.
+  let introTyped: TypedTextHandle | undefined;
+  let recurTyped: TypedTextHandle | undefined;
+  let postWinTyped: TypedTextHandle | undefined;
+  let postLoseTyped: TypedTextHandle | undefined;
+  let battleConfirmTyped: TypedTextHandle | undefined;
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div class="sc-root">
@@ -204,12 +272,10 @@ export function ScreenCity(props: {
               class="sc-entry-btn"
               onClick={() => {
                 setArenaNotice(false);
-                const result = runTrigger(
-                  "enter-cafe",
-                  { cityId: props.city.id, profile: props.profile, random: Math.random },
-                  PROGRESSION_SCRIPTS,
+                const map = getMapById(props.city.id as MapId);
+                setVisitorScripts(
+                  map ? resolveVisitors(map, props.profile.flags, Math.random) : [],
                 );
-                setCafeBattleVisitors(result.cafeBattleVisitors);
                 setView("cafe");
               }}
             >
@@ -240,43 +306,53 @@ export function ScreenCity(props: {
             <p class="sc-cafe-subtitle">Who would you like to speak with?</p>
           </div>
           <div class="sc-resident-grid">
-            <For each={Array.from({ length: 12 }, (_, i) => {
-                const ids = [...effectiveRoster(), ...cafeBattleVisitors()];
-                return ids[i] ?? null;
-              })}>
-              {(battleId, i) => {
-                const battle: CafeBattle | null = battleId !== null ? getCafeBattleById(battleId) ?? null : null;
-                const actor: Actor | null = battle ? getActorById(battle.actorId) ?? null : null;
-                if (battle && actor) {
+            <For each={Array.from({ length: 12 }, (_, i) => allCafeSlots()[i] ?? null)}>
+              {(slot, i) => {
+                if (!slot) {
                   return (
-                    <button
-                      class="sc-resident-card"
-                      classList={{ "sc-resident-card--beaten": wins(battle.actorId) > 0 }}
+                    <div
+                      class="sc-resident-card sc-resident-card--empty"
                       style={{ "animation-delay": `${i() * 0.055}s` }}
-                      onClick={() => openResident(battle, actor)}
                     >
                       <div class="sc-resident-portrait-wrap">
-                        <ActorMugshotView
-                          fill
-                          mugshot={actor.mugshot}
-                          label={actor.name}
-                        />
-                        <div class="sc-resident-overlay">
-                          <span class="sc-resident-name">{actor.name}</span>
-                        </div>
+                        <ActorMugshotView fill mugshot="" />
                       </div>
-                    </button>
+                    </div>
+                  );
+                }
+                const actor = slot.script.actorId
+                  ? (getActorById(slot.script.actorId) ?? null)
+                  : null;
+                if (!actor) {
+                  return (
+                    <div
+                      class="sc-resident-card sc-resident-card--empty"
+                      style={{ "animation-delay": `${i() * 0.055}s` }}
+                    >
+                      <div class="sc-resident-portrait-wrap">
+                        <ActorMugshotView fill mugshot="" />
+                      </div>
+                    </div>
                   );
                 }
                 return (
-                  <div
-                    class="sc-resident-card sc-resident-card--empty"
+                  <button
+                    class="sc-resident-card"
+                    classList={{ "sc-resident-card--beaten": wins(actor.id) > 0 }}
                     style={{ "animation-delay": `${i() * 0.055}s` }}
+                    onClick={() => openResident(slot)}
                   >
                     <div class="sc-resident-portrait-wrap">
-                      <ActorMugshotView fill mugshot="" />
+                      <ActorMugshotView
+                        fill
+                        mugshot={actor.mugshot}
+                        label={actor.name}
+                      />
+                      <div class="sc-resident-overlay">
+                        <span class="sc-resident-name">{actor.name}</span>
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 );
               }}
             </For>
@@ -314,21 +390,24 @@ export function ScreenCity(props: {
 
               {/* Speech bubble */}
               <div class="sc-speech">
-                {/* Talk mode: multi-line dialog if authored, else fall back to recurLine */}
+                {/* Talk mode: intro dialog if available and unseen, else recurLine */}
                 <Show when={action() === "talk"}>
                   {dialogLines().length > 0 ? (
-                    <div class="sc-speech-bubble sc-speech-bubble--talk" onClick={advanceLine}>
+                    <div
+                      class="sc-speech-bubble sc-speech-bubble--talk"
+                      onClick={() => {
+                        if (introTyped && !introTyped.isDone()) introTyped.skip();
+                        else advanceLine();
+                      }}
+                    >
                       <div class="sc-speech-speaker">
                         {playerSpeaking() ? props.profile.name : selectedActor()?.name}
                       </div>
                       <p class="sc-speech-text">
-                        <For each={resolveSegments(currentLine()?.message ?? "", dialogCtx())}>
-                          {(seg) => (
-                            <Show when={seg.kind !== "text"} fallback={<>{seg.value}</>}>
-                              <span class={`dlg-var dlg-var-${seg.kind}`}>{seg.value}</span>
-                            </Show>
-                          )}
-                        </For>
+                        <TypedText
+                          segments={resolveSegments(currentLine()?.message ?? "", dialogCtx())}
+                          onHandle={(h) => { introTyped = h; }}
+                        />
                       </p>
                       <div class="sc-speech-advance">
                         <span class="sc-dialog-counter">
@@ -340,17 +419,19 @@ export function ScreenCity(props: {
                       </div>
                     </div>
                   ) : (
-                    /* No authored dialog — show the CafeBattle recurLine as a single actor line */
-                    <div class="sc-speech-bubble sc-speech-bubble--talk" onClick={() => setAction("options")}>
+                    <div
+                      class="sc-speech-bubble sc-speech-bubble--talk"
+                      onClick={() => {
+                        if (recurTyped && !recurTyped.isDone()) recurTyped.skip();
+                        else setAction("options");
+                      }}
+                    >
                       <div class="sc-speech-speaker">{selectedActor()?.name}</div>
                       <p class="sc-speech-text">
-                        <For each={resolveSegments(selectedBattle()?.recurLine ?? "…", dialogCtx())}>
-                          {(seg) => (
-                            <Show when={seg.kind !== "text"} fallback={<>{seg.value}</>}>
-                              <span class={`dlg-var dlg-var-${seg.kind}`}>{seg.value}</span>
-                            </Show>
-                          )}
-                        </For>
+                        <TypedText
+                          segments={resolveSegments(selectedScript()?.dialog?.recurLine ?? "…", dialogCtx())}
+                          onHandle={(h) => { recurTyped = h; }}
+                        />
                       </p>
                       <div class="sc-speech-advance">
                         <span class="sc-dialog-next">✕ Close</span>
@@ -361,18 +442,21 @@ export function ScreenCity(props: {
 
                 {/* Post-win: multi-line win dialog */}
                 <Show when={action() === "post-win"}>
-                  <div class="sc-speech-bubble sc-speech-bubble--talk sc-speech-bubble--win" onClick={advancePostLine}>
+                  <div
+                    class="sc-speech-bubble sc-speech-bubble--talk sc-speech-bubble--win"
+                    onClick={() => {
+                      if (postWinTyped && !postWinTyped.isDone()) postWinTyped.skip();
+                      else advancePostLine();
+                    }}
+                  >
                     <div class="sc-speech-speaker">
                       {postPlayerSpeaking() ? props.profile.name : selectedActor()?.name}
                     </div>
                     <p class="sc-speech-text">
-                      <For each={resolveSegments(postCurrentLine()?.message ?? "", dialogCtx())}>
-                        {(seg) => (
-                          <Show when={seg.kind !== "text"} fallback={<>{seg.value}</>}>
-                            <span class={`dlg-var dlg-var-${seg.kind}`}>{seg.value}</span>
-                          </Show>
-                        )}
-                      </For>
+                      <TypedText
+                        segments={resolveSegments(postCurrentLine()?.message ?? "", dialogCtx())}
+                        onHandle={(h) => { postWinTyped = h; }}
+                      />
                     </p>
                     <div class="sc-speech-advance">
                       <span class="sc-dialog-counter">{postLineIndex() + 1} / {postLines().length}</span>
@@ -383,16 +467,19 @@ export function ScreenCity(props: {
 
                 {/* Post-lose: single opponent line */}
                 <Show when={action() === "post-lose"}>
-                  <div class="sc-speech-bubble sc-speech-bubble--talk sc-speech-bubble--lose" onClick={() => setAction("options")}>
+                  <div
+                    class="sc-speech-bubble sc-speech-bubble--talk sc-speech-bubble--lose"
+                    onClick={() => {
+                      if (postLoseTyped && !postLoseTyped.isDone()) postLoseTyped.skip();
+                      else setAction("options");
+                    }}
+                  >
                     <div class="sc-speech-speaker">{selectedActor()?.name}</div>
                     <p class="sc-speech-text">
-                      <For each={resolveSegments(selectedBattle()?.loseLine ?? "…", dialogCtx())}>
-                        {(seg) => (
-                          <Show when={seg.kind !== "text"} fallback={<>{seg.value}</>}>
-                            <span class={`dlg-var dlg-var-${seg.kind}`}>{seg.value}</span>
-                          </Show>
-                        )}
-                      </For>
+                      <TypedText
+                        segments={resolveSegments(postLoseLine() || "…", dialogCtx())}
+                        onHandle={(h) => { postLoseTyped = h; }}
+                      />
                     </p>
                     <div class="sc-speech-advance">
                       <span class="sc-dialog-next">✕ Close</span>
@@ -436,18 +523,17 @@ export function ScreenCity(props: {
                   <div class="sc-speech-bubble sc-speech-bubble--talk">
                     <div class="sc-speech-speaker">{selectedActor()?.name}</div>
                     <p class="sc-speech-text">
-                      <For each={resolveSegments(
-                        launchingBattle()
-                          ? (selectedBattle()?.battleStartLine ?? selectedBattle()?.challengeLine ?? "…")
-                          : (selectedBattle()?.challengeLine ?? "…"),
-                        dialogCtx(),
-                      )}>
-                        {(seg) => (
-                          <Show when={seg.kind !== "text"} fallback={<>{seg.value}</>}>
-                            <span class={`dlg-var dlg-var-${seg.kind}`}>{seg.value}</span>
-                          </Show>
+                      <TypedText
+                        segments={resolveSegments(
+                          launchingBattle()
+                            ? (selectedScript()?.dialog?.battleStartLine ??
+                               selectedScript()?.dialog?.challengeLine ??
+                               "…")
+                            : (selectedScript()?.dialog?.challengeLine ?? "…"),
+                          dialogCtx(),
                         )}
-                      </For>
+                        onHandle={(h) => { battleConfirmTyped = h; }}
+                      />
                     </p>
                   </div>
                 </Show>
@@ -477,72 +563,75 @@ export function ScreenCity(props: {
 
             {/* Action panel — sibling of dialog group, stacked below */}
             <div class="sc-panel">
-
-            {/* Options hidden during battle-confirm and post-battle dialogs */}
-            <Show
-              when={action() === "battle-confirm"}
-              fallback={
-                <Show when={action() !== "post-win" && action() !== "post-lose"}>
-                <div class="sc-action-list">
-                  <button
-                    class="sc-action-btn"
-                    classList={{ "sc-action-btn--active": action() === "talk" }}
-                    onClick={openTalk}
-                  >
-                    💬 Talk
-                  </button>
-                  <button
-                    class="sc-action-btn"
-                    classList={{ "sc-action-btn--active": action() === "deckinfo" }}
-                    onClick={() => setAction("deckinfo")}
-                  >
-                    🃏 Deck Info
-                  </button>
-                  {selectedBattle()?.canChallenge !== false && (
+              <Show
+                when={action() === "battle-confirm"}
+                fallback={
+                  <Show when={action() !== "post-win" && action() !== "post-lose"}>
+                    <div class="sc-action-list">
+                      <button
+                        class="sc-action-btn"
+                        classList={{ "sc-action-btn--active": action() === "talk" }}
+                        onClick={openTalk}
+                      >
+                        💬 Talk
+                      </button>
+                      <button
+                        class="sc-action-btn"
+                        classList={{ "sc-action-btn--active": action() === "deckinfo" }}
+                        onClick={() => setAction("deckinfo")}
+                      >
+                        🃏 Deck Info
+                      </button>
+                      {selectedScript()?.canChallenge !== false && (
+                        <button
+                          class="sc-action-btn sc-action-btn--battle"
+                          onClick={() => setAction("battle-confirm")}
+                        >
+                          ⚔ Battle
+                        </button>
+                      )}
+                    </div>
+                  </Show>
+                }
+              >
+                <div class="sc-battle-confirm">
+                  <p class="sc-confirm-text">
+                    {launchingBattle()
+                      ? "Preparing battle…"
+                      : `Challenge ${selectedActor()?.name} to a battle?`}
+                  </p>
+                  <div class="sc-confirm-btns">
                     <button
-                      class="sc-action-btn sc-action-btn--battle"
-                      onClick={() => setAction("battle-confirm")}
+                      class="sc-btn-yes"
+                      disabled={launchingBattle()}
+                      onClick={() => {
+                        const actor = selectedActor();
+                        const script = selectedScript();
+                        if (!actor || !script?.deckId || launchingBattle()) return;
+                        setLaunchingBattle(true);
+                        setTimeout(() => {
+                          setLaunchingBattle(false);
+                          props.onFight(actor.id, script.deckId!, selectedEventId(), {
+                            winDialogId: script.dialog?.winDialogId,
+                            loseLine: script.dialog?.loseLine,
+                            onWin: script.onWin ?? [],
+                          });
+                        }, 1400);
+                      }}
                     >
-                      ⚔ Battle
+                      ⚔ Yes, fight!
                     </button>
-                  )}
+                    <button
+                      class="sc-btn-no"
+                      disabled={launchingBattle()}
+                      onClick={() => setAction("options")}
+                    >
+                      ✗ No
+                    </button>
+                  </div>
                 </div>
-                </Show>
-              }
-            >
-              <div class="sc-battle-confirm">
-                <p class="sc-confirm-text">
-                  {launchingBattle() ? "Preparing battle…" : `Challenge ${selectedActor()?.name} to a battle?`}
-                </p>
-                <div class="sc-confirm-btns">
-                  <button
-                    class="sc-btn-yes"
-                    disabled={launchingBattle()}
-                    onClick={() => {
-                      const actor = selectedActor();
-                      const battle = selectedBattle();
-                      if (!actor || !battle || launchingBattle()) return;
-                      setLaunchingBattle(true);
-                      setTimeout(() => {
-                        setLaunchingBattle(false);
-                        props.onFight(actor.id, battle.id);
-                      }, 1400);
-                    }}
-                  >
-                    ⚔ Yes, fight!
-                  </button>
-                  <button
-                    class="sc-btn-no"
-                    disabled={launchingBattle()}
-                    onClick={() => setAction("options")}
-                  >
-                    ✗ No
-                  </button>
-                </div>
-              </div>
-            </Show>
-
-          </div>
+              </Show>
+            </div>
 
           </div>{/* /sc-stage */}
         </div>{/* /sc-interact */}

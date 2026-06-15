@@ -1,6 +1,7 @@
 import { For, Show } from "solid-js";
 import { CITIES, isCityCleared, isCityUnlocked, winsAgainst, type City } from "@src/data/cities";
-import { getCafeBattleById } from "@src/data/battle-cafe-datas";
+import { getMapById } from "@src/data/maps";
+import type { MapId } from "@src/engine/event-engine";
 import type { PlayerProfile } from "@src/store/profile-store";
 import { profileStore } from "./deck-select";
 
@@ -15,6 +16,8 @@ export function ScreenWorldMap(props: {
   onFreeBattle: () => void;
   onChangeProfile: () => void;
   onOpenBuilder: () => void;
+  onOpenInventory: () => void;
+  onOpenPartners: () => void;
 }) {
   const records = () => props.profile.records;
   const total = () => profileStore.totalRecord(props.profile);
@@ -28,9 +31,12 @@ export function ScreenWorldMap(props: {
       <div class="world-map">
         <For each={CITIES}>
           {(city) => {
+            const map = () => getMapById(city.id as MapId);
+            const required = () => map()?.requiredActors ?? [];
             const unlocked = () => isCityUnlocked(city, records());
             const cleared = () => isCityCleared(city, records());
-            const beaten = () => isCityCleared(city, records()) ? city.cafeBattleIds.length : city.cafeBattleIds.filter((bid) => { const b = getCafeBattleById(bid); return b ? winsAgainst(records(), b.actorId) > 0 : false; }).length;
+            const beaten = () =>
+              required().filter((id) => winsAgainst(records(), id) > 0).length;
             return (
               <div
                 class="city-card"
@@ -44,7 +50,7 @@ export function ScreenWorldMap(props: {
                 </div>
                 <Show when={unlocked()}>
                   <div class="tag">
-                    {beaten()}/{city.cafeBattleIds.length} defeated
+                    {beaten()}/{required().length} defeated
                   </div>
                 </Show>
               </div>
@@ -57,6 +63,8 @@ export function ScreenWorldMap(props: {
         <button onClick={props.onChangeProfile}>⇄ Change Profile</button>
         <button onClick={props.onOpenBuilder}>🛠 Setup Deck</button>
         <button onClick={props.onFreeBattle}>⚔ Free Battle</button>
+        <button onClick={props.onOpenInventory}>🎒 Inventory</button>
+        <button onClick={props.onOpenPartners}>👥 Partners</button>
         <button
           onClick={() => {
             window.history.pushState(null, "", "/debug");

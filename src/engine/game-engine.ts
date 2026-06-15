@@ -38,6 +38,12 @@ export interface ActiveDigimon {
   /** Deployment penalty (1 / 0.5 / 0.25), inherited through digivolution. */
   penalty: number;
   /**
+   * Effective specialty — overrides `card.specialty` when a support effect
+   * changes it mid-match. Persists across rounds (like HP) and is cleared
+   * naturally when the Digimon is KO'd or digivolves into a new form.
+   */
+  specialty?: string;
+  /**
    * Previous forms stacked underneath (bottom → top). Digivolving stacks the
    * old form here; the whole stack is trashed together when defeated, and
    * Digi-devolve pops the top back out.
@@ -919,7 +925,7 @@ export class GameEngine {
     const ctx = createCombatantCtx({
       hp: active.hp,
       level: active.card.level,
-      specialty: active.card.specialty,
+      specialty: active.specialty ?? active.card.specialty,
       c_power: quantizeStat(active.card.c_pow * active.penalty),
       t_power: quantizeStat(active.card.t_pow * active.penalty),
       x_power: quantizeStat(active.card.x_pow * active.penalty),
@@ -956,6 +962,7 @@ export class GameEngine {
       p.active = null;
     } else {
       p.active.hp = quantizeStat(side.ctx.hp);
+      p.active.specialty = side.ctx.specialty;
     }
   }
 

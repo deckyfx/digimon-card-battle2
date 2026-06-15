@@ -4,13 +4,9 @@ import { CardSpecialty, CardType, type MasterCard } from "@src/types";
 /** Card currently inspected (hovered) — rendered in the right detail panel. */
 export const [inspectedCard, setInspectedCard] = createSignal<MasterCard | null>(null);
 
-/** Border colour class per specialty (Options white, digivolve options gold). */
-export function specialtyClass(card: MasterCard): string {
-  // Cards 293–300 are the digivolve option cards (Download … Digi-devolve).
-  const num = parseInt(card.number, 10);
-  if (num >= 293 && num <= 300) return "spec-digivolve";
-  if (card.type === CardType.Option) return "spec-option";
-  switch (card.specialty) {
+/** Maps a raw specialty string to its CSS border class. */
+export function specialtyToClass(specialty: string): string {
+  switch (specialty) {
     case CardSpecialty.Fire:
       return "spec-fire";
     case CardSpecialty.Nature:
@@ -24,6 +20,15 @@ export function specialtyClass(card: MasterCard): string {
     default:
       return "spec-option";
   }
+}
+
+/** Border colour class per card (Options white, digivolve options gold). */
+export function specialtyClass(card: MasterCard): string {
+  // Cards 293–300 are the digivolve option cards (Download … Digi-devolve).
+  const num = parseInt(card.number, 10);
+  if (num >= 293 && num <= 300) return "spec-digivolve";
+  if (card.type === CardType.Option) return "spec-option";
+  return specialtyToClass(card.specialty);
 }
 
 /**

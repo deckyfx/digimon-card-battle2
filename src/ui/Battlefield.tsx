@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import type { MasterCard } from "@src/types";
 import type { GameEngine, PlayerId, PlayerState } from "@src/engine/game-engine";
 import { quantizeStat } from "@src/engine/battle-context";
-import { CardView, setInspectedCard, specialtyClass } from "./CardView";
+import { CardView, setInspectedCard, specialtyClass, specialtyToClass } from "./CardView";
 import { Ticker } from "./Ticker";
 
 /**
@@ -28,9 +28,19 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
     return act ? quantizeStat(act.card[`${t}_pow`] * act.penalty) : 0;
   };
 
+  // Specialty changes persist on the ActiveDigimon (like HP) until KO.
+  // During a battle, read from the live ctx; between rounds, from active.specialty
+  // (the persisted override) falling back to the card's original specialty.
+  const battlerSpecialtyClass = () => {
+    const sd = side();
+    const act = a()!;
+    const spec = sd ? sd.ctx.specialty : (act.specialty ?? act.card.specialty);
+    return specialtyToClass(spec);
+  };
+
   return (
     <Show when={a()} fallback={<div class="card empty">— no active Digimon —</div>}>
-      <div class={`card battler ${specialtyClass(a()!.card)}`} onMouseEnter={() => setInspectedCard(a()!.card)}>
+      <div class={`card battler ${battlerSpecialtyClass()}`} onMouseEnter={() => setInspectedCard(a()!.card)}>
         <div class="name-row">
           <span class="name">{a()!.card.name}</span>
           <span class="lvl">{a()!.card.level}</span>

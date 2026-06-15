@@ -8,8 +8,7 @@ import type { PlayerProfile } from "@src/store/profile-store";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { getPackById, openPack } from "@src/data/prize-packs";
 import { getCityById, type City } from "@src/data/cities";
-import { getCafeBattleById } from "@src/data/battle-cafe-datas";
-import { CITY_ROSTER_RULES } from "@src/data/progression-scripts";
+import { executeCommands, type EventCommand } from "@src/engine/event-engine";
 import { ScreenSetupDeck } from "./ScreenSetupDeck";
 import { ScreenBattleSetup } from "./ScreenBattleSetup";
 import { ProfilesScreen } from "./ScreenProfiles";
@@ -18,6 +17,8 @@ import { ScreenSetupBattle } from "./SetupScreen";
 import { ScreenWorldMap } from "./ScreenWorldMap";
 import { ScreenCity } from "./ScreenCity";
 import { BattleResultModal, type MatchRewards } from "./BattleResultModal";
+import { InventoryModal } from "./InventoryModal";
+import { PartnersModal } from "./PartnersModal";
 import { LogArea } from "./LogArea";
 import { ControlPanel } from "./ControlPanel";
 import { OpponentArea } from "./OpponentArea";
@@ -27,6 +28,8 @@ import { PromptDialogs } from "./PromptDialogs";
 import { TurnInfo } from "./TurnInfo";
 import { CardInspector } from "./CardInspector";
 import { CUSTOM_PREFIX, PREBUILT_PREFIX, RANDOM_DECK, deckIllegal, profileStore, resolveDeck } from "./deck-select";
+import { PARTNERS, partnerLevelFromExp } from "@src/data/partners";
+import type { PartnerExpGain } from "./BattleResultModal";
 
 const CPU_DELAY_MS = 600;
 const BATTLE_STEP_MS = 1000;
@@ -52,15 +55,26 @@ export function App() {
   const [activeCityId, setActiveCityId] = createSignal<string | null>(null);
   /** Where a battle was launched from — decides where the lobby is. */
   const [battleOrigin, setBattleOrigin] = createSignal<"free" | string>("free");
-  /** The CafeBattle id for the current scenario duel (null for free battles). */
-  const [activeCafeBattleId, setActiveCafeBattleId] = createSignal<number | null>(null);
+  /** Info captured at fight-start for claimRewards and pendingPostBattle. */
+  const [activeFight, setActiveFight] = createSignal<{
+    actorId: number;
+    eventId: string | null;
+    onWin: EventCommand[];
+    winDialogId?: number;
+    loseLine?: string;
+  } | null>(null);
   /** Post-battle dialog to show when returning to the city after a duel. */
   const [pendingPostBattle, setPendingPostBattle] = createSignal<{
-    cafeBattleId: number;
+    actorId: number;
+    eventId: string | null;
     result: "win" | "lose";
+    winDialogId?: number;
+    loseLine?: string;
   } | null>(null);
   /** Where the builder was opened from, to return there on Back. */
   let builderOrigin: "world" | "setup" = "world";
+  const [inventoryOpen, setInventoryOpen] = createSignal(false);
+  const [partnersOpen, setPartnersOpen] = createSignal(false);
 
   const playerPortrait = () => getActorById(profile()?.avatarActorId ?? 0)?.portrait;
 
@@ -70,14 +84,18 @@ export function App() {
     setView("welcome");
   };
 
-  /** Enter a city resident duel: opponent locked to this CafeBattle, lobby = the city. */
-  const fightResident = (cityId: string, actorId: number, cafeBattleId: number) => {
+  /** Enter a city resident duel: opponent locked to the given deck, lobby = the city. */
+  const fightResident = (
+    cityId: string,
+    actorId: number,
+    deckId: number,
+    eventId: string | null,
+    capturedDialog: { winDialogId?: number; loseLine?: string; onWin: EventCommand[] },
+  ) => {
     setCpuActorId(actorId);
-    const cafeBattle = getCafeBattleById(cafeBattleId);
-    // Use the specific deck defined for this CafeBattle slot, not a random one.
-    setCpuDeck(cafeBattle ? `${PREBUILT_PREFIX}${cafeBattle.deckId}` : RANDOM_DECK);
+    setCpuDeck(`${PREBUILT_PREFIX}${deckId}`);
     setBattleOrigin(cityId);
-    setActiveCafeBattleId(cafeBattleId);
+    setActiveFight({ actorId, eventId, ...capturedDialog });
     setView("battle-intro");
   };
 
@@ -253,30 +271,70 @@ export function App() {
     const bonusCards = (actor.prizeCards ?? [])
       .map((n) => MASTER_CARDS.find((c) => c.number === n))
       .filter((c): c is NonNullable<typeof c> => c !== undefined);
+    const partnerGains: PartnerExpGain[] = [];
     const prof = profile();
     if (prof) {
       profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
       profileStore.addExp(prof.id, exp);
 
-      // Apply story flags from this CafeBattle and recompute the city roster.
-      const cafeBattleId = activeCafeBattleId();
-      const cafeBattle = cafeBattleId !== null ? getCafeBattleById(cafeBattleId) : null;
-      if (cafeBattle?.onWin?.length) {
-        let flaggedProfile = prof;
-        for (const flagKey of cafeBattle.onWin) {
-          flaggedProfile = profileStore.setFlag(prof.id, flagKey, true);
-        }
-        const cityId = battleOrigin();
-        const rosterRule = CITY_ROSTER_RULES[cityId];
-        if (rosterRule) {
-          const newRoster = rosterRule(flaggedProfile.flags);
-          profileStore.applyCityRoster(prof.id, cityId, newRoster);
+      // Execute onWin commands (set flags, give items, etc.).
+      const fight = activeFight();
+      if (fight?.onWin?.length) {
+        executeCommands(fight.onWin, prof.id, profileStore, () => {});
+      }
+
+      // Grant EXP to partners whose Rookie card appeared in the player's deck.
+      // Auto-unlock partners on first encounter (up to the 3-partner cap).
+      if (exp > 0) {
+        const playerCardSet = new Set(
+          resolveDeck(playerDeck(), prof).cards.map((c) => c.number),
+        );
+
+        // Re-read so the EXP loop sees the latest profile state after
+        // grantCards / addExp / executeCommands mutations above.
+        const currentProf = profileStore.get(prof.id) ?? prof;
+
+        for (const partnerState of currentProf.partners) {
+          const partnerDef = PARTNERS.find((p) => p.id === partnerState.id);
+          if (!partnerDef || !playerCardSet.has(partnerDef.cardNumber)) continue;
+
+          const oldExp = partnerState.totalExp;
+          const oldLevel = partnerLevelFromExp(oldExp);
+          const oldDigipartSet = new Set(partnerState.ownedDigiparts);
+
+          const updated = profileStore.setPartnerExp(
+            prof.id,
+            partnerState.id,
+            Math.min(9999, oldExp + exp),
+          );
+          const updatedPartner = updated.partners.find((p) => p.id === partnerState.id)!;
+          const newLevel = partnerLevelFromExp(updatedPartner.totalExp);
+
+          partnerGains.push({
+            partnerName: partnerDef.name,
+            cardNumber: partnerDef.cardNumber,
+            expGained: exp,
+            oldExp,
+            newExp: updatedPartner.totalExp,
+            oldLevel,
+            newLevel,
+            leveledUp: newLevel > oldLevel,
+            oldBonusHp: partnerState.bonusHp,
+            oldBonusCircle: partnerState.bonusCircle,
+            oldBonusTriangle: partnerState.bonusTriangle,
+            oldBonusCross: partnerState.bonusCross,
+            newBonusHp: updatedPartner.bonusHp,
+            newBonusCircle: updatedPartner.bonusCircle,
+            newBonusTriangle: updatedPartner.bonusTriangle,
+            newBonusCross: updatedPartner.bonusCross,
+            newDigiparts: updatedPartner.ownedDigiparts.filter((id) => !oldDigipartSet.has(id)),
+          });
         }
       }
 
       refreshProfile();
     }
-    rewardClaim = { exp, packName: pack?.name ?? null, cards, bonusCards };
+    rewardClaim = { exp, packName: pack?.name ?? null, cards, bonusCards, partnerGains };
     return rewardClaim;
   }
 
@@ -300,9 +358,15 @@ export function App() {
     // Scenario duels return to their city with a post-battle dialog; free battles go to setup.
     if (battleOrigin() !== "free" && getCityById(battleOrigin())) {
       setActiveCityId(battleOrigin());
-      const cafeBattleId = activeCafeBattleId();
-      if (cafeBattleId !== null) {
-        setPendingPostBattle({ cafeBattleId, result });
+      const fight = activeFight();
+      if (fight) {
+        setPendingPostBattle({
+          actorId: fight.actorId,
+          eventId: fight.eventId,
+          result,
+          winDialogId: fight.winDialogId,
+          loseLine: fight.loseLine,
+        });
       }
       setView("city");
     } else {
@@ -341,17 +405,37 @@ export function App() {
                   builderOrigin = "world";
                   setView("builder");
                 }}
+                onOpenInventory={() => setInventoryOpen(true)}
+                onOpenPartners={() => setPartnersOpen(true)}
+              />
+            </Show>
+            <Show when={inventoryOpen() && profile()}>
+              <InventoryModal
+                profile={profile() as PlayerProfile}
+                store={profileStore}
+                onClose={() => setInventoryOpen(false)}
+                onProfileChange={refreshProfile}
+              />
+            </Show>
+            <Show when={partnersOpen() && profile()}>
+              <PartnersModal
+                profile={profile() as PlayerProfile}
+                store={profileStore}
+                onClose={() => setPartnersOpen(false)}
+                onProfileChange={refreshProfile}
               />
             </Show>
             <Show when={view() === "city" && profile() && getCityById(activeCityId() ?? "")}>
               <ScreenCity
                 city={getCityById(activeCityId() ?? "") as City}
                 profile={profile() as PlayerProfile}
-                onFight={(actorId, cafeBattleId) => fightResident(activeCityId() as string, actorId, cafeBattleId)}
-                onFlagSet={(key, value) => {
+                onFight={(actorId, deckId, eventId, capturedDialog) =>
+                  fightResident(activeCityId() as string, actorId, deckId, eventId, capturedDialog)
+                }
+                onMarkDialogSeen={(eventId) => {
                   const prof = profile();
                   if (prof) {
-                    profileStore.setFlag(prof.id, key, value);
+                    profileStore.markDialogSeen(prof.id, eventId);
                     refreshProfile();
                   }
                 }}
