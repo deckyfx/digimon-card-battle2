@@ -1,11 +1,13 @@
 import {
   CardLevel,
+  CardSpecialty,
   CardType,
   type AttackType,
   type MasterCard,
 } from "@src/types";
 import { ARMOR_PARTNER } from "@src/data/armor";
 import { createCombatantCtx, quantizeStat } from "./battle-context";
+import { createBattleStats, type BattleStats } from "./battle-stats";
 import {
   BattleResolver,
   type BattleFx,
@@ -170,6 +172,7 @@ export class GameEngine {
   private battleGen: Generator<BattleFx, BattleOutcome> | null = null;
 
   readonly players: Record<PlayerId, PlayerState>;
+  readonly battleStats: BattleStats;
 
   private readonly rng: Rng;
   private readonly runner: ScriptRunner;
@@ -187,10 +190,16 @@ export class GameEngine {
       cpuDeckName?: string;
     },
     sideDecks?: { player?: MasterCard[]; cpu?: MasterCard[] },
+    partnerCardNumbers = new Set<string>(),
   ) {
     this.rng = new Rng(seed);
     this.runner = new ScriptRunner((m) => this.pushLog(m));
     this.resolver = new BattleResolver(this.runner, (m) => this.pushLog(m));
+    this.battleStats = createBattleStats(
+      playerDeck,
+      partnerCardNumbers,
+      labels?.playerName ?? "Player",
+    );
     this.players = {
       player: this.createPlayer(
         "player",
@@ -259,9 +268,11 @@ export class GameEngine {
         `${p.name} has no Digimon in hand — discarding hand and redrawing.`,
       );
       this.forcedRedraws++;
+      if (p.id === "player") this.battleStats.hadForcedRedraw = true;
       p.trash.push(...p.hand.splice(0));
       this.drawToHandSize(p);
     }
+    if (p.id === "player") this.checkHandBonuses(p.hand);
     return true;
   }
 
@@ -301,6 +312,7 @@ export class GameEngine {
     this.pushLog(
       `${p.name} trashes the hand (${p.hand.length} cards) and redraws.`,
     );
+    if (p.id === "player") this.battleStats.hadForcedRedraw = true;
     p.trash.push(...p.hand.splice(0));
     if (!this.drawPhase(p)) return true; // mulligan rule ended the match
     this.notify();
@@ -340,6 +352,7 @@ export class GameEngine {
     const p = this.current();
     if (this.phase !== "deploy" || !p.active) return false;
     p.hand.push(p.active.card);
+    if (p.id === "player") this.checkHandBonuses(p.hand);
     this.pushLog(`${p.name} cancels the deployment of ${p.active.card.name}.`);
     p.active = null;
     this.notify();
@@ -359,6 +372,19 @@ export class GameEngine {
     this.armorWindowOpen = this.armorForPartner(p, p.active.card) !== null;
     if (this.armorWindowOpen) {
       this.pushLog(`${p.name} may Armor Digivolve ${p.active.card.name}!`);
+    }
+    if (p.id === "player") {
+      const card = p.active.card;
+      this.trackSpecialty(card.specialty);
+      const hp = p.active.hp;
+      if (hp > 0 && hp % 1110 === 0 && !this.battleStats.hpFeverAchieved) {
+        this.battleStats.hpFeverAchieved = true;
+        this.pushLog(`${this.battleStats.playerName} got HP Fever Bonus!`);
+      }
+      if (this.battleStats.partnerCardNumbers.has(card.number) && card.level === CardLevel.R) {
+        this.battleStats.partnerCardNumbersDeployed.add(card.number);
+        this.battleStats._partnerChain.set(card.number, { level: "R", usedOption: false });
+      }
     }
     this.notify();
     return true;
@@ -444,6 +470,9 @@ export class GameEngine {
     this.stockedCardThisTurn = card;
     p.hand.splice(handIndex, 1);
     p.dpSlot.push(card);
+    if (p.id === "player" && p.dpSlot.length >= DP_SLOT_LIMIT) {
+      this.battleStats.dpFullAchieved = true;
+    }
     this.pushLog(
       `${p.name} stocks ${card.name} for ${card.dp_point} DP (total ${this.dpTotal(p)} DP).`,
     );
@@ -514,6 +543,26 @@ export class GameEngine {
       penalty,
       stack: [...prev.stack, prev.card],
     };
+    if (p.id === "player") {
+      this.battleStats.hadAnyDigivolve = true;
+      this.trackSpecialty(card.specialty);
+      if (hp > 0 && hp % 1110 === 0 && !this.battleStats.hpFeverAchieved) {
+        this.battleStats.hpFeverAchieved = true;
+        this.pushLog(`${this.battleStats.playerName} got HP Fever Bonus!`);
+      }
+      // Advance the partner normal-digivolve chain if active and unbroken.
+      const rootNum = p.active.stack[0]!.number; // stack is non-empty after evolve
+      const chain = this.battleStats._partnerChain.get(rootNum);
+      if (chain && !chain.usedOption) {
+        chain.level = card.level as "R" | "C" | "U";
+        if (chain.level === "U" && !this.battleStats.partnerNormalDigivolvedToU) {
+          this.battleStats.partnerNormalDigivolvedToU = true;
+          this.pushLog(
+            `${this.battleStats.playerName} got Partner Normal Digivolve Bonus!`,
+          );
+        }
+      }
+    }
     this.pushLog(
       `${p.name} digivolves ${prev.card.name} → ${card.name}! HP ${hp}. DP stock reset to 0.`,
     );
@@ -666,6 +715,18 @@ export class GameEngine {
     this.turnActionTaken = true;
     this.armorWindowOpen = false;
     this.digivolveOptionUsedThisTurn = true;
+    if (p.id === "player") {
+      this.battleStats.hadAnyDigivolve = true;
+      // Mark the current partner chain as having used an option card.
+      if (p.active) {
+        const rootNum =
+          p.active.stack.length > 0
+            ? p.active.stack[0]!.number
+            : p.active.card.number;
+        const chain = this.battleStats._partnerChain.get(rootNum);
+        if (chain) chain.usedOption = true;
+      }
+    }
     const chosen =
       targetIndex !== undefined && targets.includes(targetIndex)
         ? targetIndex
@@ -779,6 +840,13 @@ export class GameEngine {
       removesPenalty && prev.penalty < 1 ? " Penalty removed!" : "";
 
     const hp = quantizeStat(target.hp * penalty);
+    if (p.id === "player") {
+      this.trackSpecialty(target.specialty);
+      if (hp > 0 && hp % 1110 === 0 && !this.battleStats.hpFeverAchieved) {
+        this.battleStats.hpFeverAchieved = true;
+        this.pushLog(`${this.battleStats.playerName} got HP Fever Bonus!`);
+      }
+    }
     p.active = { card: target, hp, maxHp: hp, penalty, stack };
     this.pushLog(
       `${p.name} plays ${label}: ${prev.card.name} → ${target.name}! HP ${hp}. ${dpNote}.${penaltyNote}`,
@@ -834,12 +902,36 @@ export class GameEngine {
     const ab = this.activeBattle;
     const ownerP = this.players[ab.ownerId];
     const defenderP = this.opponentOf(ab.ownerId);
+
+    // Snapshot HP before the generator step for battle-stats tracking.
+    const isPlayerOwner = ab.ownerId === "player";
+    const oppCtx = isPlayerOwner ? ab.defender.ctx : ab.owner.ctx;
+    const plrCtx = isPlayerOwner ? ab.owner.ctx : ab.defender.ctx;
+    const prevOppHp = oppCtx.hp;
+
     const result = this.battleGen.next();
 
     // Live-sync HP after every step so the UI animates each change.
     if (ownerP.active) ownerP.active.hp = quantizeStat(ab.owner.ctx.hp);
     if (defenderP.active)
       defenderP.active.hp = quantizeStat(ab.defender.ctx.hp);
+
+    // Battle-stats: damage fever, just enough attack, HP fever.
+    const dmg = prevOppHp - oppCtx.hp;
+    if (dmg > 0) {
+      if (dmg % 1110 === 0 && !this.battleStats.damageFeverAchieved) {
+        this.battleStats.damageFeverAchieved = true;
+        this.pushLog(`${this.battleStats.playerName} got Damage Fever Bonus!`);
+      }
+      if (dmg === prevOppHp && !this.battleStats.justEnoughAttackAchieved) {
+        this.battleStats.justEnoughAttackAchieved = true;
+      }
+    }
+    const plrHpNow = plrCtx.hp;
+    if (plrHpNow > 0 && plrHpNow % 1110 === 0 && !this.battleStats.hpFeverAchieved) {
+      this.battleStats.hpFeverAchieved = true;
+      this.pushLog(`${this.battleStats.playerName} got HP Fever Bonus!`);
+    }
 
     if (!result.done) {
       this.currentFx = {
@@ -875,6 +967,39 @@ export class GameEngine {
     defenderSide: BattleSide,
     outcome: BattleOutcome,
   ): void {
+    // Track round record in battleStats.
+    const isPlayerOwner = owner.id === "player";
+    const playerSide = isPlayerOwner ? ownerSide : defenderSide;
+    const playerP = isPlayerOwner ? owner : defender;
+    const oppP = isPlayerOwner ? defender : owner;
+    const scorerState =
+      outcome.scorer === null
+        ? null
+        : outcome.scorer === "owner"
+          ? owner
+          : defender;
+    const playerWon = scorerState?.id === "player";
+    const opponentWon = scorerState?.id === "cpu";
+    this.battleStats.rounds.push({
+      playerAttack: playerSide.ctx.selected_attack,
+      playerGambled: !!playerSide.fromDeck,
+      playerUsedSupport: playerSide.support !== null,
+      playerWon: !!playerWon,
+      opponentWon: !!opponentWon,
+      opponentDigimonLevel: oppP.active?.card.level ?? "",
+    });
+    if (playerWon) {
+      const num = playerP.active?.card.number ?? "";
+      if (this.battleStats.partnerCardNumbers.has(num) && !this.battleStats.partnerWin) {
+        this.battleStats.partnerWin = true;
+        this.pushLog(`${this.battleStats.playerName} got Partner Win Bonus!`);
+      }
+      if (oppP.active?.card.level === CardLevel.U && !this.battleStats.ultimateLevelWin) {
+        this.battleStats.ultimateLevelWin = true;
+        this.pushLog(`${this.battleStats.playerName} got Ultimate Level Win Bonus!`);
+      }
+    }
+
     // Write battle results back to persistent state.
     this.applyBattleResult(
       owner,
@@ -977,6 +1102,40 @@ export class GameEngine {
     this.phase = "game-over";
     this.pushLog(`🏆 ${this.players[winner].name} wins the match!`);
     this.notify();
+  }
+
+  // ── Battle-stats helpers ───────────────────────────────────────────────
+
+  /** Track a deployed/digivolved card's base specialty for Rainbow. */
+  private trackSpecialty(specialty: CardSpecialty): void {
+    const before = this.battleStats.specialtiesDeployed.size;
+    this.battleStats.specialtiesDeployed.add(specialty);
+    if (before < 5 && this.battleStats.specialtiesDeployed.size >= 5) {
+      this.pushLog(`${this.battleStats.playerName} got Rainbow Bonus!`);
+    }
+  }
+
+  /** Check hand for 4-of-a-kind and 3-different-partner-Rookies. */
+  private checkHandBonuses(hand: MasterCard[]): void {
+    // 4-of-a-kind: any card number appears ≥4 times
+    if (!this.battleStats.fourOfAKindAchieved) {
+      const counts = new Map<string, number>();
+      for (const c of hand) counts.set(c.number, (counts.get(c.number) ?? 0) + 1);
+      if ([...counts.values()].some((n) => n >= 4)) {
+        this.battleStats.fourOfAKindAchieved = true;
+      }
+    }
+    // 3 different partner Rookies in hand simultaneously
+    if (!this.battleStats.threePartnersInHand) {
+      const partnersInHand = new Set(
+        hand
+          .map((c) => c.number)
+          .filter((num) => this.battleStats.partnerCardNumbers.has(num)),
+      );
+      if (partnersInHand.size >= 3) {
+        this.battleStats.threePartnersInHand = true;
+      }
+    }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────

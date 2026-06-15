@@ -1,5 +1,4 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
-import { Portal } from "solid-js/web";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { DIGIPARTS, type DigiPart } from "@src/data/digiparts";
 import {
@@ -194,19 +193,17 @@ function DigiPartsSection(props: {
 }) {
   const [addingPart, setAddingPart] = createSignal(false);
 
-  const partnerIdx = () => PARTNER_ORDER.indexOf(props.partner.id);
-  const level = () => partnerLevelFromExp(props.partner.totalExp);
-
   const equippedParts = createMemo<DigiPart[]>(() =>
     props.partner.equippedDigiparts.map((id) => DIGIPARTS[id]).filter((p): p is DigiPart => p !== undefined),
   );
 
-  const unequippedOwned = createMemo<DigiPart[]>(() =>
-    props.partner.ownedDigiparts
-      .filter((id) => !props.partner.equippedDigiparts.includes(id))
+  const unequippedOwned = createMemo<DigiPart[]>(() => {
+    const allEquipped = new Set(props.profile.partners.flatMap((p) => p.equippedDigiparts));
+    return props.profile.ownedDigiparts
+      .filter((id) => !allEquipped.has(id))
       .map((id) => DIGIPARTS[id])
-      .filter((p): p is DigiPart => p !== undefined),
-  );
+      .filter((p): p is DigiPart => p !== undefined);
+  });
 
   const unequip = (id: number) => {
     props.store.unequipDigipart(props.profile.id, props.partner.id, id);
@@ -219,13 +216,6 @@ function DigiPartsSection(props: {
       setAddingPart(false);
       props.onProfileChange();
     }
-  };
-
-  const canEquip = (id: number) => {
-    const part = DIGIPARTS[id];
-    if (!part) return false;
-    const req = part.minLevel[partnerIdx()] ?? 0;
-    return req > 0 && level() >= req;
   };
 
   return (
@@ -258,29 +248,19 @@ function DigiPartsSection(props: {
         </button>
       </Show>
 
-      <Show when={props.partner.ownedDigiparts.length === 0}>
+      <Show when={props.profile.ownedDigiparts.length === 0}>
         <p class="pm-muted pm-muted--center">No DigiParts earned yet.</p>
       </Show>
 
       <Show when={addingPart()}>
         <div class="pm-picker pm-picker--parts">
           <For each={unequippedOwned()}>
-            {(part) => {
-              const eligible = canEquip(part.id);
-              const minLv = part.minLevel[partnerIdx()] ?? 0;
-              return (
-                <button
-                  class="pm-pick-item"
-                  classList={{ "pm-pick-disabled": !eligible }}
-                  disabled={!eligible}
-                  onClick={() => eligible && equip(part.id)}
-                >
-                  <span class="pm-part-name">{part.name}</span>
-                  <span class="pm-part-group">{part.group}</span>
-                  {!eligible && <span class="pm-part-lv-req">Lv {minLv} req.</span>}
-                </button>
-              );
-            }}
+            {(part) => (
+              <button class="pm-pick-item" onClick={() => equip(part.id)}>
+                <span class="pm-part-name">{part.name}</span>
+                <span class="pm-part-group">{part.group}</span>
+              </button>
+            )}
           </For>
         </div>
       </Show>
@@ -289,107 +269,150 @@ function DigiPartsSection(props: {
 }
 
 // ---------------------------------------------------------------------------
-// Main component
+// Partner detail (full-page view for a single selected partner)
+// ---------------------------------------------------------------------------
+
+function PartnerDetail(props: {
+  partnerId: PartnerId;
+  profile: PlayerProfile;
+  store: ProfileStore;
+  onBack: () => void;
+  onProfileChange: () => void;
+}) {
+  const partner = createMemo<PartnerState | null>(
+    () => props.profile.partners.find((p) => p.id === props.partnerId) ?? null,
+  );
+  const def = createMemo(() => PARTNERS.find((p) => p.id === props.partnerId)!);
+  const card = createMemo(() => CARD_BY_NUMBER.get(def().cardNumber));
+
+  return (
+    <div class="setup">
+      <div class="pm-detail-header">
+        <button class="pm-back-btn" onClick={props.onBack}>← Partners</button>
+        <h1 class="pm-detail-title" style={{ color: PARTNER_COLOR[props.partnerId] }}>
+          {def().name}
+        </h1>
+      </div>
+
+      <Show when={partner()} fallback={<p class="pm-muted pm-muted--center">Partner not found.</p>}>
+        {(state) => (
+          <div class="pm-detail">
+            {/* Identity row */}
+            <div class="pm-identity">
+              <Show when={card()}>
+                <div class="pm-card-wrap">
+                  <DigiCardFront card={card()!} />
+                </div>
+              </Show>
+              <div class="pm-identity-info">
+                <div class="pm-partner-name" style={{ color: PARTNER_COLOR[props.partnerId] }}>
+                  {def().name}
+                </div>
+                <div class="pm-partner-spec">
+                  {PARTNER_SPECIALTY[props.partnerId]} · Rookie
+                </div>
+                <ExpBar totalExp={state().totalExp} />
+                <div class="pm-stat-bonuses">
+                  <span title="HP bonus">HP +{state().bonusHp}</span>
+                  <span title="Circle bonus">○ +{state().bonusCircle}</span>
+                  <span title="Triangle bonus">△ +{state().bonusTriangle}</span>
+                  <span title="Cross bonus">× +{state().bonusCross}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Armor */}
+            <ArmorSection
+              partner={state()}
+              profile={props.profile}
+              store={props.store}
+              onProfileChange={props.onProfileChange}
+            />
+
+            {/* DigiParts */}
+            <DigiPartsSection
+              partner={state()}
+              profile={props.profile}
+              store={props.store}
+              onProfileChange={props.onProfileChange}
+            />
+          </div>
+        )}
+      </Show>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main screen
 // ---------------------------------------------------------------------------
 
 /**
- * Modal for viewing and managing each unlocked partner — EXP progress,
- * armor selection, and DigiPart equip/unequip.
+ * Full-page Partners screen — first pick a partner, then manage it.
+ * Step 1: selection grid of all unlocked partners.
+ * Step 2: full-page detail for the chosen partner.
  */
-export function PartnersModal(props: {
+export function ScreenPartners(props: {
   profile: PlayerProfile;
   store: ProfileStore;
   onClose: () => void;
   onProfileChange: () => void;
 }) {
-  const [selected, setSelected] = createSignal<PartnerId>(
-    props.profile.partners[0]?.id ?? "veemon",
-  );
-
-  const partner = createMemo<PartnerState | null>(
-    () => props.profile.partners.find((p) => p.id === selected()) ?? null,
-  );
-
-  const def = createMemo(() => PARTNERS.find((p) => p.id === selected())!);
-  const card = createMemo(() => CARD_BY_NUMBER.get(def().cardNumber));
+  const [selected, setSelected] = createSignal<PartnerId | null>(null);
 
   return (
-    <Portal mount={document.body}>
-      <div class="modal-overlay pm-overlay" onClick={props.onClose}>
-        <div class="modal pm-modal" onClick={(e) => e.stopPropagation()}>
-          {/* Header */}
-          <div class="pm-header">
-            <h2 class="pm-title">Partners</h2>
-            <button class="scp-dialog-close" onClick={props.onClose}>✕</button>
-          </div>
+    <>
+      <Show when={selected() === null}>
+        <div class="setup">
+          <h1 class="game-title">Partners</h1>
 
-          {/* Partner tabs */}
-          <div class="pm-tabs">
-            <For each={props.profile.partners}>
-              {(p) => {
-                const pDef = PARTNERS.find((d) => d.id === p.id)!;
-                return (
-                  <button
-                    class="pm-tab"
-                    classList={{ "pm-tab--active": selected() === p.id }}
-                    style={{ "--partner-color": PARTNER_COLOR[p.id] }}
-                    onClick={() => setSelected(p.id)}
-                  >
-                    {pDef.name}
-                  </button>
-                );
-              }}
-            </For>
-          </div>
-
-          {/* Detail panel */}
-          <Show when={partner()} fallback={<p class="pm-muted pm-muted--center">No partners yet.</p>}>
-            {(state) => (
-              <div class="pm-detail">
-                {/* Identity row */}
-                <div class="pm-identity">
-                  <Show when={card()}>
-                    <div class="pm-card-wrap">
-                      <DigiCardFront card={card()!} />
-                    </div>
-                  </Show>
-                  <div class="pm-identity-info">
-                    <div class="pm-partner-name" style={{ color: PARTNER_COLOR[selected()] }}>
-                      {def().name}
-                    </div>
-                    <div class="pm-partner-spec">
-                      {PARTNER_SPECIALTY[selected()]} · Rookie
-                    </div>
-                    <ExpBar totalExp={state().totalExp} />
-                    <div class="pm-stat-bonuses">
-                      <span title="HP bonus">HP +{state().bonusHp}</span>
-                      <span title="Circle bonus">○ +{state().bonusCircle}</span>
-                      <span title="Triangle bonus">△ +{state().bonusTriangle}</span>
-                      <span title="Cross bonus">× +{state().bonusCross}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Armor */}
-                <ArmorSection
-                  partner={state()}
-                  profile={props.profile}
-                  store={props.store}
-                  onProfileChange={props.onProfileChange}
-                />
-
-                {/* DigiParts */}
-                <DigiPartsSection
-                  partner={state()}
-                  profile={props.profile}
-                  store={props.store}
-                  onProfileChange={props.onProfileChange}
-                />
-              </div>
-            )}
+          <Show
+            when={props.profile.partners.length > 0}
+            fallback={<p class="pm-muted pm-muted--center">No partners yet.</p>}
+          >
+            <div class="sp-grid">
+              <For each={props.profile.partners}>
+                {(p) => {
+                  const pDef = PARTNERS.find((d) => d.id === p.id)!;
+                  const pCard = CARD_BY_NUMBER.get(pDef.cardNumber);
+                  const level = () => partnerLevelFromExp(p.totalExp);
+                  return (
+                    <button
+                      class="sp-partner-btn"
+                      style={{ "--partner-color": PARTNER_COLOR[p.id] }}
+                      onClick={() => setSelected(p.id)}
+                    >
+                      <Show when={pCard}>
+                        <div class="sp-card-wrap">
+                          <DigiCardFront card={pCard!} />
+                        </div>
+                      </Show>
+                      <div class="sp-partner-name" style={{ color: PARTNER_COLOR[p.id] }}>
+                        {pDef.name}
+                      </div>
+                      <div class="sp-partner-level">Lv {level()}</div>
+                    </button>
+                  );
+                }}
+              </For>
+            </div>
           </Show>
+
+          <div class="setup-actions">
+            <button onClick={props.onClose}>← Back</button>
+          </div>
         </div>
-      </div>
-    </Portal>
+      </Show>
+
+      <Show when={selected() !== null}>
+        <PartnerDetail
+          partnerId={selected()!}
+          profile={props.profile}
+          store={props.store}
+          onBack={() => setSelected(null)}
+          onProfileChange={props.onProfileChange}
+        />
+      </Show>
+    </>
   );
 }

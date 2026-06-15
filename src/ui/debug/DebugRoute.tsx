@@ -4,10 +4,12 @@ import { SandboxTab } from "./SandboxTab";
 import { ExplorerTab } from "./ExplorerTab";
 import { CardsTab } from "./CardsTab";
 import { PartnersTab } from "./PartnersTab";
+import { DigipartsTab } from "./DigipartsTab";
 import { KeyItemsTab } from "./KeyItemsTab";
+import { DataTab } from "./DataTab";
 import "./debug.css";
 
-type DebugTab = "sim" | "sandbox" | "explorer" | "cards" | "partners" | "keyitems";
+type DebugTab = "sim" | "sandbox" | "explorer" | "cards" | "partners" | "digiparts" | "keyitems" | "data";
 
 export function DebugRoute() {
   const [activeTab, setActiveTab] = createSignal<DebugTab>("sim");
@@ -44,8 +46,14 @@ export function DebugRoute() {
         <button class="debug-btn" classList={{ active: activeTab() === "partners" }} onClick={() => setActiveTab("partners")}>
           🐉 Partners
         </button>
+        <button class="debug-btn" classList={{ active: activeTab() === "digiparts" }} onClick={() => setActiveTab("digiparts")}>
+          🔩 DigiParts
+        </button>
         <button class="debug-btn" classList={{ active: activeTab() === "keyitems" }} onClick={() => setActiveTab("keyitems")}>
           🎒 Key Items
+        </button>
+        <button class="debug-btn" classList={{ active: activeTab() === "data" }} onClick={() => setActiveTab("data")}>
+          💾 Data
         </button>
       </div>
 
@@ -65,8 +73,14 @@ export function DebugRoute() {
         <Show when={activeTab() === "partners"}>
           <PartnersTab />
         </Show>
+        <Show when={activeTab() === "digiparts"}>
+          <DigipartsTab />
+        </Show>
         <Show when={activeTab() === "keyitems"}>
           <KeyItemsTab />
+        </Show>
+        <Show when={activeTab() === "data"}>
+          <DataTab />
         </Show>
       </div>
     </div>

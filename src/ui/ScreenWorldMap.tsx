@@ -3,7 +3,7 @@ import { CITIES, isCityCleared, isCityUnlocked, winsAgainst, type City } from "@
 import { getMapById } from "@src/data/maps";
 import type { MapId } from "@src/engine/event-engine";
 import type { PlayerProfile } from "@src/store/profile-store";
-import { profileStore } from "./deck-select";
+import { getActorById } from "@src/data/actors";
 
 /**
  * The scenario hub: every city as a banner card — locked until the
@@ -20,14 +20,19 @@ export function ScreenWorldMap(props: {
   onOpenPartners: () => void;
 }) {
   const records = () => props.profile.records;
-  const total = () => profileStore.totalRecord(props.profile);
+  const portrait = () => getActorById(props.profile.avatarActorId)?.portrait;
   return (
     <div class="setup">
-      <h1 class="game-title">DIGITAL CARD BATTLE</h1>
-      <p class="subtitle">
-        {props.profile.name} · ⭐ {props.profile.exp} EXP · {total().wins}W {total().losses}L
-      </p>
+      <div class="wm-profile-bar">
+        <Show when={portrait()}>
+          <div class="wm-avatar-frame">
+            <img src={portrait()} class="wm-avatar" alt="" />
+          </div>
+        </Show>
+        <span class="wm-profile-name">{props.profile.name}</span>
+      </div>
 
+      <p class="wm-section-label">SELECT CITY TO VISIT</p>
       <div class="world-map">
         <For each={CITIES}>
           {(city) => {

@@ -33,12 +33,13 @@ const city = (
   id: string,
   name: string,
   unlockedBy: string | null,
+  imgId?: string,
 ): City => ({
   id,
   name,
-  overview: img(id, "overview"),
-  cafe: img(id, "cafe"),
-  arena: img(id, "arena"),
+  overview: img(imgId ?? id, "overview"),
+  cafe: img(imgId ?? id, "cafe"),
+  arena: img(imgId ?? id, "arena"),
   unlockedBy,
 });
 
@@ -51,10 +52,10 @@ export const CITIES: City[] = [
   city("dark",           "Dark City",        "junk"),
   city("pyramid",        "Pyramid City",     "dark"),
   city("sky",            "Sky City",         "pyramid"),
-  city("steep-road",     "Steep Road",       "sky"),
+  city("steep-road",     "Steep Road",       "sky",           "desert-island"),
   city("wiseman-tower",  "Wiseman Tower",    "steep-road"),
   city("infinity-tower", "Infinity Tower",   "wiseman-tower"),
-  city("desert-island",  "Desert Island",    "infinity-tower"),
+  city("desert-island",  "Desert Island",    "infinity-tower","steep-road"),
 ];
 
 export function getCityById(id: string): City | null {

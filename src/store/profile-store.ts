@@ -33,8 +33,6 @@ export interface PartnerState {
   bonusCircle: number;
   bonusTriangle: number;
   bonusCross: number;
-  /** DigiPart ids owned by this partner. */
-  ownedDigiparts: number[];
   /** Currently equipped DigiPart ids (max 3). */
   equippedDigiparts: number[];
   /** Equipped armor card number (null = none chosen). */
@@ -56,6 +54,11 @@ export interface PlayerProfile {
    * every saved deck simultaneously.
    */
   bag: Record<string, number>;
+  /**
+   * DigiPart ids owned by this profile (shared pool across all partners).
+   * A part can only be equipped on one partner at a time.
+   */
+  ownedDigiparts: number[];
   /** Built decks (max {@link MAX_DECKS}); same shape as custom decks. */
   decks: CustomDeck[];
   /** Accumulated experience points (earned by defeating duelists). */
@@ -178,7 +181,14 @@ export class ProfileStore {
         }
         const { defeated: _legacy, ...rest } = p;
         const { cityRosters: _legacy2, ...rest2 } = rest as typeof rest & { cityRosters?: unknown };
-        return { ...rest2, exp: p.exp ?? 0, records, flags: p.flags ?? {}, keyItems: (p as PlayerProfile & { keyItems?: PlayerKeyItems }).keyItems ?? {}, seenDialogs: (p as PlayerProfile & { seenDialogs?: string[] }).seenDialogs ?? [], partners: p.partners ?? [] };
+        // Migrate: old profiles stored ownedDigiparts per-partner; merge into profile-level pool.
+        type LegacyPartner = PartnerState & { ownedDigiparts?: number[] };
+        const rawPartners: LegacyPartner[] = (p.partners ?? []) as LegacyPartner[];
+        const legacyOwned = rawPartners.flatMap((pt) => pt.ownedDigiparts ?? []);
+        const existingOwned: number[] = (p as PlayerProfile & { ownedDigiparts?: number[] }).ownedDigiparts ?? [];
+        const mergedOwned = Array.from(new Set([...existingOwned, ...legacyOwned]));
+        const cleanPartners: PartnerState[] = rawPartners.map(({ ownedDigiparts: _op, ...pt }) => pt as PartnerState);
+        return { ...rest2, exp: p.exp ?? 0, records, flags: p.flags ?? {}, keyItems: (p as PlayerProfile & { keyItems?: PlayerKeyItems }).keyItems ?? {}, seenDialogs: (p as PlayerProfile & { seenDialogs?: string[] }).seenDialogs ?? [], ownedDigiparts: mergedOwned, partners: cleanPartners };
       });
     } catch {
       return [];
@@ -244,6 +254,7 @@ export class ProfileStore {
       flags: {},
       keyItems: {},
       seenDialogs: [],
+      ownedDigiparts: [],
       partners: [],
       createdAt: now,
       updatedAt: now,
@@ -512,7 +523,6 @@ export class ProfileStore {
       bonusCircle: 0,
       bonusTriangle: 0,
       bonusCross: 0,
-      ownedDigiparts: [],
       equippedDigiparts: [],
       armor: null,
     };
@@ -548,7 +558,7 @@ export class ProfileStore {
     const newLevel = partnerLevelFromExp(clampedExp);
     const progression = PARTNER_PROGRESSIONS[partnerId];
     let hp = 0, circle = 0, triangle = 0, cross = 0;
-    const earnedDigiparts = new Set<number>(partner.ownedDigiparts);
+    const earnedDigiparts = new Set<number>(profile.ownedDigiparts);
     // Transitions k=0...(newLevel-2) have been crossed (k = Lv(k+1)→Lv(k+2)).
     for (let k = 0; k < newLevel - 1; k++) {
       const reward = progression[k];
@@ -566,31 +576,25 @@ export class ProfileStore {
     partner.bonusCircle = Math.min(200, circle);
     partner.bonusTriangle = Math.min(200, triangle);
     partner.bonusCross = Math.min(200, cross);
-    partner.ownedDigiparts = Array.from(earnedDigiparts);
+    profile.ownedDigiparts = Array.from(earnedDigiparts);
 
     return this.update(profile);
   }
 
   /**
-   * Grants a DigiPart to a partner (adds to `ownedDigiparts` if not already
-   * present).
+   * Grants a DigiPart to the profile's shared pool (adds to `ownedDigiparts`
+   * if not already present). DigiParts are profile-owned; any partner can
+   * equip from the shared pool but only one at a time.
    *
    * @param profileId - Profile id.
-   * @param partnerId - The partner receiving the DigiPart.
    * @param digipartId - DigiPart id (0–127).
    * @returns The updated profile.
    */
-  grantDigipart(
-    profileId: string,
-    partnerId: PartnerId,
-    digipartId: number,
-  ): PlayerProfile {
+  grantDigipart(profileId: string, digipartId: number): PlayerProfile {
     const profile = this.require(profileId);
-    const partner = profile.partners.find((p) => p.id === partnerId);
-    if (!partner) throw new Error(`Partner "${partnerId}" is not unlocked on this profile.`);
     if (!DIGIPARTS[digipartId]) throw new Error(`Unknown DigiPart id: ${digipartId}`);
-    if (!partner.ownedDigiparts.includes(digipartId)) {
-      partner.ownedDigiparts = [...partner.ownedDigiparts, digipartId];
+    if (!profile.ownedDigiparts.includes(digipartId)) {
+      profile.ownedDigiparts = [...profile.ownedDigiparts, digipartId];
     }
     return this.update(profile);
   }
@@ -617,11 +621,18 @@ export class ProfileStore {
 
     const part = DIGIPARTS[digipartId];
     if (!part) return `Unknown DigiPart id: ${digipartId}`;
-    if (!partner.ownedDigiparts.includes(digipartId)) {
-      return `Partner does not own DigiPart "${part.name}".`;
+    if (!profile.ownedDigiparts.includes(digipartId)) {
+      return `You do not own DigiPart "${part.name}".`;
     }
     if (partner.equippedDigiparts.includes(digipartId)) {
       return null; // Already equipped — idempotent.
+    }
+    // A DigiPart is a physical item — only one partner can equip it at a time.
+    for (const other of profile.partners) {
+      if (other.id !== partnerId && other.equippedDigiparts.includes(digipartId)) {
+        const otherDef = PARTNERS.find((p) => p.id === other.id);
+        return `"${part.name}" is already equipped on ${otherDef?.name ?? other.id}.`;
+      }
     }
     if (partner.equippedDigiparts.length >= 3) {
       return "Cannot equip more than 3 DigiParts at once.";
@@ -696,6 +707,12 @@ export class ProfileStore {
     else profiles.unshift(profile);
     this.persist(profiles);
     return profile;
+  }
+
+  /** Upsert a profile by id (replaces if same id exists, prepends if new). */
+  importProfile(profile: PlayerProfile): void {
+    const existing = this.list().filter((p) => p.id !== profile.id);
+    this.persist([profile, ...existing]);
   }
 
   private persist(profiles: PlayerProfile[]): void {

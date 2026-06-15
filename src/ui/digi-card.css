@@ -105,3 +105,18 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* Inline glyph/specialty icons (see EffectText in DigiCard.tsx) */
+.digi-inline-icon {
+  width: 1.05em;
+  height: 1.05em;
+  object-fit: contain;
+  vertical-align: -0.18em;
+  margin: 0 2px;
+}
+
+.digi-inline-icon--spec {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.22em;
+}

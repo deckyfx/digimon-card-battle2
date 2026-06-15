@@ -26,7 +26,7 @@ export type PartnerId =
   | "gatomon"
   | "wormmon";
 
-/** Canonical order matching the DigiPart minLevel tuple indices (0..5). */
+/** Canonical partner index order (0..5). */
 export const PARTNER_ORDER: PartnerId[] = [
   "veemon",
   "hawkmon",

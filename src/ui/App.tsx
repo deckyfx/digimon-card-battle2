@@ -1,5 +1,6 @@
 import { Show, createEffect, createSignal } from "solid-js";
-import type { AttackType } from "@src/types";
+import type { AttackType, MasterCard } from "@src/types";
+import { correctPartnerCard } from "@src/data/digiparts";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
 import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
@@ -18,7 +19,7 @@ import { ScreenWorldMap } from "./ScreenWorldMap";
 import { ScreenCity } from "./ScreenCity";
 import { BattleResultModal, type MatchRewards } from "./BattleResultModal";
 import { InventoryModal } from "./InventoryModal";
-import { PartnersModal } from "./PartnersModal";
+import { ScreenPartnerManagement } from "./ScreenPartnerManagement";
 import { LogArea } from "./LogArea";
 import { ControlPanel } from "./ControlPanel";
 import { OpponentArea } from "./OpponentArea";
@@ -29,6 +30,7 @@ import { TurnInfo } from "./TurnInfo";
 import { CardInspector } from "./CardInspector";
 import { CUSTOM_PREFIX, PREBUILT_PREFIX, RANDOM_DECK, deckIllegal, profileStore, resolveDeck } from "./deck-select";
 import { PARTNERS, partnerLevelFromExp } from "@src/data/partners";
+import { computeExpBonuses } from "@src/engine/battle-stats";
 import type { PartnerExpGain } from "./BattleResultModal";
 
 const CPU_DELAY_MS = 600;
@@ -49,7 +51,7 @@ export function App() {
   const cpuActor = () => getActorById(cpuActorId()) ?? OPPONENT_ACTORS[0]!;
   const [setupError, setSetupError] = createSignal("");
   // App opens on profile management; the world map is the scenario hub.
-  const [view, setView] = createSignal<"ScreenProfiles" | "welcome" | "world" | "city" | "setup" | "battle-intro" | "builder">("ScreenProfiles");
+  const [view, setView] = createSignal<"ScreenProfiles" | "welcome" | "world" | "city" | "setup" | "battle-intro" | "builder" | "partners">("ScreenProfiles");
   const [profile, setProfile] = createSignal<PlayerProfile | null>(null);
   /** City currently being visited (view "city" / scenario duels). */
   const [activeCityId, setActiveCityId] = createSignal<string | null>(null);
@@ -74,7 +76,6 @@ export function App() {
   /** Where the builder was opened from, to return there on Back. */
   let builderOrigin: "world" | "setup" = "world";
   const [inventoryOpen, setInventoryOpen] = createSignal(false);
-  const [partnersOpen, setPartnersOpen] = createSignal(false);
 
   const playerPortrait = () => getActorById(profile()?.avatarActorId ?? 0)?.portrait;
 
@@ -171,8 +172,30 @@ export function App() {
       cpuDeckValue = `${PREBUILT_PREFIX}${cpuDeckId}`;
     }
     const theirs = resolveDeck(cpuDeckValue, prof);
+    const partnerNums = new Set(
+      (prof.partners ?? []).flatMap((ps) => {
+        const def = PARTNERS.find((d) => d.id === ps.id);
+        return def ? [def.cardNumber, ...def.armorNumbers] : [];
+      }),
+    );
+    // Apply equipped cross_eff / support_eff DigiPart corrections to the
+    // player's partner Rookies (and their armor cards) before battle.
+    const partsByCardNumber = new Map<string, number[]>();
+    for (const ps of prof.partners ?? []) {
+      const def = PARTNERS.find((d) => d.id === ps.id);
+      if (!def) continue;
+      for (const num of [def.cardNumber, ...def.armorNumbers]) {
+        partsByCardNumber.set(num, ps.equippedDigiparts);
+      }
+    }
+    const correctForPartner = (c: MasterCard): MasterCard => {
+      const parts = partsByCardNumber.get(c.number);
+      return parts ? correctPartnerCard(c, parts) : c;
+    };
+    const playerCards = mine.cards.map(correctForPartner);
+    const playerArmors = mine.armors.map(correctForPartner);
     const eng = new GameEngine(
-      mine.cards,
+      playerCards,
       theirs.cards,
       Date.now(),
       {
@@ -181,7 +204,8 @@ export function App() {
         playerDeckName: mine.name,
         cpuDeckName: theirs.name,
       },
-      { player: mine.armors, cpu: theirs.armors },
+      { player: playerArmors, cpu: theirs.armors },
+      partnerNums,
     );
     eng.log.push(`${eng.players.player.name} [${mine.name}] vs ${eng.players.cpu.name} [${theirs.name}]`);
     eng.setOnChange(() => setVersion((v) => v + 1));
@@ -265,7 +289,7 @@ export function App() {
       ? parseInt(deckIdStr.slice(PREBUILT_PREFIX.length), 10)
       : null;
     const deck = deckId !== null ? getDeckById(deckId) : null;
-    const exp = deck?.exp ?? 0;
+    const baseExp = deck?.exp ?? 0;
     const pack = deck?.prizePack ? getPackById(deck.prizePack) : null;
     const cards = pack ? openPack(pack) : [];
     const bonusCards = (actor.prizeCards ?? [])
@@ -273,6 +297,32 @@ export function App() {
       .filter((c): c is NonNullable<typeof c> => c !== undefined);
     const partnerGains: PartnerExpGain[] = [];
     const prof = profile();
+
+    // Compute EXP breakdown (base + challenge bonuses).
+    const eng = engine();
+    const expBreakdown = eng
+      ? [
+          { key: "base", name: "Base EXP", exp: baseExp },
+          ...(prof
+            ? computeExpBonuses(
+                eng.battleStats,
+                {
+                  deckLeft: eng.players.player.deck.length,
+                  handLeft: eng.players.player.hand.length,
+                  score: eng.players.player.score,
+                },
+                {
+                  deckLeft: eng.players.cpu.deck.length,
+                  handLeft: eng.players.cpu.hand.length,
+                  score: eng.players.cpu.score,
+                },
+                prof,
+              )
+            : []),
+        ]
+      : [{ key: "base", name: "Base EXP", exp: baseExp }];
+    const exp = expBreakdown.reduce((s, line) => s + line.exp, 0);
+
     if (prof) {
       profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
       profileStore.addExp(prof.id, exp);
@@ -284,7 +334,6 @@ export function App() {
       }
 
       // Grant EXP to partners whose Rookie card appeared in the player's deck.
-      // Auto-unlock partners on first encounter (up to the 3-partner cap).
       if (exp > 0) {
         const playerCardSet = new Set(
           resolveDeck(playerDeck(), prof).cards.map((c) => c.number),
@@ -300,7 +349,7 @@ export function App() {
 
           const oldExp = partnerState.totalExp;
           const oldLevel = partnerLevelFromExp(oldExp);
-          const oldDigipartSet = new Set(partnerState.ownedDigiparts);
+          const oldDigipartSet = new Set(currentProf.ownedDigiparts);
 
           const updated = profileStore.setPartnerExp(
             prof.id,
@@ -327,14 +376,14 @@ export function App() {
             newBonusCircle: updatedPartner.bonusCircle,
             newBonusTriangle: updatedPartner.bonusTriangle,
             newBonusCross: updatedPartner.bonusCross,
-            newDigiparts: updatedPartner.ownedDigiparts.filter((id) => !oldDigipartSet.has(id)),
+            newDigiparts: updated.ownedDigiparts.filter((id) => !oldDigipartSet.has(id)),
           });
         }
       }
 
       refreshProfile();
     }
-    rewardClaim = { exp, packName: pack?.name ?? null, cards, bonusCards, partnerGains };
+    rewardClaim = { exp, expBreakdown, packName: pack?.name ?? null, cards, bonusCards, partnerGains };
     return rewardClaim;
   }
 
@@ -406,7 +455,7 @@ export function App() {
                   setView("builder");
                 }}
                 onOpenInventory={() => setInventoryOpen(true)}
-                onOpenPartners={() => setPartnersOpen(true)}
+                onOpenPartners={() => setView("partners")}
               />
             </Show>
             <Show when={inventoryOpen() && profile()}>
@@ -417,11 +466,11 @@ export function App() {
                 onProfileChange={refreshProfile}
               />
             </Show>
-            <Show when={partnersOpen() && profile()}>
-              <PartnersModal
+            <Show when={view() === "partners" && profile()}>
+              <ScreenPartnerManagement
                 profile={profile() as PlayerProfile}
                 store={profileStore}
-                onClose={() => setPartnersOpen(false)}
+                onClose={() => setView("world")}
                 onProfileChange={refreshProfile}
               />
             </Show>

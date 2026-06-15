@@ -1,6 +1,7 @@
-import { For, Show, createSignal, createMemo, onMount } from "solid-js";
+import { For, Show, createSignal, createMemo, onMount, Index } from "solid-js";
 import type { MasterCard } from "@src/types";
 import type { GameEngine } from "@src/engine/game-engine";
+import type { ExpBonusLine } from "@src/engine/battle-stats";
 import { CardView, setInspectedCard } from "./CardView";
 import { createTicker } from "./Ticker";
 import { MASTER_CARDS } from "@src/data/master-cards";
@@ -41,8 +42,10 @@ export interface PartnerExpGain {
 
 /** Everything granted for a victory, claimed exactly once per match. */
 export interface MatchRewards {
-  /** Experience points obtained (more gain factors will join later). */
+  /** Total EXP granted (sum of expBreakdown). */
   exp: number;
+  /** Itemised breakdown: Base EXP first, then each triggered challenge bonus. */
+  expBreakdown: ExpBonusLine[];
   /** Name of the opened prize pack (null = opponent awards none). */
   packName: string | null;
   /** The pack's three draws. */
@@ -168,6 +171,68 @@ function PartnerExpRow(props: { gain: PartnerExpGain }) {
 }
 
 // ---------------------------------------------------------------------------
+// EXP breakdown step
+// ---------------------------------------------------------------------------
+
+/** Staggered table: bonus rows appear one by one, then the Total row last. */
+function ExpBreakdownStep(props: {
+  rewards: MatchRewards;
+  onNext: () => void;
+  nextLabel: string;
+}) {
+  const lines = () => props.rewards.expBreakdown;
+  const total = () => props.rewards.exp;
+
+  // How many rows are currently visible (0 = none yet).
+  const [visible, setVisible] = createSignal(0);
+
+  onMount(() => {
+    // Reveal each bonus row with a staggered delay, then the Total row.
+    const n = lines().length;
+    for (let i = 0; i < n; i++) {
+      setTimeout(() => setVisible(i + 1), (i + 1) * 200);
+    }
+    // Total row appears after all bonus rows.
+    setTimeout(() => setVisible(n + 1), (n + 1) * 200);
+  });
+
+  const showTotal = () => visible() > lines().length;
+
+  return (
+    <div class="modal">
+      <h2>Experience</h2>
+      <table class="exp-breakdown-table">
+        <tbody>
+          <Index each={lines()}>
+            {(line, i) => (
+              <Show when={visible() > i}>
+                <tr class="exp-breakdown-row">
+                  <td class="exp-breakdown-name">{line().name}</td>
+                  <td class="exp-breakdown-exp">+{line().exp}</td>
+                </tr>
+              </Show>
+            )}
+          </Index>
+          <Show when={showTotal()}>
+            <tr class="exp-breakdown-row exp-breakdown-total">
+              <td class="exp-breakdown-name">Total</td>
+              <td class="exp-breakdown-exp">+{total()}</td>
+            </tr>
+          </Show>
+        </tbody>
+      </table>
+      <Show when={showTotal()}>
+        <div class="setup-actions">
+          <button class="primary" onClick={props.onNext}>
+            {props.nextLabel}
+          </button>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Modal
 // ---------------------------------------------------------------------------
 
@@ -220,27 +285,17 @@ export function BattleResultModal(props: {
         </div>
       </Show>
 
-      {/* Step 2 (win): experience obtained — its own dialog, more gain
-          factors will be itemized here later. */}
+      {/* Step 2 (win): EXP breakdown table, staggered row appearance. */}
       <Show when={step() === "exp"}>
-        <div class="modal">
-          <h2>Experience</h2>
-          <div class="reward-exp">
-            ⭐ +{rewards().exp} <span class="reward-exp-label">EXP</span>
-          </div>
-          <div class="setup-actions">
-            <button
-              class="primary"
-              onClick={() => {
-                if (hasPartnerGains()) setStep("partner-exp");
-                else if (hasPrize()) setStep("prize");
-                else props.onBackToLobby();
-              }}
-            >
-              {hasPartnerGains() || hasPrize() ? "Next ▶" : "Back To Lobby"}
-            </button>
-          </div>
-        </div>
+        <ExpBreakdownStep
+          rewards={rewards()}
+          onNext={() => {
+            if (hasPartnerGains()) setStep("partner-exp");
+            else if (hasPrize()) setStep("prize");
+            else props.onBackToLobby();
+          }}
+          nextLabel={hasPartnerGains() || hasPrize() ? "Next ▶" : "Back To Lobby"}
+        />
       </Show>
 
       {/* Step 3 (win, when applicable): partner EXP gains. */}

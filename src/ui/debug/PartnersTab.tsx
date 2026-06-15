@@ -5,7 +5,6 @@ import type { PartnerId } from "@src/data/partners";
 import { DIGIPARTS } from "@src/data/digiparts";
 import { profileStore } from "@src/ui/deck-select";
 import type { PartnerState } from "@src/store/profile-store";
-import { getPartnerByCard } from "@src/data/partners";
 
 export function PartnersTab() {
   const [profiles, setProfiles] = createSignal(profileStore.list());
@@ -13,7 +12,6 @@ export function PartnersTab() {
   const [selectedPartnerId, setSelectedPartnerId] = createSignal<PartnerId | null>(null);
   const [expInput, setExpInput] = createSignal("");
   const [lastMessage, setLastMessage] = createSignal<{ text: string; ok: boolean } | null>(null);
-  const [digipartSearch, setDigipartSearch] = createSignal("");
 
   const refresh = () => setProfiles(profileStore.list());
   const msg = (text: string, ok = true) => setLastMessage({ text, ok });
@@ -72,42 +70,6 @@ export function PartnersTab() {
     refresh();
     msg(armorNumber ? `Armor #${armorNumber} equipped.` : "Armor cleared.");
   };
-
-  const grantDigipart = (dpId: number) => {
-    const p = activeProfile();
-    const pid = selectedPartnerId();
-    if (!p || !pid) { msg("Select a profile and partner first.", false); return; }
-    profileStore.grantDigipart(p.id, pid, dpId);
-    refresh();
-    msg(`DigiPart #${dpId} (${DIGIPARTS[dpId]?.name ?? "?"}) granted.`);
-  };
-
-  const equipDigipart = (dpId: number) => {
-    const p = activeProfile();
-    const pid = selectedPartnerId();
-    if (!p || !pid) return;
-    const err = profileStore.equipDigipart(p.id, pid, dpId);
-    if (err) { msg(err, false); return; }
-    refresh();
-    msg(`DigiPart #${dpId} equipped.`);
-  };
-
-  const unequipDigipart = (dpId: number) => {
-    const p = activeProfile();
-    const pid = selectedPartnerId();
-    if (!p || !pid) return;
-    profileStore.unequipDigipart(p.id, pid, dpId);
-    refresh();
-    msg(`DigiPart #${dpId} unequipped.`);
-  };
-
-  const filteredDigiparts = createMemo(() => {
-    const q = digipartSearch().toLowerCase().trim();
-    if (!q) return DIGIPARTS;
-    return DIGIPARTS.filter(
-      (dp) => dp.name.toLowerCase().includes(q) || String(dp.id).includes(q) || dp.group.includes(q),
-    );
-  });
 
   const levelProgress = createMemo(() => {
     const s = partnerState();
@@ -283,108 +245,6 @@ export function PartnersTab() {
                       );
                     }}
                   </For>
-                </div>
-              </div>
-
-              {/* DigiPart equipment panel */}
-              <div class="debug-section" style="grid-column:1/-1">
-                <h3 class="debug-section-title">DigiParts</h3>
-                <div style="display:flex;gap:16px;flex-wrap:wrap">
-                  {/* Equipped slots */}
-                  <div>
-                    <div style="color:#aaa;font-size:0.8rem;margin-bottom:6px">EQUIPPED (max 3)</div>
-                    <div style="display:flex;gap:8px">
-                      <For each={[0, 1, 2]}>
-                        {(slot) => {
-                          const dpId = () => ps().equippedDigiparts[slot];
-                          const dp = () => dpId() != null ? DIGIPARTS[dpId()!] : null;
-                          return (
-                            <div style="background:rgba(0,243,255,0.05);border:1px solid rgba(0,243,255,0.2);border-radius:4px;padding:8px;min-width:120px;min-height:60px;display:flex;flex-direction:column;gap:4px">
-                              <Show when={dp()} fallback={<span style="color:#444;font-size:0.8rem">— empty —</span>}>
-                                {(d) => (
-                                  <>
-                                    <span style="color:#00f3ff;font-size:0.8rem;font-weight:700">#{dpId()} {d().name}</span>
-                                    <span style="color:#888;font-size:0.75rem">{d().group}</span>
-                                    <button class="debug-btn" style="padding:2px 6px;font-size:0.75rem;margin-top:auto" onClick={() => unequipDigipart(dpId()!)}>
-                                      Unequip
-                                    </button>
-                                  </>
-                                )}
-                              </Show>
-                            </div>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </div>
-
-                  {/* Owned DigiParts */}
-                  <div style="flex:1;min-width:200px">
-                    <div style="color:#aaa;font-size:0.8rem;margin-bottom:6px">OWNED ({ps().ownedDigiparts.length})</div>
-                    <div style="max-height:120px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:4px">
-                      <For each={ps().ownedDigiparts}>
-                        {(dpId) => {
-                          const dp = DIGIPARTS[dpId];
-                          const isEquipped = () => ps().equippedDigiparts.includes(dpId);
-                          return (
-                            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:3px;padding:3px 8px;font-size:0.78rem;cursor:pointer;display:flex;gap:6px;align-items:center"
-                              title={dp?.name ?? ""}>
-                              <span style="color:#ccc">#{dpId}</span>
-                              <Show when={!isEquipped()}>
-                                <button class="debug-btn" style="padding:1px 5px;font-size:0.72rem" onClick={() => equipDigipart(dpId)}>
-                                  +
-                                </button>
-                              </Show>
-                              <Show when={isEquipped()}>
-                                <span style="color:#0f5;font-size:0.75rem">✓</span>
-                              </Show>
-                            </div>
-                          );
-                        }}
-                      </For>
-                      <Show when={ps().ownedDigiparts.length === 0}>
-                        <span style="color:#555;font-size:0.8rem">None yet.</span>
-                      </Show>
-                    </div>
-                  </div>
-                </div>
-
-                {/* DigiPart grant browser */}
-                <div style="margin-top:12px">
-                  <div style="color:#aaa;font-size:0.8rem;margin-bottom:6px">GRANT DIGIPART</div>
-                  <input
-                    class="debug-input"
-                    type="text"
-                    placeholder="Search DigiPart by name, id, or group…"
-                    value={digipartSearch()}
-                    onInput={(e) => setDigipartSearch(e.currentTarget.value)}
-                    style="width:100%;margin-bottom:8px"
-                  />
-                  <div style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:2px">
-                    <For each={filteredDigiparts()}>
-                      {(dp) => {
-                        const owned = () => ps().ownedDigiparts.includes(dp.id);
-                        return (
-                          <div style="display:flex;gap:8px;align-items:center;padding:4px 8px;border-radius:3px;background:rgba(255,255,255,0.02)">
-                            <span style="color:#888;font-size:0.8rem;width:28px">#{dp.id}</span>
-                            <span style="color:#ddd;font-size:0.85rem;flex:1">{dp.name}</span>
-                            <span style="color:#666;font-size:0.75rem;width:80px">{dp.group}</span>
-                            <Show when={owned()}>
-                              <span style="color:#0c8;font-size:0.75rem;width:50px">owned</span>
-                            </Show>
-                            <button
-                              class="debug-btn"
-                              style="padding:2px 8px;font-size:0.78rem"
-                              disabled={owned()}
-                              onClick={() => grantDigipart(dp.id)}
-                            >
-                              Grant
-                            </button>
-                          </div>
-                        );
-                      }}
-                    </For>
-                  </div>
                 </div>
               </div>
 
