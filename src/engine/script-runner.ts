@@ -3,12 +3,18 @@ import type { CombatantCtx } from "./battle-context";
 /** Zone names addressable by effect-script commands. */
 export type ZoneName = "deck" | "hand" | "dp" | "trash";
 
+/** Which cards a move operation selects from a zone. `bottom` = last element
+ * (e.g. the most recently trashed card, since trash is appended). */
+export type ZonePos = "top" | "bottom" | "random" | "all";
+
 /** Card-zone operations the engine exposes to effect-script commands. */
 export interface SideZoneOps {
   /** Draw `count` cards from deck top into hand. */
   drawCards(count: number): void;
+  /** Draw up to `count` Partner cards from the deck into hand (stops when none remain). */
+  drawPartners(count: number): void;
   /** Move `count` cards between zones. `pos` selects which cards are taken. */
-  moveCards(from: ZoneName, to: ZoneName, count: number, pos: "top" | "random" | "all"): void;
+  moveCards(from: ZoneName, to: ZoneName, count: number, pos: ZonePos): void;
   /** Shuffle the deck. */
   shuffleDeck(): void;
   /** Cards currently in the DP slot. */
@@ -23,7 +29,8 @@ export interface SideZoneOps {
  *
  * Command grammar (pipe-separated):
  * - `draw-card|own|<count>`
- * - `move-card|<side>|<from>|<to>|<count>|<top|random|all>`
+ * - `draw-partner|own|<count>` — draws up to count Partner cards from the deck
+ * - `move-card|<side>|<from>|<to>|<count>|<top|bottom|random|all>`
  * - `shuffle|<side>|deck`
  * where `<side>` is `own`/`opponent` relative to the script's owner.
  */
@@ -69,11 +76,16 @@ export class ScriptRunner {
         side.drawCards(count);
         break;
       }
+      case "draw-partner": {
+        const count = parseInt(parts[2] ?? "0", 10) || 0;
+        if (count > 0) side.drawPartners(count);
+        break;
+      }
       case "move-card": {
         const from = parts[2] as ZoneName | undefined;
         const to = parts[3] as ZoneName | undefined;
         const count = parseInt(parts[4] ?? "0", 10) || 0;
-        const pos = (parts[5] ?? "top") as "top" | "random" | "all";
+        const pos = (parts[5] ?? "top") as ZonePos;
         if (from && to && count > 0) side.moveCards(from, to, count, pos);
         break;
       }

@@ -111,6 +111,9 @@ export function SandboxTab() {
       drawCards(count) {
         cmds.push(`draw-card|${isOwn ? "own" : "opponent"}|${count}`);
       },
+      drawPartners(count) {
+        cmds.push(`draw-partner|${isOwn ? "own" : "opponent"}|${count}`);
+      },
       moveCards(from, to, count, pos) {
         cmds.push(`move-card|${isOwn ? "own" : "opponent"}|${from}|${to}|${count}|${pos}`);
       },

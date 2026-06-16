@@ -129,7 +129,7 @@ export function computeExpBonuses(
     push("all_t_win", "All △ Attack Win", 3);
 
   if (won && n > 0 && rounds.every((r) => r.playerAttack === "x"))
-    push("all_x_win", "All × Attack Win", 3);
+    push("all_x_win", "All ✕ Attack Win", 3);
 
   if (won && n > 0 && rounds.every((r) => r.playerGambled))
     push("all_gamble_win", "All or Nothing Gamble Win", 5);

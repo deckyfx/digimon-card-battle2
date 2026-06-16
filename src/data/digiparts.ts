@@ -90,7 +90,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "cross_eff",
     x_effect: "○ to 0.",
     x_effect_speed: 1,
-    x_effect_script: "opponent.c_power = 0;",
+    x_effect_script: 'opponent.c_power = 0;',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -100,
@@ -101,7 +101,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "cross_eff",
     x_effect: "△ to 0.",
     x_effect_speed: 1,
-    x_effect_script: "opponent.t_power = 0;",
+    x_effect_script: 'opponent.t_power = 0;',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -100,
@@ -112,7 +112,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "cross_eff",
     x_effect: "✕ to 0.",
     x_effect_speed: 1,
-    x_effect_script: "opponent.x_power = 0;",
+    x_effect_script: 'opponent.x_power = 0;',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -100,
@@ -157,7 +157,7 @@ export const DIGIPARTS: DigiPart[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -200,
@@ -169,7 +169,7 @@ export const DIGIPARTS: DigiPart[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -200,
@@ -181,7 +181,7 @@ export const DIGIPARTS: DigiPart[] = [
     x_effect: "Nature Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Nature") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Nature") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -200,
@@ -193,7 +193,7 @@ export const DIGIPARTS: DigiPart[] = [
     x_effect: "Darkness Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -200,
@@ -205,7 +205,7 @@ export const DIGIPARTS: DigiPart[] = [
     x_effect: "Rare Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Rare") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Rare") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -200,
@@ -216,7 +216,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "cross_eff",
     x_effect: "1st Attack.",
     x_effect_speed: 2,
-    x_effect_script: "own.is_first_attack = true;",
+    x_effect_script: 'own.is_first_attack = true;',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -100,
@@ -227,7 +227,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "cross_eff",
     x_effect: "Jamming.",
     x_effect_speed: 3,
-    x_effect_script: "own.jamming = true;",
+    x_effect_script: 'own.jamming = true;',
     x_effect_is_jamming: 1,
     x_effect_changes_attack: 0,
     x_power_delta: -100,
@@ -238,7 +238,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "cross_eff",
     x_effect: "Eat-Up HP.",
     x_effect_speed: 2,
-    x_effect_script: "own.is_absorbing = true;",
+    x_effect_script: 'own.is_absorbing = true;',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     x_power_delta: -200,
@@ -252,7 +252,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own Attack Power +50.",
     support_speed: 1,
-    support_script: "own.c_power += 50;\nown.t_power += 50;\nown.x_power += 50;",
+    support_script: 'own.c_power += 50; own.t_power += 50; own.x_power += 50;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -262,7 +262,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own Attack Power +100.",
     support_speed: 1,
-    support_script: "own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;",
+    support_script: 'own.c_power += 100; own.t_power += 100; own.x_power += 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -272,7 +272,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own Attack Power +200.",
     support_speed: 1,
-    support_script: "own.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;",
+    support_script: 'own.c_power += 200; own.t_power += 200; own.x_power += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -282,7 +282,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own Attack Power +300.",
     support_speed: 1,
-    support_script: "own.c_power += 300;\nown.t_power += 300;\nown.x_power += 300;",
+    support_script: 'own.c_power += 300; own.t_power += 300; own.x_power += 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -292,7 +292,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own Attack Power is doubled.",
     support_speed: 1,
-    support_script: "own.c_power *= 2;\nown.t_power *= 2;\nown.x_power *= 2;",
+    support_script: 'own.c_power *= 2; own.t_power *= 2; own.x_power *= 2;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -302,7 +302,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own ○ Attack Power +300.",
     support_speed: 1,
-    support_script: "own.c_power += 300;",
+    support_script: 'own.c_power += 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -312,7 +312,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own ○ Attack Power +400.",
     support_speed: 1,
-    support_script: "own.c_power += 400;",
+    support_script: 'own.c_power += 400;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -322,7 +322,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own ○ Attack Power +500.",
     support_speed: 1,
-    support_script: "own.c_power += 500;",
+    support_script: 'own.c_power += 500;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -332,7 +332,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own ○ Attack Power is doubled.",
     support_speed: 1,
-    support_script: "own.c_power *= 2;",
+    support_script: 'own.c_power *= 2;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -342,7 +342,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own ○ Attack Power is tripled.",
     support_speed: 1,
-    support_script: "own.c_power *= 3;",
+    support_script: 'own.c_power *= 3;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -352,7 +352,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own △ Attack Power +200.",
     support_speed: 1,
-    support_script: "own.t_power += 200;",
+    support_script: 'own.t_power += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -362,7 +362,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own △ Attack Power +300.",
     support_speed: 1,
-    support_script: "own.t_power += 300;",
+    support_script: 'own.t_power += 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -372,7 +372,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own △ Attack Power +400.",
     support_speed: 1,
-    support_script: "own.t_power += 400;",
+    support_script: 'own.t_power += 400;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -382,7 +382,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own △ Attack Power is doubled.",
     support_speed: 1,
-    support_script: "own.t_power *= 2;",
+    support_script: 'own.t_power *= 2;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -392,7 +392,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own △ Attack Power is tripled.",
     support_speed: 1,
-    support_script: "own.t_power *= 3;",
+    support_script: 'own.t_power *= 3;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -402,7 +402,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own ✕ Attack Power +100.",
     support_speed: 1,
-    support_script: "own.x_power += 100;",
+    support_script: 'own.x_power += 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -412,7 +412,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own ✕ Attack Power +200.",
     support_speed: 1,
-    support_script: "own.x_power += 200;",
+    support_script: 'own.x_power += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -422,7 +422,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Boost own ✕ Attack Power +300.",
     support_speed: 1,
-    support_script: "own.x_power += 300;",
+    support_script: 'own.x_power += 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -432,7 +432,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own ✕ Attack Power is doubled.",
     support_speed: 1,
-    support_script: "own.x_power *= 2;",
+    support_script: 'own.x_power *= 2;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -442,7 +442,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own ✕ Attack Power is tripled.",
     support_speed: 1,
-    support_script: "own.x_power *= 3;",
+    support_script: 'own.x_power *= 3;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -452,7 +452,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Own Attack Power becomes own HP.",
     support_speed: 2,
-    support_script: "own.is_crashing = true;",
+    support_script: 'own.is_crashing = true;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -462,7 +462,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "1st Attack.",
     support_speed: 1,
-    support_script: "own.is_first_attack = true;",
+    support_script: 'own.is_first_attack = true;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -472,7 +472,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Eat-Up HP.",
     support_speed: 2,
-    support_script: "own.is_absorbing = true;",
+    support_script: 'own.is_absorbing = true;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -482,7 +482,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Lower opponent's ○ Attack Power to 0.",
     support_speed: 1,
-    support_script: "opponent.c_power = 0;",
+    support_script: 'opponent.c_power = 0;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -492,7 +492,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Lower opponent's △ Attack Power to 0.",
     support_speed: 1,
-    support_script: "opponent.t_power = 0;",
+    support_script: 'opponent.t_power = 0;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -502,7 +502,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Lower opponent's ✕ Attack Power to 0.",
     support_speed: 1,
-    support_script: "opponent.x_power = 0;",
+    support_script: 'opponent.x_power = 0;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -512,7 +512,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "○ Counterattack.",
     support_speed: 1,
-    support_script: "own.is_countering.push(\"c\");",
+    support_script: 'own.is_countering.push("c");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -522,7 +522,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "△ Counterattack.",
     support_speed: 1,
-    support_script: "own.is_countering.push(\"t\");",
+    support_script: 'own.is_countering.push("t");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -532,7 +532,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "✕ Counterattack.",
     support_speed: 1,
-    support_script: "own.is_countering.push(\"x\");",
+    support_script: 'own.is_countering.push("x");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -542,7 +542,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Fire, own Attack Power is doubled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Fire\") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+    support_script: 'if (opponent.specialty === "Fire") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -552,7 +552,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Fire, own Attack Power is tripled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Fire\") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}",
+    support_script: 'if (opponent.specialty === "Fire") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -562,7 +562,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Ice, own Attack Power is doubled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Ice\") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+    support_script: 'if (opponent.specialty === "Ice") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -572,7 +572,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Ice, own Attack Power is tripled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Ice\") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}",
+    support_script: 'if (opponent.specialty === "Ice") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -582,7 +582,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Nature, own Attack Power is doubled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Nature\") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+    support_script: 'if (opponent.specialty === "Nature") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -592,7 +592,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Nature, own Attack Power is tripled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Nature\") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}",
+    support_script: 'if (opponent.specialty === "Nature") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -602,7 +602,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Darkness, own Attack Power is doubled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Darkness\") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+    support_script: 'if (opponent.specialty === "Darkness") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -612,7 +612,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Darkness, own Attack Power is tripled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Darkness\") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}",
+    support_script: 'if (opponent.specialty === "Darkness") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -622,7 +622,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Rare, own Attack Power is doubled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Rare\") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+    support_script: 'if (opponent.specialty === "Rare") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -632,7 +632,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Rare, own Attack Power is tripled.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Rare\") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}",
+    support_script: 'if (opponent.specialty === "Rare") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -642,7 +642,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Change own Specialty to Fire.",
     support_speed: 2,
-    support_script: "own.specialty = \"Fire\";",
+    support_script: 'own.specialty = "Fire";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -652,7 +652,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Change own Specialty to Ice.",
     support_speed: 2,
-    support_script: "own.specialty = \"Ice\";",
+    support_script: 'own.specialty = "Ice";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -662,7 +662,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Change own Specialty to Nature.",
     support_speed: 2,
-    support_script: "own.specialty = \"Nature\";",
+    support_script: 'own.specialty = "Nature";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -672,7 +672,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Change own Specialty to Darkness.",
     support_speed: 2,
-    support_script: "own.specialty = \"Darkness\";",
+    support_script: 'own.specialty = "Darkness";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -682,7 +682,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Change own Specialty to Rare.",
     support_speed: 2,
-    support_script: "own.specialty = \"Rare\";",
+    support_script: 'own.specialty = "Rare";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -692,7 +692,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Change own Specialty to opponent's Specialty.",
     support_speed: 2,
-    support_script: "own.specialty = opponent.specialty;",
+    support_script: 'own.specialty = opponent.specialty;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -702,7 +702,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Swap own and opponent's Specialties.",
     support_speed: 2,
-    support_script: "const _s = own.specialty;\nown.specialty = opponent.specialty;\nopponent.specialty = _s;",
+    support_script: 'const _s = own.specialty; own.specialty = opponent.specialty; opponent.specialty = _s;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -712,7 +712,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Fire, lower opponent's Attack Power to 0.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Fire\") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+    support_script: 'if (opponent.specialty === "Fire") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -722,7 +722,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Ice, lower opponent's Attack Power to 0.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Ice\") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+    support_script: 'if (opponent.specialty === "Ice") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -732,7 +732,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Nature, lower opponent's Attack Power to 0.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Nature\") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+    support_script: 'if (opponent.specialty === "Nature") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -742,7 +742,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Darkness, lower opponent's Attack Power to 0.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Darkness\") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+    support_script: 'if (opponent.specialty === "Darkness") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -752,7 +752,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If opponent's Specialty is Rare, lower opponent's Attack Power to 0.",
     support_speed: 1,
-    support_script: "if (opponent.specialty === \"Rare\") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+    support_script: 'if (opponent.specialty === "Rare") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -762,7 +762,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Both Attack Powers become 0.",
     support_speed: 2,
-    support_script: "own.c_power = 0;\nown.t_power = 0;\nown.x_power = 0;\nopponent.c_power = 0;\nopponent.t_power = 0;\nopponent.x_power = 0;",
+    support_script: 'own.c_power = 0; own.t_power = 0; own.x_power = 0; opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -772,7 +772,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own level is R, boost own Attack Power +200.",
     support_speed: 1,
-    support_script: "if (own.level === \"R\") {\n  own.c_power += 200;\n  own.t_power += 200;\n  own.x_power += 200;\n}",
+    support_script: 'if (own.level === "R") { own.c_power += 200; own.t_power += 200; own.x_power += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -782,7 +782,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own level is C, boost own Attack Power +300.",
     support_speed: 1,
-    support_script: "if (own.level === \"C\") {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}",
+    support_script: 'if (own.level === "C") { own.c_power += 300; own.t_power += 300; own.x_power += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -792,7 +792,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own level is U, boost own Attack Power +400.",
     support_speed: 1,
-    support_script: "if (own.level === \"U\") {\n  own.c_power += 400;\n  own.t_power += 400;\n  own.x_power += 400;\n}",
+    support_script: 'if (own.level === "U") { own.c_power += 400; own.t_power += 400; own.x_power += 400; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -802,7 +802,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent uses ○.",
     support_speed: 2,
-    support_script: "opponent.selected_attack = \"c\";",
+    support_script: 'opponent.selected_attack = "c";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
   },
@@ -812,7 +812,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent uses △.",
     support_speed: 2,
-    support_script: "opponent.selected_attack = \"t\";",
+    support_script: 'opponent.selected_attack = "t";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
   },
@@ -822,7 +822,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent uses ✕.",
     support_speed: 2,
-    support_script: "opponent.selected_attack = \"x\";",
+    support_script: 'opponent.selected_attack = "x";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
   },
@@ -832,7 +832,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent uses the same attack as own.",
     support_speed: 2,
-    support_script: "opponent.selected_attack = own.selected_attack;",
+    support_script: 'opponent.selected_attack = own.selected_attack;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
   },
@@ -842,7 +842,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Recover own HP by +200.",
     support_speed: 2,
-    support_script: "own.hp += 200;",
+    support_script: 'own.hp += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -852,7 +852,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Recover own HP by +300.",
     support_speed: 2,
-    support_script: "own.hp += 300;",
+    support_script: 'own.hp += 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -862,7 +862,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Recover own HP by +400.",
     support_speed: 2,
-    support_script: "own.hp += 400;",
+    support_script: 'own.hp += 400;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -872,7 +872,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Halve own Attack Power, recover own HP by +400.",
     support_speed: 2,
-    support_script: "own.c_power = Math.floor(own.c_power / 2);\nown.t_power = Math.floor(own.t_power / 2);\nown.x_power = Math.floor(own.x_power / 2);\nown.hp += 400;",
+    support_script: 'own.c_power = Math.floor(own.c_power / 2); own.t_power = Math.floor(own.t_power / 2); own.x_power = Math.floor(own.x_power / 2); own.hp += 400;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -882,7 +882,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Halve own Attack Power, recover own HP by +600.",
     support_speed: 2,
-    support_script: "own.c_power = Math.floor(own.c_power / 2);\nown.t_power = Math.floor(own.t_power / 2);\nown.x_power = Math.floor(own.x_power / 2);\nown.hp += 600;",
+    support_script: 'own.c_power = Math.floor(own.c_power / 2); own.t_power = Math.floor(own.t_power / 2); own.x_power = Math.floor(own.x_power / 2); own.hp += 600;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -892,7 +892,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own HP are less than opponent's, recover own HP by +500.",
     support_speed: 2,
-    support_script: "if (own.hp < opponent.hp) {\n  own.hp += 500;\n}",
+    support_script: 'if (own.hp < opponent.hp) { own.hp += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -902,7 +902,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own HP are less than opponent's, recover own HP by +700.",
     support_speed: 2,
-    support_script: "if (own.hp < opponent.hp) {\n  own.hp += 700;\n}",
+    support_script: 'if (own.hp < opponent.hp) { own.hp += 700; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -912,7 +912,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Digimon KO'd in battle revives with 300 HP. Battle is still lost.",
     support_speed: 1,
-    support_script: "own.is_reviving = 300;",
+    support_script: 'own.is_reviving = 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -922,7 +922,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Digimon KO'd in battle revives with 600 HP. Battle is still lost.",
     support_speed: 1,
-    support_script: "own.is_reviving = 600;",
+    support_script: 'own.is_reviving = 600;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -932,7 +932,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Digimon KO'd in battle revives with 1000 HP. Battle is still lost.",
     support_speed: 1,
-    support_script: "own.is_reviving = 1000;",
+    support_script: 'own.is_reviving = 1000;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -942,7 +942,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent discards 1 Card from Hand.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|hand|trash|1|top\");",
+    support_script: 'commands.push("move-card|opponent|hand|trash|1|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -952,7 +952,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent discards 2 Cards from Hand.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|hand|trash|2|top\");",
+    support_script: 'commands.push("move-card|opponent|hand|trash|2|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -962,7 +962,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Discard 2 of opponent's DP Cards shown in DP Slot.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|dp|trash|2|top\");",
+    support_script: 'commands.push("move-card|opponent|dp|trash|2|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -972,7 +972,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Discard 3 of opponent's DP Cards shown in DP Slot.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|dp|trash|3|top\");",
+    support_script: 'commands.push("move-card|opponent|dp|trash|3|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -982,7 +982,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Discard 4 of opponent's DP Cards shown in DP Slot.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|dp|trash|4|top\");",
+    support_script: 'commands.push("move-card|opponent|dp|trash|4|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -992,7 +992,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Discard 2 Cards from opponent's Online Deck.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|deck|trash|2|top\");",
+    support_script: 'commands.push("move-card|opponent|deck|trash|2|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1002,7 +1002,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Discard 3 Cards from opponent's Online Deck.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|opponent|deck|trash|3|top\");",
+    support_script: 'commands.push("move-card|opponent|deck|trash|3|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1010,9 +1010,10 @@ export const DIGIPARTS: DigiPart[] = [
     id: 117,
     name: "Sup Move Offline Top → Online",
     group: "support_eff",
-    support: "Move top Card of own Offline Deck to Online Deck.",
+    support: "Return the most recently trashed Card to the Online Deck, then shuffle.",
     support_speed: 2,
-    support_script: "commands.push(\"move-card|own|trash|deck|1|top\");",
+    support_script:
+      'commands.push("move-card|own|trash|deck|1|bottom"); commands.push("shuffle|own|deck");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1022,7 +1023,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Opponent's Support Effect is voided.",
     support_speed: 3,
-    support_script: "opponent.support_voided = true;",
+    support_script: 'opponent.support_voided = true;',
     support_effect_is_jamming: 1,
     support_effect_changes_attack: 0,
   },
@@ -1032,7 +1033,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "Draw until own Hand has 4 Cards.",
     support_speed: 2,
-    support_script: "commands.push(\"draw-card|own|\" + Math.max(0, 4 - own.hand_count));",
+    support_script: 'commands.push("draw-card|own|" + Math.max(0, 4 - own.hand_count));',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1040,9 +1041,9 @@ export const DIGIPARTS: DigiPart[] = [
     id: 120,
     name: "Sup Draw Partner Card",
     group: "support_eff",
-    support: "Draw 1 Card.",
+    support: "Draw Partner Cards from the Online Deck until Hand is full.",
     support_speed: 2,
-    support_script: "commands.push(\"draw-card|own|1\");",
+    support_script: 'commands.push("draw-partner|own|" + Math.max(0, 4 - own.hand_count));',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1052,7 +1053,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own level is R, recover own HP +200 and boost own Attack Power +100.",
     support_speed: 2,
-    support_script: "if (own.level === \"R\") {\n  own.hp += 200;\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n}",
+    support_script: 'if (own.level === "R") { own.hp += 200; own.c_power += 100; own.t_power += 100; own.x_power += 100; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1062,7 +1063,7 @@ export const DIGIPARTS: DigiPart[] = [
     group: "support_eff",
     support: "If own level is A, recover own HP +200 and boost own Attack Power +100.",
     support_speed: 2,
-    support_script: "if (own.level === \"A\") {\n  own.hp += 200;\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n}",
+    support_script: 'if (own.level === "A") { own.hp += 200; own.c_power += 100; own.t_power += 100; own.x_power += 100; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
   },
@@ -1151,27 +1152,81 @@ export function correctSupportEffect(
   };
 }
 
+/** Passive stat bonus totals contributed by stat-group DigiParts. */
+export interface DigipartStatBonus {
+  hp: number;
+  circle: number;
+  triangle: number;
+  cross: number;
+}
+
+/** Parses the "+N" magnitude embedded in a stat part's name (0 if none). */
+function parseStatValue(name: string): number {
+  const m = /\+(\d+)/.exec(name);
+  return m ? parseInt(m[1]!, 10) : 0;
+}
+
+/** Sums the HP/attack bonuses granted by the equipped stat-group DigiParts. */
+export function computeDigipartStatBonuses(equippedIds: number[]): DigipartStatBonus {
+  let hp = 0, circle = 0, triangle = 0, cross = 0;
+  for (const id of equippedIds) {
+    const p = DIGIPARTS[id];
+    if (!p) continue;
+    const v = parseStatValue(p.name);
+    switch (p.group) {
+      case "hp": hp += v; break;
+      case "all_atk": circle += v; triangle += v; cross += v; break;
+      case "circle": circle += v; break;
+      case "triangle": triangle += v; break;
+      case "cross": cross += v; break;
+    }
+  }
+  return { hp, circle, triangle, cross };
+}
+
+/** The partner growth/loadout data needed to correct a battle card. */
+export interface PartnerLoadout {
+  equippedDigiparts: number[];
+  bonusHp: number;
+  bonusCircle: number;
+  bonusTriangle: number;
+  bonusCross: number;
+}
+
+/** Clamp a stat onto the 0–9990 grid (mirrors battle-context STAT_MAX). */
+function capStat(v: number): number {
+  return Math.max(0, Math.min(9990, v));
+}
+
 /**
- * Returns a copy of `card` with its X effect + cross power and support effect
- * corrected by the partner's equipped cross_eff / support_eff DigiParts. Returns
- * the original reference when no effect parts are equipped (so non-partner cards
- * pass through untouched).
+ * Returns a copy of `card` corrected by the partner's growth and DigiParts:
+ * HP / attack powers gain the level-up bonuses and stat-DigiPart bonuses, and
+ * the X effect + cross power / support effect are overridden by any equipped
+ * cross_eff / support_eff part. Used for the partner Rookie and its armor cards
+ * before a battle so the engine plays the partner at its true, upgraded values.
  *
- * @param card - The base card (typically a partner Rookie or its armor).
- * @param equippedDigipartIds - The partner's equipped DigiPart ids.
+ * @param card - The base card (partner Rookie or its armor).
+ * @param partner - The partner's equipped DigiParts and level-up stat bonuses.
  */
 export function correctPartnerCard(
   card: MasterCard,
-  equippedDigipartIds: number[],
+  partner: PartnerLoadout,
 ): MasterCard {
-  const parts = equippedDigipartIds
+  const ids = partner.equippedDigiparts;
+  const parts = ids
     .map((id) => DIGIPARTS[id])
     .filter((p): p is DigiPart => p !== undefined);
   const xPart = parts.find((p) => p.group === "cross_eff");
   const supPart = parts.find((p) => p.group === "support_eff");
-  if (!xPart && !supPart) return card;
+  const stat = computeDigipartStatBonuses(ids);
 
   const corrected: MasterCard = { ...card };
+  // Stat bonuses (level-up + stat DigiParts) apply to HP and all attack powers.
+  corrected.hp = capStat(card.hp + partner.bonusHp + stat.hp);
+  corrected.c_pow = capStat(card.c_pow + partner.bonusCircle + stat.circle);
+  corrected.t_pow = capStat(card.t_pow + partner.bonusTriangle + stat.triangle);
+  let xPow = capStat(card.x_pow + partner.bonusCross + stat.cross);
+
   if (xPart) {
     const x = correctXEffect(
       {
@@ -1181,7 +1236,7 @@ export function correctPartnerCard(
         x_effect_is_jamming: card.x_effect_is_jamming,
         x_effect_changes_attack: card.x_effect_changes_attack,
       },
-      card.x_pow,
+      xPow,
       xPart,
     );
     corrected.x_effect = x.x_effect;
@@ -1189,8 +1244,10 @@ export function correctPartnerCard(
     corrected.x_effect_script = x.x_effect_script;
     corrected.x_effect_is_jamming = x.x_effect_is_jamming;
     corrected.x_effect_changes_attack = x.x_effect_changes_attack;
-    corrected.x_pow = x.x_power;
+    xPow = x.x_power;
   }
+  corrected.x_pow = xPow;
+
   if (supPart) {
     const s = correctSupportEffect(
       {

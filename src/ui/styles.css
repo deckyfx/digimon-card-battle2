@@ -1204,6 +1204,35 @@ button.primary:hover:not(:disabled) {
   margin: 0 0 18px;
 }
 
+/* Larger win/loss dialog so portraits read big. */
+.modal-result {
+  min-width: 40vw;
+  max-width: 760px;
+}
+
+.modal-result .scoreboard {
+  gap: 44px;
+  margin: 18px 0 22px;
+}
+
+.modal-result .score-side .portrait {
+  width: 200px;
+  height: 176px;
+}
+
+.modal-result .score-name {
+  font-size: 1.3rem;
+  margin-top: 10px;
+}
+
+.modal-result .score-points {
+  font-size: 3rem;
+}
+
+.modal-result .score-vs {
+  font-size: 2rem;
+}
+
 .scoreboard {
   display: flex;
   align-items: center;
@@ -1380,12 +1409,28 @@ button.primary:hover:not(:disabled) {
 
 /* ── EXP breakdown table ────────────────────────────────────────────────── */
 
+/* Fixed-size EXP dialog so it doesn't grow as bonus lines reveal. */
+.modal-exp {
+  width: 70vw;
+  max-width: 880px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.exp-breakdown-scroll {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+}
+
 .exp-breakdown-table {
   width: 100%;
   border-collapse: collapse;
   margin: 12px 0 18px;
   font-family: "Audiowide", sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .exp-breakdown-row td {
@@ -1420,62 +1465,85 @@ button.primary:hover:not(:disabled) {
 /* ── Partner Growth modal ───────────────────────────────────────────────── */
 
 .modal-partner-exp {
-  min-width: 520px;
-  max-width: 680px;
+  min-width: 50vw;
+  max-width: 900px;
 }
 
 .partner-exp-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin: 8px 0 14px;
-  max-height: 460px;
+  gap: 12px;
+  margin: 10px 0 16px;
   overflow-y: auto;
   padding-right: 4px;
 }
 
 .partner-exp-row {
   display: flex;
-  gap: 14px;
-  align-items: flex-start;
+  gap: 24px;
+  align-items: center;
+  background: #161a2e;
+  border: 1px solid #2a3050;
+  border-radius: 12px;
+  padding: 0 20px;
 }
 
-/* Rookie card thumbnail floats left; CardView handles its own sizing. */
+/* Rookie card thumbnail floats left, rendered at standard dimensions. */
 .partner-exp-card {
   flex-shrink: 0;
-  font-size: 0.78rem;
+}
+
+.partner-exp-cardwrap {
+  position: relative;
+  width: 200px;
+  height: 217px;
+  border-radius: 10px;
+  overflow: hidden;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.5));
 }
 
 /* Right-hand stats column. */
 .partner-exp-stats {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 9px;
 }
 
 .partner-exp-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .partner-exp-name {
   font-family: "Audiowide", sans-serif;
-  font-size: 1rem;
+  font-size: 1.5rem;
   color: #e8e8ee;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .partner-exp-level {
   color: #9aa3c7;
-  font-size: 0.88rem;
+  font-size: 1.1rem;
+}
+
+.partner-exp-arrow {
+  color: #6be88a;
+  font-size: 1.1rem;
+}
+
+.partner-exp-level--new {
+  color: #6be88a;
 }
 
 .partner-exp-levelup {
   color: #ffd75e;
   font-family: "Audiowide", sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   animation: partner-levelup-pulse 0.9s ease-in-out infinite alternate;
 }
 
@@ -1486,47 +1554,130 @@ button.primary:hover:not(:disabled) {
 
 .partner-exp-gained {
   color: #6be88a;
-  font-size: 0.88rem;
+  font-size: 1.05rem;
 }
 
-/* 4-column grid: label | value, repeating for each stat. */
+/* Stat rows: icon/label + value (+ bonus). */
 .partner-exp-statgrid {
   display: grid;
-  grid-template-columns: 2ch 1fr 2ch 1fr;
-  gap: 2px 10px;
-  font-size: 0.82rem;
-  color: #c0c8e8;
-  margin: 2px 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 28px;
+  margin: 4px 0;
+}
+
+.pe-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pe-stat-key {
+  width: 26px;
+  color: #9aa3c7;
+  font-size: 1.05rem;
+}
+
+.pe-stat-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pe-stat-val {
+  color: #e8e8ee;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 /* Bonus increment in bright green so it reads separately from the base. */
 .partner-bonus {
   color: #6be88a;
-  font-size: 0.75rem;
+  font-size: 1rem;
 }
 
 .partner-exp-exprow,
 .partner-exp-nextrow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.82rem;
+  gap: 12px;
+  font-size: 1.05rem;
 }
 
 .partner-exp-label {
   color: #9aa3c7;
-  min-width: 52px;
+  min-width: 64px;
 }
 
 .partner-exp-num {
   color: #ffd75e;
   font-family: "Audiowide", sans-serif;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
+}
+
+.prize-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.prize-card-number {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: #8a90ad;
+}
+
+.prize-card-effect {
+  margin: 2px 0;
+  color: #c8d8ff;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+/* Stamp-seal badge on the right of each prize row. Colour varies by status. */
+.prize-stamp {
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: auto;
+  font-family: "Audiowide", sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 8px;
+  padding: 6px 16px;
+  transform: rotate(-11deg);
+  opacity: 0.9;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* NEW CARD — cyan/blue "fresh" vibe. */
+.prize-stamp--new {
+  color: #34d8ff;
+  border-color: #34d8ff;
+  box-shadow: 0 0 0 1px rgba(52, 216, 255, 0.25), inset 0 0 0 1px rgba(52, 216, 255, 0.25);
+}
+
+/* FULL SET — gold "complete" vibe. */
+.prize-stamp--full {
+  color: #ffce4d;
+  border-color: #ffce4d;
+  box-shadow: 0 0 0 1px rgba(255, 206, 77, 0.3), inset 0 0 0 1px rgba(255, 206, 77, 0.3);
+}
+
+/* OBTAINED — muted red "stamped" vibe. */
+.prize-stamp--obtained {
+  color: #ff5a4d;
+  border-color: #ff5a4d;
+  box-shadow: 0 0 0 1px rgba(255, 90, 77, 0.25), inset 0 0 0 1px rgba(255, 90, 77, 0.25);
 }
 
 .partner-exp-digiparts {
   margin-top: 4px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .partner-exp-dp-label {

@@ -1,6 +1,7 @@
 import { Show, createEffect, createSignal } from "solid-js";
 import type { AttackType, MasterCard } from "@src/types";
 import { correctPartnerCard } from "@src/data/digiparts";
+import { armorCardByNumber } from "@src/data/armor";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
 import { CpuPlayer } from "@src/ai/cpu-player";
 import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
@@ -178,22 +179,32 @@ export function App() {
         return def ? [def.cardNumber, ...def.armorNumbers] : [];
       }),
     );
-    // Apply equipped cross_eff / support_eff DigiPart corrections to the
-    // player's partner Rookies (and their armor cards) before battle.
-    const partsByCardNumber = new Map<string, number[]>();
+    // Apply partner growth + DigiPart corrections (stat bonuses, cross_eff /
+    // support_eff effects) to the player's partner Rookies and armor cards.
+    const loadoutByCardNumber = new Map<string, (typeof prof.partners)[number]>();
     for (const ps of prof.partners ?? []) {
       const def = PARTNERS.find((d) => d.id === ps.id);
       if (!def) continue;
       for (const num of [def.cardNumber, ...def.armorNumbers]) {
-        partsByCardNumber.set(num, ps.equippedDigiparts);
+        loadoutByCardNumber.set(num, ps);
       }
     }
     const correctForPartner = (c: MasterCard): MasterCard => {
-      const parts = partsByCardNumber.get(c.number);
-      return parts ? correctPartnerCard(c, parts) : c;
+      const ps = loadoutByCardNumber.get(c.number);
+      return ps ? correctPartnerCard(c, ps) : c;
     };
     const playerCards = mine.cards.map(correctForPartner);
-    const playerArmors = mine.armors.map(correctForPartner);
+    // The player's armor side deck is each partner's equipped armor (from
+    // partner management) — NOT the deck's prebuilt `armors` list.
+    const deckNumbers = new Set(mine.cards.map((c) => c.number));
+    const playerArmors: MasterCard[] = [];
+    for (const ps of prof.partners ?? []) {
+      if (!ps.armor) continue;
+      const def = PARTNERS.find((d) => d.id === ps.id);
+      if (!def || !deckNumbers.has(def.cardNumber)) continue;
+      const armorCard = armorCardByNumber(ps.armor);
+      if (armorCard) playerArmors.push(correctForPartner(armorCard));
+    }
     const eng = new GameEngine(
       playerCards,
       theirs.cards,
@@ -323,6 +334,20 @@ export function App() {
       : [{ key: "base", name: "Base EXP", exp: baseExp }];
     const exp = expBreakdown.reduce((s, line) => s + line.exp, 0);
 
+    // Per-card seal status, computed from the bag BEFORE granting.
+    const MAX_COPIES = 6;
+    const runningCounts: Record<string, number> = { ...(prof?.bag ?? {}) };
+    const statusFor = (num: string): "new" | "full" | "obtained" => {
+      const before = runningCounts[num] ?? 0;
+      const after = Math.min(MAX_COPIES, before + 1);
+      runningCounts[num] = after;
+      if (before === 0) return "new";
+      if (after >= MAX_COPIES) return "full";
+      return "obtained";
+    };
+    const cardStatus = cards.map((c) => statusFor(c.number));
+    const bonusCardStatus = bonusCards.map((c) => statusFor(c.number));
+
     if (prof) {
       profileStore.grantCards(prof.id, [...cards, ...bonusCards].map((c) => c.number));
       profileStore.addExp(prof.id, exp);
@@ -383,7 +408,7 @@ export function App() {
 
       refreshProfile();
     }
-    rewardClaim = { exp, expBreakdown, packName: pack?.name ?? null, cards, bonusCards, partnerGains };
+    rewardClaim = { exp, expBreakdown, packName: pack?.name ?? null, cards, bonusCards, cardStatus, bonusCardStatus, partnerGains };
     return rewardClaim;
   }
 

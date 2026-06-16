@@ -1196,6 +1196,22 @@ export class GameEngine {
         p.hand.push(...p.deck.splice(0, n));
         this.pushLog(`${p.name} draws ${n} card${n > 1 ? "s" : ""} (effect).`);
       },
+      drawPartners: (count) => {
+        if (count <= 0) return;
+        let drawn = 0;
+        for (let i = 0; i < p.deck.length && drawn < count; ) {
+          if (p.deck[i]?.is_partner === 1) {
+            p.hand.push(...p.deck.splice(i, 1));
+            drawn++;
+          } else {
+            i++;
+          }
+        }
+        if (drawn > 0)
+          this.pushLog(
+            `${p.name} draws ${drawn} Partner card${drawn > 1 ? "s" : ""} from the deck (effect).`,
+          );
+      },
       moveCards: (from, to, count, pos) => {
         const src = zone(from);
         const dst = zone(to);
@@ -1203,7 +1219,10 @@ export class GameEngine {
         if (n <= 0) return;
         const moved: MasterCard[] = [];
         for (let i = 0; i < n; i++) {
-          const idx = pos === "random" ? this.rng.nextInt(src.length) : 0;
+          const idx =
+            pos === "random" ? this.rng.nextInt(src.length)
+            : pos === "bottom" ? src.length - 1
+            : 0;
           moved.push(...src.splice(idx, 1));
         }
         dst.unshift(...moved);

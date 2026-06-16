@@ -1,8 +1,9 @@
 import { For, Show, createSignal, createMemo, onMount, Index } from "solid-js";
-import type { MasterCard } from "@src/types";
+import { CardType, type MasterCard } from "@src/types";
 import type { GameEngine } from "@src/engine/game-engine";
 import type { ExpBonusLine } from "@src/engine/battle-stats";
-import { CardView, setInspectedCard } from "./CardView";
+import { setInspectedCard } from "./CardView";
+import { DigiCardFront, EffectText } from "./DigiCard";
 import { createTicker } from "./Ticker";
 import { MASTER_CARDS } from "@src/data/master-cards";
 import { DIGIPARTS } from "@src/data/digiparts";
@@ -52,9 +53,16 @@ export interface MatchRewards {
   cards: MasterCard[];
   /** Direct bonus drops (e.g. Apokarimon's own card). */
   bonusCards: MasterCard[];
+  /** Seal status per pack card (aligned with `cards`). */
+  cardStatus: PrizeStatus[];
+  /** Seal status per bonus card (aligned with `bonusCards`). */
+  bonusCardStatus: PrizeStatus[];
   /** Partner EXP gains for partners whose Rookie was in the player's deck. */
   partnerGains: PartnerExpGain[];
 }
+
+/** Collection state of a freshly obtained prize card. */
+export type PrizeStatus = "new" | "full" | "obtained";
 
 // ---------------------------------------------------------------------------
 // Per-partner animated row
@@ -75,6 +83,8 @@ function PartnerExpRow(props: { gain: PartnerExpGain }) {
   const [circBonusTarget, setCircBonusTarget] = createSignal(g.oldBonusCircle);
   const [triBonusTarget, setTriBonusTarget] = createSignal(g.oldBonusTriangle);
   const [crossBonusTarget, setCrossBonusTarget] = createSignal(g.oldBonusCross);
+  // Reveal the level-up flourish only after the EXP/next-level tickers settle.
+  const [revealed, setRevealed] = createSignal(false);
 
   const displayExp = createTicker(expTarget, 1000);
   const displayNextLv = createTicker(nextLvTarget, 1000);
@@ -93,22 +103,35 @@ function PartnerExpRow(props: { gain: PartnerExpGain }) {
       setTriBonusTarget(g.newBonusTriangle);
       setCrossBonusTarget(g.newBonusCross);
     }, 400);
+    // Tickers run ~1000ms from the 400ms start; reveal the level-up after.
+    if (g.leveledUp) setTimeout(() => setRevealed(true), 1500);
   });
 
   return (
     <div class="partner-exp-row">
       {/* Partner Rookie card (left column, spans the height of the stat block). */}
       <div class="partner-exp-card" onMouseEnter={() => card && setInspectedCard(card)}>
-        {card ? <CardView card={card} /> : <div class="card">{g.partnerName}</div>}
+        <Show when={card} fallback={<div class="card">{g.partnerName}</div>}>
+          <div class="partner-exp-cardwrap">
+            <DigiCardFront card={card!} />
+          </div>
+        </Show>
       </div>
 
       {/* Right column: identity, stats, EXP progress, DigiPart rewards. */}
       <div class="partner-exp-stats">
         <div class="partner-exp-header">
           <span class="partner-exp-name">{g.partnerName}</span>
-          <span class="partner-exp-level">Lv {g.newLevel}</span>
-          <Show when={g.leveledUp}>
-            <span class="partner-exp-levelup">✦ LEVEL UP!</span>
+          <Show
+            when={g.leveledUp}
+            fallback={<span class="partner-exp-level">Lv {g.newLevel}</span>}
+          >
+            <span class="partner-exp-level">Lv {g.oldLevel}</span>
+            <Show when={revealed()}>
+              <span class="partner-exp-arrow">→</span>
+              <span class="partner-exp-level partner-exp-level--new">Lv {g.newLevel}</span>
+              <span class="partner-exp-levelup">✦ LEVEL UP!</span>
+            </Show>
           </Show>
         </div>
 
@@ -116,26 +139,34 @@ function PartnerExpRow(props: { gain: PartnerExpGain }) {
 
         {/* Base card stats + animated bonus column. */}
         <div class="partner-exp-statgrid">
-          <span>HP</span>
-          <span>
-            {card?.hp ?? "—"}
-            <span class="partner-bonus"> +{displayHpBonus()}</span>
-          </span>
-          <span>○</span>
-          <span>
-            {card?.c_pow ?? "—"}
-            <span class="partner-bonus"> +{displayCircBonus()}</span>
-          </span>
-          <span>△</span>
-          <span>
-            {card?.t_pow ?? "—"}
-            <span class="partner-bonus"> +{displayTriBonus()}</span>
-          </span>
-          <span>✕</span>
-          <span>
-            {card?.x_pow ?? "—"}
-            <span class="partner-bonus"> +{displayCrossBonus()}</span>
-          </span>
+          <div class="pe-stat">
+            <span class="pe-stat-key">HP</span>
+            <span class="pe-stat-val">
+              {card?.hp ?? "—"}
+              <span class="partner-bonus"> +{displayHpBonus()}</span>
+            </span>
+          </div>
+          <div class="pe-stat">
+            <img class="pe-stat-icon" src="/assets/icons/button-circle.png" alt="○" />
+            <span class="pe-stat-val">
+              {card?.c_pow ?? "—"}
+              <span class="partner-bonus"> +{displayCircBonus()}</span>
+            </span>
+          </div>
+          <div class="pe-stat">
+            <img class="pe-stat-icon" src="/assets/icons/button-triangle.png" alt="△" />
+            <span class="pe-stat-val">
+              {card?.t_pow ?? "—"}
+              <span class="partner-bonus"> +{displayTriBonus()}</span>
+            </span>
+          </div>
+          <div class="pe-stat">
+            <img class="pe-stat-icon" src="/assets/icons/button-cross.png" alt="✕" />
+            <span class="pe-stat-val">
+              {card?.x_pow ?? "—"}
+              <span class="partner-bonus"> +{displayCrossBonus()}</span>
+            </span>
+          </div>
         </div>
 
         {/* EXP count-up. */}
@@ -171,6 +202,66 @@ function PartnerExpRow(props: { gain: PartnerExpGain }) {
 }
 
 // ---------------------------------------------------------------------------
+// Prize card row — mirrors the partner-growth layout (card + name + stats)
+// ---------------------------------------------------------------------------
+
+const PRIZE_SEAL: Record<PrizeStatus, string> = {
+  new: "New Card",
+  full: "Full Set",
+  obtained: "Obtained",
+};
+
+function PrizeCardRow(props: { card: MasterCard; status: PrizeStatus }) {
+  const c = () => props.card;
+  const isDigimon = () => c().type === CardType.Digimon;
+  return (
+    <div class="partner-exp-row" onMouseEnter={() => setInspectedCard(c())}>
+      <div class="partner-exp-card">
+        <div class="partner-exp-cardwrap">
+          <DigiCardFront card={c()} />
+        </div>
+      </div>
+      <div class="partner-exp-stats">
+        <div class="partner-exp-header prize-header">
+          <span class="prize-card-number">CARD #{c().number}</span>
+          <span class="partner-exp-name">{c().name}</span>
+        </div>
+        <Show
+          when={isDigimon()}
+          fallback={
+            <p class="prize-card-effect">
+              <EffectText text={(c().support || c().x_effect || "").trim() || "Option card."} />
+            </p>
+          }
+        >
+          <div class="partner-exp-statgrid">
+            <div class="pe-stat">
+              <span class="pe-stat-key">HP</span>
+              <span class="pe-stat-val">{c().hp}</span>
+            </div>
+            <div class="pe-stat">
+              <img class="pe-stat-icon" src="/assets/icons/button-circle.png" alt="○" />
+              <span class="pe-stat-val">{c().c_pow}</span>
+            </div>
+            <div class="pe-stat">
+              <img class="pe-stat-icon" src="/assets/icons/button-triangle.png" alt="△" />
+              <span class="pe-stat-val">{c().t_pow}</span>
+            </div>
+            <div class="pe-stat">
+              <img class="pe-stat-icon" src="/assets/icons/button-cross.png" alt="✕" />
+              <span class="pe-stat-val">{c().x_pow}</span>
+            </div>
+          </div>
+        </Show>
+      </div>
+      <div class="prize-stamp" classList={{ [`prize-stamp--${props.status}`]: true }}>
+        {PRIZE_SEAL[props.status]}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // EXP breakdown step
 // ---------------------------------------------------------------------------
 
@@ -199,28 +290,30 @@ function ExpBreakdownStep(props: {
   const showTotal = () => visible() > lines().length;
 
   return (
-    <div class="modal">
+    <div class="modal modal-exp">
       <h2>Experience</h2>
-      <table class="exp-breakdown-table">
-        <tbody>
-          <Index each={lines()}>
-            {(line, i) => (
-              <Show when={visible() > i}>
-                <tr class="exp-breakdown-row">
-                  <td class="exp-breakdown-name">{line().name}</td>
-                  <td class="exp-breakdown-exp">+{line().exp}</td>
-                </tr>
-              </Show>
-            )}
-          </Index>
-          <Show when={showTotal()}>
-            <tr class="exp-breakdown-row exp-breakdown-total">
-              <td class="exp-breakdown-name">Total</td>
-              <td class="exp-breakdown-exp">+{total()}</td>
-            </tr>
-          </Show>
-        </tbody>
-      </table>
+      <div class="exp-breakdown-scroll">
+        <table class="exp-breakdown-table">
+          <tbody>
+            <Index each={lines()}>
+              {(line, i) => (
+                <Show when={visible() > i}>
+                  <tr class="exp-breakdown-row">
+                    <td class="exp-breakdown-name"><EffectText text={line().name} /></td>
+                    <td class="exp-breakdown-exp">+{line().exp}</td>
+                  </tr>
+                </Show>
+              )}
+            </Index>
+            <Show when={showTotal()}>
+              <tr class="exp-breakdown-row exp-breakdown-total">
+                <td class="exp-breakdown-name">Total</td>
+                <td class="exp-breakdown-exp">+{total()}</td>
+              </tr>
+            </Show>
+          </tbody>
+        </table>
+      </div>
       <Show when={showTotal()}>
         <div class="setup-actions">
           <button class="primary" onClick={props.onNext}>
@@ -259,7 +352,7 @@ export function BattleResultModal(props: {
     <div class="modal-overlay">
       {/* Step 1: the scoreboard. */}
       <Show when={step() === "result"}>
-        <div class="modal">
+        <div class="modal modal-result">
           <h2>{won() ? "Victory!" : "Defeat…"}</h2>
           <div class="scoreboard">
             <div class="score-side" classList={{ winner: props.g.winner === "player" }}>
@@ -317,33 +410,19 @@ export function BattleResultModal(props: {
 
       {/* Step 4 (win): the prize pack. */}
       <Show when={step() === "prize"}>
-        <div class="modal">
-          <h2>Prize</h2>
-          <Show when={rewards().packName}>
-            <div class="tag">📦 {rewards().packName}</div>
-            <div class="reward-cards">
-              <For each={rewards().cards}>
-                {(card) => (
-                  <div onMouseEnter={() => setInspectedCard(card)}>
-                    <CardView card={card} />
-                  </div>
-                )}
-              </For>
-            </div>
-          </Show>
-          <Show when={rewards().bonusCards.length > 0}>
-            <div class="tag">✨ Bonus card{rewards().bonusCards.length > 1 ? "s" : ""}</div>
-            <div class="reward-cards">
+        <div class="modal modal-partner-exp">
+          <h2>📦 {rewards().packName || "Prize"}</h2>
+          <div class="partner-exp-list">
+            <For each={rewards().cards}>
+              {(card, i) => <PrizeCardRow card={card} status={rewards().cardStatus[i()] ?? "obtained"} />}
+            </For>
+            <Show when={rewards().bonusCards.length > 0}>
+              <div class="tag">✨ Bonus card{rewards().bonusCards.length > 1 ? "s" : ""}</div>
               <For each={rewards().bonusCards}>
-                {(card) => (
-                  <div onMouseEnter={() => setInspectedCard(card)}>
-                    <CardView card={card} />
-                  </div>
-                )}
+                {(card, i) => <PrizeCardRow card={card} status={rewards().bonusCardStatus[i()] ?? "obtained"} />}
               </For>
-            </div>
-          </Show>
-          <div class="tag">Added to your card bag.</div>
+            </Show>
+          </div>
           <div class="setup-actions">
             <button class="primary" onClick={props.onBackToLobby}>
               Back To Lobby

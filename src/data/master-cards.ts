@@ -28,7 +28,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Add number of DP Cards in DP Slot x100 to own Attack Power.",
     support_speed: 1,
     support_script:
-      "const bonus = own.dp_count * 100;\nown.c_power += bonus;\nown.t_power += bonus;\nown.x_power += bonus;",
+      "const bonus = own.dp_count * 100; own.c_power += bonus; own.t_power += bonus; own.x_power += bonus;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -57,7 +57,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Changes own Specialty to Fire. Boost own Attack Power +100.",
     support_speed: 1,
     support_script:
-      'own.specialty = "Fire";\nown.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;',
+      'own.specialty = "Fire"; own.c_power += 100; own.t_power += 100; own.x_power += 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -81,13 +81,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Add number of Cards in Hand x100 to own Attack Power.",
     support_speed: 1,
     support_script:
-      "const bonus = own.hand_count * 100;\nown.c_power += bonus;\nown.t_power += bonus;\nown.x_power += bonus;",
+      "const bonus = own.hand_count * 100; own.c_power += bonus; own.t_power += bonus; own.x_power += bonus;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -145,7 +145,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Specialty is Fire, boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      'if (own.specialty === "Fire") {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}',
+      'if (own.specialty === "Fire") { own.c_power += 300; own.t_power += 300; own.x_power += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -202,7 +202,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      "own.c_power += 300;\nown.t_power += 300;\nown.x_power += 300;",
+      "own.c_power += 300; own.t_power += 300; own.x_power += 300;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -231,7 +231,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Attack is ○, attack first.",
     support_speed: 1,
     support_script:
-      'if (own.selected_attack === "c") {\n  own.is_first_attack = true;\n}',
+      'if (own.selected_attack === "c") { own.is_first_attack = true; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -255,13 +255,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If own Specialty is Fire, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      'if (own.specialty === "Fire") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (own.specialty === "Fire") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -290,7 +290,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is U, boost own Attack Power +500.",
     support_speed: 1,
     support_script:
-      'if (own.level === "U") {\n  own.c_power += 500;\n  own.t_power += 500;\n  own.x_power += 500;\n}',
+      'if (own.level === "U") { own.c_power += 500; own.t_power += 500; own.x_power += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -375,7 +375,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is A, boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      'if (own.level === "A") {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}',
+      'if (own.level === "A") { own.c_power += 300; own.t_power += 300; own.x_power += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -404,7 +404,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own attack is △, attack first.",
     support_speed: 2,
     support_script:
-      'if (own.selected_attack === "t") {\n  own.is_first_attack = true;\n}',
+      'if (own.selected_attack === "t") { own.is_first_attack = true; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -433,7 +433,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is C, boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      'if (own.level === "C") {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}',
+      'if (own.level === "C") { own.c_power += 300; own.t_power += 300; own.x_power += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -462,7 +462,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Change own Specialty to Fire. Boost own Attack Power +200.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Fire";\nown.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;',
+      'own.specialty = "Fire"; own.c_power += 200; own.t_power += 200; own.x_power += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -486,7 +486,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Nature Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Nature") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Nature") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "None",
@@ -543,13 +543,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Ice, own Attack Power is tripled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Ice") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}',
+      'if (opponent.specialty === "Ice") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -573,12 +573,12 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Use ○ and Boost own ○ Attack Power +400.",
     support_speed: 2,
-    support_script: 'own.selected_attack = "c";\nown.c_power += 400;',
+    support_script: 'own.selected_attack = "c"; own.c_power += 400;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -635,7 +635,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP become 10. Boost own Attack Power +500.",
     support_speed: 2,
     support_script:
-      "own.hp = 10;\nown.c_power += 500;\nown.t_power += 500;\nown.x_power += 500;",
+      "own.hp = 10; own.c_power += 500; own.t_power += 500; own.x_power += 500;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -665,7 +665,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard all own DP Cards in DP Slot, boost own Attack Power +300.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|dp|trash|" + own.dp_count + "|all");\nown.c_power += 300;\nown.t_power += 300;\nown.x_power += 300;',
+      'commands.push("move-card|own|dp|trash|" + own.dp_count + "|all"); own.c_power += 300; own.t_power += 300; own.x_power += 300;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -722,7 +722,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +200.",
     support_speed: 1,
     support_script:
-      "own.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;",
+      "own.c_power += 200; own.t_power += 200; own.x_power += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -751,7 +751,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If both Levels are C, boost own Attack Power +400.",
     support_speed: 1,
     support_script:
-      'if (own.level === "C" && opponent.level === "C") {\n  own.c_power += 400;\n  own.t_power += 400;\n  own.x_power += 400;\n}',
+      'if (own.level === "C" && opponent.level === "C") { own.c_power += 400; own.t_power += 400; own.x_power += 400; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -864,7 +864,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +200.",
     support_speed: 1,
     support_script:
-      "own.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;",
+      "own.c_power += 200; own.t_power += 200; own.x_power += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -944,13 +944,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Ice, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Ice") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (opponent.specialty === "Ice") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1034,7 +1034,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Change own Specialty to Ice. Recover own HP by +100.",
     support_speed: 2,
-    support_script: 'own.specialty = "Ice";\nown.hp += 100;',
+    support_script: 'own.specialty = "Ice"; own.hp += 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1058,13 +1058,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If own Specialty is Ice, opponent's Support Effect is voided.",
     support_speed: 3,
     support_script:
-      'if (own.specialty === "Ice") {\n  opponent.support_voided = true;\n}',
+      'if (own.specialty === "Ice") { opponent.support_voided = true; }',
     support_effect_is_jamming: 1,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1088,14 +1088,14 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
       "If own Cards in Hand 3 or more, opponent's Attack Power becomes 0.",
     support_speed: 1,
     support_script:
-      "if (own.hand_count >= 3) {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+      "if (own.hand_count >= 3) { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1180,7 +1180,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Specialty is Ice, opponent's Attack Power is halved.",
     support_speed: 1,
     support_script:
-      'if (own.specialty === "Ice") {\n  opponent.c_power = Math.floor(opponent.c_power / 2);\n  opponent.t_power = Math.floor(opponent.t_power / 2);\n  opponent.x_power = Math.floor(opponent.x_power / 2);\n}',
+      'if (own.specialty === "Ice") { opponent.c_power = Math.floor(opponent.c_power / 2); opponent.t_power = Math.floor(opponent.t_power / 2); opponent.x_power = Math.floor(opponent.x_power / 2); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1209,7 +1209,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "△ Counterattack. Attack second.",
     support_speed: 1,
     support_script:
-      'own.is_countering.push("t");\nown.is_first_attack = false;',
+      'own.is_countering.push("t"); own.is_first_attack = false;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1238,7 +1238,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "○ Counterattack. Attack second.",
     support_speed: 1,
     support_script:
-      'own.is_countering.push("c");\nown.is_first_attack = false;',
+      'own.is_countering.push("c"); own.is_first_attack = false;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1374,13 +1374,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Fire, own Attack Power is tripled.",
     support_speed: 2,
     support_script:
-      'if (opponent.specialty === "Fire") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}',
+      'if (opponent.specialty === "Fire") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1408,7 +1408,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "If own Attack is not ○, recover own HP by +300.",
     support_speed: 2,
-    support_script: 'if (own.selected_attack !== "c") {\n  own.hp += 300;\n}',
+    support_script: 'if (own.selected_attack !== "c") { own.hp += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1465,7 +1465,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's Attack Power is halved.",
     support_speed: 1,
     support_script:
-      "opponent.c_power = Math.floor(opponent.c_power / 2);\nopponent.t_power = Math.floor(opponent.t_power / 2);\nopponent.x_power = Math.floor(opponent.x_power / 2);",
+      "opponent.c_power = Math.floor(opponent.c_power / 2); opponent.t_power = Math.floor(opponent.t_power / 2); opponent.x_power = Math.floor(opponent.x_power / 2);",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1517,7 +1517,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Recover own HP by +200.",
@@ -1635,7 +1635,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If opponent used ○, change it to ✕.",
     support_speed: 2,
     support_script:
-      'if (opponent.selected_attack === "c") {\n  opponent.selected_attack = "x";\n}',
+      'if (opponent.selected_attack === "c") { opponent.selected_attack = "x"; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -1687,13 +1687,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is fire, own Attack Power is tripled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Fire") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}',
+      'if (opponent.specialty === "Fire") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1835,7 +1835,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own HP are less then 200, reduce opponent's Attack Power to 0.",
     support_speed: 1,
     support_script:
-      "if (own.hp < 200) {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+      "if (own.hp < 200) { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1865,7 +1865,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent's Specialty is Fire, reduce opponent's Attack Power to 0.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Fire") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}',
+      'if (opponent.specialty === "Fire") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -1889,13 +1889,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Fire, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Fire") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (opponent.specialty === "Fire") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2031,14 +2031,14 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Dark Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
       "If opponent's Specialty is Darkness, own Attack Power is +200 & HP +200.",
     support_speed: 2,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  own.c_power += 200;\n  own.t_power += 200;\n  own.x_power += 200;\n  own.hp += 200;\n}',
+      'if (opponent.specialty === "Darkness") { own.c_power += 200; own.t_power += 200; own.x_power += 200; own.hp += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2067,7 +2067,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "✕ Counterattack. Attack second.",
     support_speed: 2,
     support_script:
-      'own.is_countering.push("x");\nown.is_first_attack = false;',
+      'own.is_countering.push("x"); own.is_first_attack = false;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2096,7 +2096,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own level is U, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      'if (own.level === "U") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (own.level === "U") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2124,7 +2124,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: 'If opponent\'s HP are 1000+, own attack becomes "Eat-up HP.".',
     support_speed: 2,
-    support_script: "if (opponent.hp >= 1000) {\n  own.is_absorbing = true;\n}",
+    support_script: "if (opponent.hp >= 1000) { own.is_absorbing = true; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2176,14 +2176,14 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Darkness Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
       "If opponent's Specialty is Darkness, boost own Attack Power +500.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  own.c_power += 500;\n  own.t_power += 500;\n  own.x_power += 500;\n}',
+      'if (opponent.specialty === "Darkness") { own.c_power += 500; own.t_power += 500; own.x_power += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2212,7 +2212,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If opponent's Specialty is not Nature, attack second.",
     support_speed: 2,
     support_script:
-      'if (opponent.specialty !== "Nature") {\n  own.is_first_attack = false;\n}',
+      'if (opponent.specialty !== "Nature") { own.is_first_attack = false; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2236,13 +2236,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Darkness Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Darkness, recover own HP by +500.",
     support_speed: 2,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  own.hp += 500;\n}',
+      'if (opponent.specialty === "Darkness") { own.hp += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2327,7 +2327,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's Support Effect is voided. Own Attack Power is halved.",
     support_speed: 3,
     support_script:
-      "opponent.support_voided = true;\nown.c_power = Math.floor(own.c_power / 2);\nown.t_power = Math.floor(own.t_power / 2);\nown.x_power = Math.floor(own.x_power / 2);",
+      "opponent.support_voided = true; own.c_power = Math.floor(own.c_power / 2); own.t_power = Math.floor(own.t_power / 2); own.x_power = Math.floor(own.x_power / 2);",
     support_effect_is_jamming: 1,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2356,7 +2356,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own level is U, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      'if (own.level === "U") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (own.level === "U") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2380,14 +2380,14 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Darkness Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
       "If opponent's Specialty is Darkness, own Attack Power is tripled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2416,7 +2416,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own HP are less than 500, boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      "if (own.hp < 500) {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}",
+      "if (own.hp < 500) { own.c_power += 300; own.t_power += 300; own.x_power += 300; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2445,7 +2445,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +100.",
     support_speed: 1,
     support_script:
-      "own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;",
+      "own.c_power += 100; own.t_power += 100; own.x_power += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2474,7 +2474,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own level is lower, boost own Attack Power +500.",
     support_speed: 1,
     support_script:
-      "const levelValues = { R: 1, C: 2, U: 3, M: 4, A: 2 };\nif (levelValues[own.level] < levelValues[opponent.level]) {\n  own.c_power += 500;\n  own.t_power += 500;\n  own.x_power += 500;\n}",
+      "const levelValues = { R: 1, C: 2, U: 3, M: 4, A: 2 }; if (levelValues[own.level] < levelValues[opponent.level]) { own.c_power += 500; own.t_power += 500; own.x_power += 500; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2531,7 +2531,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Recover own HP by +100. Boost own Attack Power by +100.",
     support_speed: 2,
     support_script:
-      "own.hp += 100;\nown.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;",
+      "own.hp += 100; own.c_power += 100; own.t_power += 100; own.x_power += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2561,7 +2561,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent's Specialty is Darkness, lower opponent's Attack Power to 0.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}',
+      'if (opponent.specialty === "Darkness") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2646,7 +2646,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +200.",
     support_speed: 1,
     support_script:
-      "own.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;",
+      "own.c_power += 200; own.t_power += 200; own.x_power += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2703,7 +2703,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Lower opponent's Attack Power to 0. Opponent's HP are doubled.",
     support_speed: 2,
     support_script:
-      "opponent.c_power = 0;\nopponent.t_power = 0;\nopponent.x_power = 0;\nopponent.hp *= 2;",
+      "opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; opponent.hp *= 2;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2760,7 +2760,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is R, boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      'if (own.level === "R") {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}',
+      'if (own.level === "R") { own.c_power += 300; own.t_power += 300; own.x_power += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2790,7 +2790,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent's Specialty is Darkness, lower opponent's Attack Power -200.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  opponent.c_power = Math.max(0, opponent.c_power - 200);\n  opponent.t_power = Math.max(0, opponent.t_power - 200);\n  opponent.x_power = Math.max(0, opponent.x_power - 200);\n}',
+      'if (opponent.specialty === "Darkness") { opponent.c_power = Math.max(0, opponent.c_power - 200); opponent.t_power = Math.max(0, opponent.t_power - 200); opponent.x_power = Math.max(0, opponent.x_power - 200); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2875,7 +2875,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Changes own Specialty to Nature. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Nature";\ncommands.push("draw-card|own|1");',
+      'own.specialty = "Nature"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2899,13 +2899,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Ice Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Ice") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Ice") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Ice, boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Ice") {\n  own.c_power += 300;\n  own.t_power += 300;\n  own.x_power += 300;\n}',
+      'if (opponent.specialty === "Ice") { own.c_power += 300; own.t_power += 300; own.x_power += 300; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2935,7 +2935,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own HP are more than opponent's HP, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      "if (own.hp > opponent.hp) {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+      "if (own.hp > opponent.hp) { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2964,7 +2964,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Lower both Attack Powers -200.",
     support_speed: 1,
     support_script:
-      "own.c_power = Math.max(0, own.c_power - 200);\nown.t_power = Math.max(0, own.t_power - 200);\nown.x_power = Math.max(0, own.x_power - 200);\nopponent.c_power = Math.max(0, opponent.c_power - 200);\nopponent.t_power = Math.max(0, opponent.t_power - 200);\nopponent.x_power = Math.max(0, opponent.x_power - 200);",
+      "own.c_power = Math.max(0, own.c_power - 200); own.t_power = Math.max(0, own.t_power - 200); own.x_power = Math.max(0, own.x_power - 200); opponent.c_power = Math.max(0, opponent.c_power - 200); opponent.t_power = Math.max(0, opponent.t_power - 200); opponent.x_power = Math.max(0, opponent.x_power - 200);",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -2993,7 +2993,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP are halved. Change own Specialty to Darkness.",
     support_speed: 2,
     support_script:
-      'own.hp = Math.floor(own.hp / 2);\nown.specialty = "Darkness";',
+      'own.hp = Math.floor(own.hp / 2); own.specialty = "Darkness";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3022,7 +3022,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 7 Cards from own Online Deck. Opponent's HP are halved.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|7|top");\nopponent.hp = Math.floor(opponent.hp / 2);',
+      'commands.push("move-card|own|deck|trash|7|top"); opponent.hp = Math.floor(opponent.hp / 2);',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3050,7 +3050,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Own HP become 10. Changes opponent's Specialty to Darkness.",
     support_speed: 2,
-    support_script: 'own.hp = 10;\nopponent.specialty = "Darkness";',
+    support_script: 'own.hp = 10; opponent.specialty = "Darkness";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3074,7 +3074,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Nature Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Nature") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Nature") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "None",
@@ -3108,7 +3108,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players discard all Cards in Hands.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|hand|trash|" + own.hand_count + "|all");\ncommands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all");',
+      'commands.push("move-card|own|hand|trash|" + own.hand_count + "|all"); commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3166,7 +3166,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 5 Cards from own Online Deck. Boost own Attack Power +400.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|5|top");\nown.c_power += 400;\nown.t_power += 400;\nown.x_power += 400;',
+      'commands.push("move-card|own|deck|trash|5|top"); own.c_power += 400; own.t_power += 400; own.x_power += 400;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3195,7 +3195,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players boost Attack Power +200.",
     support_speed: 1,
     support_script:
-      "own.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;\nopponent.c_power += 200;\nopponent.t_power += 200;\nopponent.x_power += 200;",
+      "own.c_power += 200; own.t_power += 200; own.x_power += 200; opponent.c_power += 200; opponent.t_power += 200; opponent.x_power += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3253,7 +3253,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players' HP are halved.",
     support_speed: 2,
     support_script:
-      "own.hp = Math.floor(own.hp / 2);\nopponent.hp = Math.floor(opponent.hp / 2);",
+      "own.hp = Math.floor(own.hp / 2); opponent.hp = Math.floor(opponent.hp / 2);",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3277,13 +3277,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Nature Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Nature") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Nature") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Nature, opponent discards all Cards.",
     support_speed: 2,
     support_script:
-      'if (opponent.specialty === "Nature") {\n  commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all");\n}',
+      'if (opponent.specialty === "Nature") { commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all"); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3313,7 +3313,7 @@ export const MASTER_CARDS: MasterCard[] = [
       'Discard 7 Cards from own Online Deck, own Attack is "Eat-up HP.".',
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|7|top");\nown.is_absorbing = true;',
+      'commands.push("move-card|own|deck|trash|7|top"); own.is_absorbing = true;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3342,7 +3342,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP become 10. Own Attack Power is doubled.",
     support_speed: 2,
     support_script:
-      "own.hp = 10;\nown.c_power *= 2;\nown.t_power *= 2;\nown.x_power *= 2;",
+      "own.hp = 10; own.c_power *= 2; own.t_power *= 2; own.x_power *= 2;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3371,7 +3371,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP are halved. Boost own Attack Power +400.",
     support_speed: 2,
     support_script:
-      "own.hp = Math.floor(own.hp / 2);\nown.c_power += 400;\nown.t_power += 400;\nown.x_power += 400;",
+      "own.hp = Math.floor(own.hp / 2); own.c_power += 400; own.t_power += 400; own.x_power += 400;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3400,7 +3400,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 1 DP Card from own DP Slot. Boost own Attack Power +200.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|dp|trash|1|top");\nown.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;',
+      'commands.push("move-card|own|dp|trash|1|top"); own.c_power += 200; own.t_power += 200; own.x_power += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3429,7 +3429,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard all Cards in own Hand, then draw 2 Cards.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|hand|trash|" + own.hand_count + "|all");\ncommands.push("draw-card|own|2");',
+      'commands.push("move-card|own|hand|trash|" + own.hand_count + "|all"); commands.push("draw-card|own|2");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3481,13 +3481,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Nature Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Nature") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Nature") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Nature, own Attack Power is tripled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Nature") {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}',
+      'if (opponent.specialty === "Nature") { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3545,7 +3545,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard Cards in own DP Slot and multiply Attack Power by number of discards.",
     support_speed: 2,
     support_script:
-      'const dpDiscards = own.dp_count;\ncommands.push("move-card|own|dp|trash|" + dpDiscards + "|all");\nown.c_power *= dpDiscards;\nown.t_power *= dpDiscards;\nown.x_power *= dpDiscards;',
+      'const dpDiscards = own.dp_count; commands.push("move-card|own|dp|trash|" + dpDiscards + "|all"); own.c_power *= dpDiscards; own.t_power *= dpDiscards; own.x_power *= dpDiscards;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3602,7 +3602,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP are halved. Boost own Attack Power +300.",
     support_speed: 2,
     support_script:
-      "own.hp = Math.floor(own.hp / 2);\nown.c_power += 300;\nown.t_power += 300;\nown.x_power += 300;",
+      "own.hp = Math.floor(own.hp / 2); own.c_power += 300; own.t_power += 300; own.x_power += 300;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3631,7 +3631,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players boost Attack Power +300.",
     support_speed: 1,
     support_script:
-      "own.c_power += 300;\nown.t_power += 300;\nown.x_power += 300;\nopponent.c_power += 300;\nopponent.t_power += 300;\nopponent.x_power += 300;",
+      "own.c_power += 300; own.t_power += 300; own.x_power += 300; opponent.c_power += 300; opponent.t_power += 300; opponent.x_power += 300;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3660,7 +3660,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players use △.",
     support_speed: 2,
     support_script:
-      'own.selected_attack = "t";\nopponent.selected_attack = "t";',
+      'own.selected_attack = "t"; opponent.selected_attack = "t";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -3690,7 +3690,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 1 Card in DP Slot. change opponent's Specialty to Darkness.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|dp|trash|1|top");\nopponent.specialty = "Darkness";',
+      'commands.push("move-card|own|dp|trash|1|top"); opponent.specialty = "Darkness";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3747,7 +3747,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players use ✕.",
     support_speed: 2,
     support_script:
-      'own.selected_attack = "x";\nopponent.selected_attack = "x";',
+      'own.selected_attack = "x"; opponent.selected_attack = "x";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -3776,7 +3776,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players use ○.",
     support_speed: 2,
     support_script:
-      'own.selected_attack = "c";\nopponent.selected_attack = "c";',
+      'own.selected_attack = "c"; opponent.selected_attack = "c";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -3805,7 +3805,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's Attack Power become 300.",
     support_speed: 1,
     support_script:
-      "opponent.c_power = 300;\nopponent.t_power = 300;\nopponent.x_power = 300;",
+      "opponent.c_power = 300; opponent.t_power = 300; opponent.x_power = 300;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3829,13 +3829,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Nature Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Nature") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Nature") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Nature, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Nature") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (opponent.specialty === "Nature") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3864,7 +3864,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If opponent's Level is A, opponent's HP are halved.",
     support_speed: 1,
     support_script:
-      'if (opponent.level === "A") {\n  opponent.hp = Math.floor(opponent.hp / 2);\n}',
+      'if (opponent.level === "A") { opponent.hp = Math.floor(opponent.hp / 2); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3893,7 +3893,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Reduce own Attack Power by -100. Recover own HP by +200.",
     support_speed: 2,
     support_script:
-      "own.c_power = Math.max(0, own.c_power - 100);\nown.t_power = Math.max(0, own.t_power - 100);\nown.x_power = Math.max(0, own.x_power - 100);\nown.hp += 200;",
+      "own.c_power = Math.max(0, own.c_power - 100); own.t_power = Math.max(0, own.t_power - 100); own.x_power = Math.max(0, own.x_power - 100); own.hp += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3921,7 +3921,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Boost own ✕ Attack Power +200. ○ & △ Attack Power are 0.",
     support_speed: 1,
-    support_script: "own.x_power += 200;\nown.c_power = 0;\nown.t_power = 0;",
+    support_script: "own.x_power += 200; own.c_power = 0; own.t_power = 0;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3945,13 +3945,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Rare Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Rare") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Rare") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "If opponent's Specialty is Rare, opponent's HP become 100.",
     support_speed: 2,
     support_script:
-      'if (opponent.specialty === "Rare") {\n  opponent.hp = 100;\n}',
+      'if (opponent.specialty === "Rare") { opponent.hp = 100; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -3980,7 +3980,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: 'Own Attack becomes "Eat-up HP." Own Attack Power is halved.',
     support_speed: 2,
     support_script:
-      "own.is_absorbing = true;\nown.c_power = Math.floor(own.c_power / 2);\nown.t_power = Math.floor(own.t_power / 2);\nown.x_power = Math.floor(own.x_power / 2);",
+      "own.is_absorbing = true; own.c_power = Math.floor(own.c_power / 2); own.t_power = Math.floor(own.t_power / 2); own.x_power = Math.floor(own.x_power / 2);",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4009,7 +4009,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's HP are halved. opponent's Attack Power is doubled.",
     support_speed: 2,
     support_script:
-      "opponent.hp = Math.floor(opponent.hp / 2);\nopponent.c_power *= 2;\nopponent.t_power *= 2;\nopponent.x_power *= 2;",
+      "opponent.hp = Math.floor(opponent.hp / 2); opponent.c_power *= 2; opponent.t_power *= 2; opponent.x_power *= 2;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4038,7 +4038,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 1 of opponent's Cards in DP Slot. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|opponent|dp|trash|1|top");\ncommands.push("draw-card|own|1");',
+      'commands.push("move-card|opponent|dp|trash|1|top"); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4062,14 +4062,14 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Rare Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Rare") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Rare") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
       "If opponent's Specialty is Rare, lower opponent's Attack Power to 0.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Rare") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}',
+      'if (opponent.specialty === "Rare") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4098,7 +4098,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "○ Counterattack. Attack second.",
     support_speed: 1,
     support_script:
-      'own.is_countering.push("c");\nown.is_first_attack = false;',
+      'own.is_countering.push("c"); own.is_first_attack = false;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4126,7 +4126,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Recover own HP by +100. Boost own ✕ Attack Power by +100.",
     support_speed: 2,
-    support_script: "own.hp += 100;\nown.x_power += 100;",
+    support_script: "own.hp += 100; own.x_power += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4156,7 +4156,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent's Specialty is Darkness, lower opponent's Attack Power to 0.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}',
+      'if (opponent.specialty === "Darkness") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4185,7 +4185,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Swap own Specialty with opponent's Specialty.",
     support_speed: 2,
     support_script:
-      "const tempSpec = own.specialty;\nown.specialty = opponent.specialty;\nopponent.specialty = tempSpec;",
+      "const tempSpec = own.specialty; own.specialty = opponent.specialty; opponent.specialty = tempSpec;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4265,13 +4265,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Darkness Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Recover own HP by +200. Boost own Attack Power by +100.",
     support_speed: 2,
     support_script:
-      "own.hp += 200;\nown.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;",
+      "own.hp += 200; own.c_power += 100; own.t_power += 100; own.x_power += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4385,7 +4385,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent has more than 2 Cards in DP Slot, his Attack Power is 0.",
     support_speed: 1,
     support_script:
-      "if (opponent.dp_count > 2) {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+      "if (opponent.dp_count > 2) { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4409,14 +4409,14 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Darkness Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Darkness") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Darkness") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
       "If opponent's Specialty is Darkness, opponent's Support Effect is voided.",
     support_speed: 3,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  opponent.support_voided = true;\n}',
+      'if (opponent.specialty === "Darkness") { opponent.support_voided = true; }',
     support_effect_is_jamming: 1,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4445,7 +4445,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If opponent used ✕, discard all Cards in opponent's Hand.",
     support_speed: 2,
     support_script:
-      'if (opponent.selected_attack === "x") {\n  commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all");\n}',
+      'if (opponent.selected_attack === "x") { commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all"); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4530,7 +4530,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Return all Cards in own Hand to Online Deck and Shuffle.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|hand|deck|" + own.hand_count + "|all");\ncommands.push("shuffle|own|deck");',
+      'commands.push("move-card|own|hand|deck|" + own.hand_count + "|all"); commands.push("shuffle|own|deck");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4610,7 +4610,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Rare Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Rare") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Rare") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Discard 3 Cards from opponent's Online Deck.",
@@ -4645,7 +4645,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard all Cards in DP Slot. Foe discards same number of DP Cards.",
     support_speed: 2,
     support_script:
-      'const ownDpCount = own.dp_count;\ncommands.push("move-card|own|dp|trash|" + ownDpCount + "|all");\ncommands.push("move-card|opponent|dp|trash|" + ownDpCount + "|top");',
+      'const ownDpCount = own.dp_count; commands.push("move-card|own|dp|trash|" + ownDpCount + "|all"); commands.push("move-card|opponent|dp|trash|" + ownDpCount + "|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4669,7 +4669,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Rare Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Rare") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Rare") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Opponent uses △.",
@@ -4759,7 +4759,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent uses ○. Lower opponent's Attack Power -100.",
     support_speed: 2,
     support_script:
-      'opponent.selected_attack = "c";\nopponent.c_power = Math.max(0, opponent.c_power - 100);\nopponent.t_power = Math.max(0, opponent.t_power - 100);\nopponent.x_power = Math.max(0, opponent.x_power - 100);',
+      'opponent.selected_attack = "c"; opponent.c_power = Math.max(0, opponent.c_power - 100); opponent.t_power = Math.max(0, opponent.t_power - 100); opponent.x_power = Math.max(0, opponent.x_power - 100);',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -4789,7 +4789,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If 1 or less Cards left in own Hand, opponent's Attack Power goes to 0.",
     support_speed: 1,
     support_script:
-      "if (own.hand_count <= 1) {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+      "if (own.hand_count <= 1) { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4819,7 +4819,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard all Cards in DP Slot. Recover HP, mumber of discards x100.",
     support_speed: 2,
     support_script:
-      'const dpDiscards = own.dp_count;\ncommands.push("move-card|own|dp|trash|" + dpDiscards + "|all");\nown.hp += dpDiscards * 100;',
+      'const dpDiscards = own.dp_count; commands.push("move-card|own|dp|trash|" + dpDiscards + "|all"); own.hp += dpDiscards * 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4849,7 +4849,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 1 Card at random from own Hand. HP of both Players are 200.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|hand|trash|1|random");\nown.hp = 200;\nopponent.hp = 200;',
+      'commands.push("move-card|own|hand|trash|1|random"); own.hp = 200; opponent.hp = 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4901,7 +4901,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Rare Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Rare") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Rare") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "None",
@@ -4963,7 +4963,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's HP become same as own. Own Attack Power becomes 0.",
     support_speed: 2,
     support_script:
-      "opponent.hp = own.hp;\nown.c_power = 0;\nown.t_power = 0;\nown.x_power = 0;",
+      "opponent.hp = own.hp; own.c_power = 0; own.t_power = 0; own.x_power = 0;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -4992,7 +4992,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;\ncommands.push("draw-card|own|1");',
+      'own.c_power += 100; own.t_power += 100; own.x_power += 100; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5021,7 +5021,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power by +100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;\ncommands.push("draw-card|own|1");',
+      'own.c_power += 100; own.t_power += 100; own.x_power += 100; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5051,7 +5051,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If foe's Specialty is Darkness, own Attack Power is Doubled. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}\ncommands.push("draw-card|own|1");',
+      'if (opponent.specialty === "Darkness") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; } commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5080,7 +5080,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;\ncommands.push("draw-card|own|1");',
+      'own.c_power += 100; own.t_power += 100; own.x_power += 100; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 1,
@@ -5109,7 +5109,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 2 Cards from opponent's Online Deck. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|opponent|deck|trash|2|top");\ncommands.push("draw-card|own|1");',
+      'commands.push("move-card|opponent|deck|trash|2|top"); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5138,7 +5138,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Lower Opponent's Attack Power -100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'opponent.c_power = Math.max(0, opponent.c_power - 100);\nopponent.t_power = Math.max(0, opponent.t_power - 100);\nopponent.x_power = Math.max(0, opponent.x_power - 100);\ncommands.push("draw-card|own|1");',
+      'opponent.c_power = Math.max(0, opponent.c_power - 100); opponent.t_power = Math.max(0, opponent.t_power - 100); opponent.x_power = Math.max(0, opponent.x_power - 100); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5162,13 +5162,13 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect: "Fire Foe x3.",
     x_effect_speed: 1,
     x_effect_script:
-      'if (opponent.specialty === "Fire") {\n  own.x_power = own.x_power * 3;\n}',
+      'if (opponent.specialty === "Fire") { own.x_power = own.x_power * 3; }',
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support: "Change own Specialty to Nature. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Nature";\ncommands.push("draw-card|own|1");',
+      'own.specialty = "Nature"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5226,7 +5226,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If foe's Specialty is Nature, own Attack Power is doubled. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Nature") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}\ncommands.push("draw-card|own|1");',
+      'if (opponent.specialty === "Nature") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; } commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5255,7 +5255,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Change own Specialty to Nature. Draw 1 card.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Nature";\ncommands.push("draw-card|own|1");',
+      'own.specialty = "Nature"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5313,7 +5313,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If foe's Specialty is Darkness, own Attack Power is doubled. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Darkness") {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}\ncommands.push("draw-card|own|1");',
+      'if (opponent.specialty === "Darkness") { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; } commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 1,
@@ -5342,7 +5342,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Change own Specialty to Nature. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Nature";\ncommands.push("draw-card|own|1");',
+      'own.specialty = "Nature"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 1,
@@ -5371,7 +5371,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power by +100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;\ncommands.push("draw-card|own|1");',
+      'own.c_power += 100; own.t_power += 100; own.x_power += 100; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5400,7 +5400,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Lower Opponent's Attack Power -100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'opponent.c_power = Math.max(0, opponent.c_power - 100);\nopponent.t_power = Math.max(0, opponent.t_power - 100);\nopponent.x_power = Math.max(0, opponent.x_power - 100);\ncommands.push("draw-card|own|1");',
+      'opponent.c_power = Math.max(0, opponent.c_power - 100); opponent.t_power = Math.max(0, opponent.t_power - 100); opponent.x_power = Math.max(0, opponent.x_power - 100); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5429,7 +5429,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Lower Opponent's Attack Power -100. Draw 1 Card.",
     support_speed: 1,
     support_script:
-      'opponent.c_power = Math.max(0, opponent.c_power - 100);\nopponent.t_power = Math.max(0, opponent.t_power - 100);\nopponent.x_power = Math.max(0, opponent.x_power - 100);\ncommands.push("draw-card|own|1");',
+      'opponent.c_power = Math.max(0, opponent.c_power - 100); opponent.t_power = Math.max(0, opponent.t_power - 100); opponent.x_power = Math.max(0, opponent.x_power - 100); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 1,
@@ -5486,7 +5486,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 2 Cards from opponent's Online Deck. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|opponent|deck|trash|2|top");\ncommands.push("draw-card|own|1");',
+      'commands.push("move-card|opponent|deck|trash|2|top"); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5515,7 +5515,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 2 Cards from opponent's Online Deck. Draw 1 Card.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|opponent|deck|trash|2|top");\ncommands.push("draw-card|own|1");',
+      'commands.push("move-card|opponent|deck|trash|2|top"); commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 1,
@@ -5544,7 +5544,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP are halved. Counterattack. Attack second.",
     support_speed: 2,
     support_script:
-      'own.hp = Math.floor(own.hp / 2);\nown.is_countering.push("c");\nown.is_countering.push("t");\nown.is_countering.push("x");\nown.is_first_attack = false;',
+      'own.hp = Math.floor(own.hp / 2); own.is_countering.push("c"); own.is_countering.push("t"); own.is_countering.push("x"); own.is_first_attack = false;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5574,7 +5574,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 1 Card from own Hand. Boost both players' Attack Power +600.",
     support_speed: 1,
     support_script:
-      'commands.push("move-card|own|hand|trash|1|top");\nown.c_power += 600;\nown.t_power += 600;\nown.x_power += 600;\nopponent.c_power += 600;\nopponent.t_power += 600;\nopponent.x_power += 600;',
+      'commands.push("move-card|own|hand|trash|1|top"); own.c_power += 600; own.t_power += 600; own.x_power += 600; opponent.c_power += 600; opponent.t_power += 600; opponent.x_power += 600;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5604,7 +5604,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own Level is below opponent's, opponent's Attack Power becomes 0.",
     support_speed: 1,
     support_script:
-      "const levelValues = { R: 1, C: 2, U: 3, M: 4, A: 2 };\nif (levelValues[own.level] < levelValues[opponent.level]) {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+      "const levelValues = { R: 1, C: 2, U: 3, M: 4, A: 2 }; if (levelValues[own.level] < levelValues[opponent.level]) { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5634,7 +5634,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 7 Cards from Online Deck. Own Attack Power is same as own HP.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|7|top");\nown.c_power = own.hp;\nown.t_power = own.hp;\nown.x_power = own.hp;',
+      'commands.push("move-card|own|deck|trash|7|top"); own.c_power = own.hp; own.t_power = own.hp; own.x_power = own.hp;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5663,7 +5663,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own HP are halved. Opponent's Attack Power becomes 0.",
     support_speed: 2,
     support_script:
-      "own.hp = Math.floor(own.hp / 2);\nopponent.c_power = 0;\nopponent.t_power = 0;\nopponent.x_power = 0;",
+      "own.hp = Math.floor(own.hp / 2); opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5692,7 +5692,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If opponent's HP are more than 1000, opponent's HP are halved.",
     support_speed: 2,
     support_script:
-      "if (opponent.hp > 1000) {\n  opponent.hp = Math.floor(opponent.hp / 2);\n}",
+      "if (opponent.hp > 1000) { opponent.hp = Math.floor(opponent.hp / 2); }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5721,7 +5721,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 7 Cards from own Online Deck. Recover own HP by +1000.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|7|top");\nown.hp += 1000;',
+      'commands.push("move-card|own|deck|trash|7|top"); own.hp += 1000;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5751,7 +5751,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 7 Cards from own Online Deck. Boost own Attack Power +500.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|7|top");\nown.c_power += 500;\nown.t_power += 500;\nown.x_power += 500;',
+      'commands.push("move-card|own|deck|trash|7|top"); own.c_power += 500; own.t_power += 500; own.x_power += 500;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5780,7 +5780,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If opponent's HP is less than own, boost own Attack Power +400.",
     support_speed: 1,
     support_script:
-      "if (opponent.hp < own.hp) {\n  own.c_power += 400;\n  own.t_power += 400;\n  own.x_power += 400;\n}",
+      "if (opponent.hp < own.hp) { own.c_power += 400; own.t_power += 400; own.x_power += 400; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5838,7 +5838,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If both players use same Attack, discard all Cards in foe's Hand.",
     support_speed: 2,
     support_script:
-      'if (own.selected_attack === opponent.selected_attack) {\n  commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all");\n}',
+      'if (own.selected_attack === opponent.selected_attack) { commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all"); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5867,7 +5867,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard all Cards in own Hand. Own Attack Power is doubled.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|hand|trash|" + own.hand_count + "|all");\nown.c_power *= 2;\nown.t_power *= 2;\nown.x_power *= 2;',
+      'commands.push("move-card|own|hand|trash|" + own.hand_count + "|all"); own.c_power *= 2; own.t_power *= 2; own.x_power *= 2;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5896,7 +5896,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players' Attack Power becomes 0.",
     support_speed: 1,
     support_script:
-      "own.c_power = 0;\nown.t_power = 0;\nown.x_power = 0;\nopponent.c_power = 0;\nopponent.t_power = 0;\nopponent.x_power = 0;",
+      "own.c_power = 0; own.t_power = 0; own.x_power = 0; opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5925,7 +5925,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Attack first. Boost own Attack Power +100.",
     support_speed: 2,
     support_script:
-      "own.is_first_attack = true;\nown.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;",
+      "own.is_first_attack = true; own.c_power += 100; own.t_power += 100; own.x_power += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -5983,7 +5983,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own Specialty is Fire, boost own Attack Power +100, recover HP +200.",
     support_speed: 2,
     support_script:
-      'if (own.specialty === "Fire") {\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n  own.hp += 200;\n}',
+      'if (own.specialty === "Fire") { own.c_power += 100; own.t_power += 100; own.x_power += 100; own.hp += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6013,7 +6013,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own Specialty is Ice, boost own Attack Power +100, recover HP +200.",
     support_speed: 2,
     support_script:
-      'if (own.specialty === "Ice") {\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n  own.hp += 200;\n}',
+      'if (own.specialty === "Ice") { own.c_power += 100; own.t_power += 100; own.x_power += 100; own.hp += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6043,7 +6043,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own Specialty is Nature, boost own Attack Power +100, recover HP +200.",
     support_speed: 2,
     support_script:
-      'if (own.specialty === "Nature") {\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n  own.hp += 200;\n}',
+      'if (own.specialty === "Nature") { own.c_power += 100; own.t_power += 100; own.x_power += 100; own.hp += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6073,7 +6073,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own Specialty is Darkness, boost own Attack Power +100, recover HP +200.",
     support_speed: 2,
     support_script:
-      'if (own.specialty === "Darkness") {\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n  own.hp += 200;\n}',
+      'if (own.specialty === "Darkness") { own.c_power += 100; own.t_power += 100; own.x_power += 100; own.hp += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6103,7 +6103,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If own Specialty is Rare, boost own Attack Power +100, recover HP +200.",
     support_speed: 2,
     support_script:
-      'if (own.specialty === "Rare") {\n  own.c_power += 100;\n  own.t_power += 100;\n  own.x_power += 100;\n  own.hp += 200;\n}',
+      'if (own.specialty === "Rare") { own.c_power += 100; own.t_power += 100; own.x_power += 100; own.hp += 200; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6133,7 +6133,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If Specialties are same, boost own Attack Power +200, recover HP +400.",
     support_speed: 2,
     support_script:
-      "if (own.specialty === opponent.specialty) {\n  own.c_power += 200;\n  own.t_power += 200;\n  own.x_power += 200;\n  own.hp += 400;\n}",
+      "if (own.specialty === opponent.specialty) { own.c_power += 200; own.t_power += 200; own.x_power += 200; own.hp += 400; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6162,7 +6162,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Discard 7 Cards from both players' Online Decks.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|deck|trash|7|top");\ncommands.push("move-card|opponent|deck|trash|7|top");',
+      'commands.push("move-card|own|deck|trash|7|top"); commands.push("move-card|opponent|deck|trash|7|top");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6192,7 +6192,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If both Attacks are same, discard 7 Cards from foe's Online Deck.",
     support_speed: 2,
     support_script:
-      'if (own.selected_attack === opponent.selected_attack) {\n  commands.push("move-card|opponent|deck|trash|7|top");\n}',
+      'if (own.selected_attack === opponent.selected_attack) { commands.push("move-card|opponent|deck|trash|7|top"); }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6222,7 +6222,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard 1 Card in own DP Slot. Discard all foe's Cards in DP Slot.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|dp|trash|1|top");\ncommands.push("move-card|opponent|dp|trash|" + opponent.dp_count + "|all");',
+      'commands.push("move-card|own|dp|trash|1|top"); commands.push("move-card|opponent|dp|trash|" + opponent.dp_count + "|all");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6251,7 +6251,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Both players' attacks become ○. Boost own ○ Attack Power +100.",
     support_speed: 2,
     support_script:
-      'own.selected_attack = "c";\nopponent.selected_attack = "c";\nown.c_power += 100;',
+      'own.selected_attack = "c"; opponent.selected_attack = "c"; own.c_power += 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -6281,7 +6281,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Changes opponent's Specialty to Fire. Draw 1 Card from own Online Deck.",
     support_speed: 2,
     support_script:
-      'opponent.specialty = "Fire";\ncommands.push("draw-card|own|1");',
+      'opponent.specialty = "Fire"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6311,7 +6311,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Changes opponent's Specialty to Ice. Draw 1 Card from own Online Deck.",
     support_speed: 2,
     support_script:
-      'opponent.specialty = "Ice";\ncommands.push("draw-card|own|1");',
+      'opponent.specialty = "Ice"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6341,7 +6341,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Changes opponent's Specialty to Nature. Draw 1 Card from own Online Deck.",
     support_speed: 2,
     support_script:
-      'opponent.specialty = "Nature";\ncommands.push("draw-card|own|1");',
+      'opponent.specialty = "Nature"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6371,7 +6371,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Changes opponent's Specialty to Darkness. Draw 1 Card from own Online Deck.",
     support_speed: 2,
     support_script:
-      'opponent.specialty = "Darkness";\ncommands.push("draw-card|own|1");',
+      'opponent.specialty = "Darkness"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6401,7 +6401,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Changes opponent's Specialty to Rare. Draw 1 Card from own Online Deck.",
     support_speed: 2,
     support_script:
-      'opponent.specialty = "Rare";\ncommands.push("draw-card|own|1");',
+      'opponent.specialty = "Rare"; commands.push("draw-card|own|1");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6429,7 +6429,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "If own HP are less than foe's HP, recover own HP by +700.",
     support_speed: 2,
-    support_script: "if (own.hp < opponent.hp) {\n  own.hp += 700;\n}",
+    support_script: "if (own.hp < opponent.hp) { own.hp += 700; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6457,7 +6457,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Opponent's ○ Attack Power goes to 0. Recover own HP by +100.",
     support_speed: 2,
-    support_script: "opponent.c_power = 0;\nown.hp += 100;",
+    support_script: "opponent.c_power = 0; own.hp += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6485,7 +6485,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Opponent's △ Attack Power goes to 0. Recover own HP by +100.",
     support_speed: 2,
-    support_script: "opponent.t_power = 0;\nown.hp += 100;",
+    support_script: "opponent.t_power = 0; own.hp += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6513,7 +6513,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Opponent's ✕ Attack Power goes to 0. Recover own HP by +100.",
     support_speed: 2,
-    support_script: "opponent.x_power = 0;\nown.hp += 100;",
+    support_script: "opponent.x_power = 0; own.hp += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6543,7 +6543,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Opponent discards 2 Cards from his Online Deck and 1 Card from Hand.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|opponent|deck|trash|2|top");\ncommands.push("move-card|opponent|hand|trash|1|random");',
+      'commands.push("move-card|opponent|deck|trash|2|top"); commands.push("move-card|opponent|hand|trash|1|random");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6572,7 +6572,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own Attack Power becomes 0. Opponent's HP are halved.",
     support_speed: 2,
     support_script:
-      "own.c_power = 0;\nown.t_power = 0;\nown.x_power = 0;\nopponent.hp = Math.floor(opponent.hp / 2);",
+      "own.c_power = 0; own.t_power = 0; own.x_power = 0; opponent.hp = Math.floor(opponent.hp / 2);",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6601,7 +6601,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Make own HP 10. Own Attack Power is tripled.",
     support_speed: 2,
     support_script:
-      "own.hp = 10;\nown.c_power *= 3;\nown.t_power *= 3;\nown.x_power *= 3;",
+      "own.hp = 10; own.c_power *= 3; own.t_power *= 3; own.x_power *= 3;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6631,7 +6631,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard own Hand. Multiply own Attack Power by number of discarded Cards.",
     support_speed: 2,
     support_script:
-      'const handCount = own.hand_count;\ncommands.push("move-card|own|hand|trash|" + handCount + "|all");\nown.c_power *= handCount;\nown.t_power *= handCount;\nown.x_power *= handCount;',
+      'const handCount = own.hand_count; commands.push("move-card|own|hand|trash|" + handCount + "|all"); own.c_power *= handCount; own.t_power *= handCount; own.x_power *= handCount;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6661,7 +6661,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Discard own DP Slot Cards. Multiply own Attack Power by number of discards.",
     support_speed: 2,
     support_script:
-      'const dpCount = own.dp_count;\ncommands.push("move-card|own|dp|trash|" + dpCount + "|all");\nown.c_power *= dpCount;\nown.t_power *= dpCount;\nown.x_power *= dpCount;',
+      'const dpCount = own.dp_count; commands.push("move-card|own|dp|trash|" + dpCount + "|all"); own.c_power *= dpCount; own.t_power *= dpCount; own.x_power *= dpCount;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6690,7 +6690,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own Attack Power matches own HP, then own HP are halved.",
     support_speed: 2,
     support_script:
-      "own.c_power = own.hp;\nown.t_power = own.hp;\nown.x_power = own.hp;\nown.hp = Math.floor(own.hp / 2);",
+      "own.c_power = own.hp; own.t_power = own.hp; own.x_power = own.hp; own.hp = Math.floor(own.hp / 2);",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6719,7 +6719,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is R, boost own Attack Power +400.",
     support_speed: 1,
     support_script:
-      'if (own.level === "R") {\n  own.c_power += 400;\n  own.t_power += 400;\n  own.x_power += 400;\n}',
+      'if (own.level === "R") { own.c_power += 400; own.t_power += 400; own.x_power += 400; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6748,7 +6748,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is C, boost own Attack Power +400.",
     support_speed: 1,
     support_script:
-      'if (own.level === "C") {\n  own.c_power += 400;\n  own.t_power += 400;\n  own.x_power += 400;\n}',
+      'if (own.level === "C") { own.c_power += 400; own.t_power += 400; own.x_power += 400; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6777,7 +6777,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is U, boost own Attack Power +400.",
     support_speed: 1,
     support_script:
-      'if (own.level === "U") {\n  own.c_power += 400;\n  own.t_power += 400;\n  own.x_power += 400;\n}',
+      'if (own.level === "U") { own.c_power += 400; own.t_power += 400; own.x_power += 400; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6807,7 +6807,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent is Level A, his Atk Pwr becomes 0 and own Atk Pwr is doubled.",
     support_speed: 1,
     support_script:
-      'if (opponent.level === "A") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (opponent.level === "A") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6837,7 +6837,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent is Level U, his Atk Pwr becomes 0 and own Atk Pwr is doubled.",
     support_speed: 1,
     support_script:
-      'if (opponent.level === "U") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}',
+      'if (opponent.level === "U") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6866,7 +6866,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If foe's Specialty is Fire or Ice, his Attack Power goes to 0.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Fire" || opponent.specialty === "Ice") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}',
+      'if (opponent.specialty === "Fire" || opponent.specialty === "Ice") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6896,7 +6896,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If foe's Specialty is Nature or Darkness, his Attack Power goes to 0.",
     support_speed: 1,
     support_script:
-      'if (opponent.specialty === "Nature" || opponent.specialty === "Darkness") {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}',
+      'if (opponent.specialty === "Nature" || opponent.specialty === "Darkness") { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6924,7 +6924,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Changes both players' Specialties to Rare.",
     support_speed: 2,
-    support_script: 'own.specialty = "Rare";\nopponent.specialty = "Rare";',
+    support_script: 'own.specialty = "Rare"; opponent.specialty = "Rare";',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -6981,7 +6981,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If both Attacks are same, own Attack Power is tripled.",
     support_speed: 1,
     support_script:
-      "if (own.selected_attack === opponent.selected_attack) {\n  own.c_power *= 3;\n  own.t_power *= 3;\n  own.x_power *= 3;\n}",
+      "if (own.selected_attack === opponent.selected_attack) { own.c_power *= 3; own.t_power *= 3; own.x_power *= 3; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7011,7 +7011,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If both players use same attack, opponent's Attack Power becomes 0.",
     support_speed: 1,
     support_script:
-      "if (own.selected_attack === opponent.selected_attack) {\n  opponent.c_power = 0;\n  opponent.t_power = 0;\n  opponent.x_power = 0;\n}",
+      "if (own.selected_attack === opponent.selected_attack) { opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7040,7 +7040,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If both players use same Attack, recover own HP +700.",
     support_speed: 2,
     support_script:
-      "if (own.selected_attack === opponent.selected_attack) {\n  own.hp += 700;\n}",
+      "if (own.selected_attack === opponent.selected_attack) { own.hp += 700; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7069,7 +7069,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If both Attacks are different, recover own HP by +500.",
     support_speed: 2,
     support_script:
-      "if (own.selected_attack !== opponent.selected_attack) {\n  own.hp += 500;\n}",
+      "if (own.selected_attack !== opponent.selected_attack) { own.hp += 500; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7097,7 +7097,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Recover own HP by +500. Recover foe's HP by +200.",
     support_speed: 2,
-    support_script: "own.hp += 500;\nopponent.hp += 200;",
+    support_script: "own.hp += 500; opponent.hp += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7126,7 +7126,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If both attacks are different, own Attack Power is doubled.",
     support_speed: 1,
     support_script:
-      "if (own.selected_attack !== opponent.selected_attack) {\n  own.c_power *= 2;\n  own.t_power *= 2;\n  own.x_power *= 2;\n}",
+      "if (own.selected_attack !== opponent.selected_attack) { own.c_power *= 2; own.t_power *= 2; own.x_power *= 2; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7155,7 +7155,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own Attack Power is halved. Recover own HP by +500.",
     support_speed: 2,
     support_script:
-      "own.c_power = Math.floor(own.c_power / 2);\nown.t_power = Math.floor(own.t_power / 2);\nown.x_power = Math.floor(own.x_power / 2);\nown.hp += 500;",
+      "own.c_power = Math.floor(own.c_power / 2); own.t_power = Math.floor(own.t_power / 2); own.x_power = Math.floor(own.x_power / 2); own.hp += 500;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7184,7 +7184,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Move top 3 Cards from Offline Pile to Online Deck and shuffle.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|trash|deck|3|top");\ncommands.push("shuffle|own|deck");',
+      'commands.push("move-card|own|trash|deck|3|top"); commands.push("shuffle|own|deck");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7214,7 +7214,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Draw until there are 4 Cards in own Hand. Recover own HP by +100.",
     support_speed: 2,
     support_script:
-      'const drawCount = Math.max(0, 4 - own.hand_count);\nif (drawCount > 0) commands.push("draw-card|own|" + drawCount);\nown.hp += 100;',
+      'const drawCount = Math.max(0, 4 - own.hand_count); if (drawCount > 0) commands.push("draw-card|own|" + drawCount); own.hp += 100;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7244,7 +7244,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent uses ○, attack first and boost own Attack Power +500.",
     support_speed: 2,
     support_script:
-      'if (opponent.selected_attack === "c") {\n  own.is_first_attack = true;\n  own.c_power += 500;\n  own.t_power += 500;\n  own.x_power += 500;\n}',
+      'if (opponent.selected_attack === "c") { own.is_first_attack = true; own.c_power += 500; own.t_power += 500; own.x_power += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7274,7 +7274,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent uses △, attack first and boost own Attack Power +500.",
     support_speed: 2,
     support_script:
-      'if (opponent.selected_attack === "t") {\n  own.is_first_attack = true;\n  own.c_power += 500;\n  own.t_power += 500;\n  own.x_power += 500;\n}',
+      'if (opponent.selected_attack === "t") { own.is_first_attack = true; own.c_power += 500; own.t_power += 500; own.x_power += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7304,7 +7304,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "If opponent uses ✕, attack first and boost own Attack Power +500.",
     support_speed: 2,
     support_script:
-      'if (opponent.selected_attack === "x") {\n  own.is_first_attack = true;\n  own.c_power += 500;\n  own.t_power += 500;\n  own.x_power += 500;\n}',
+      'if (opponent.selected_attack === "x") { own.is_first_attack = true; own.c_power += 500; own.t_power += 500; own.x_power += 500; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7361,7 +7361,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's Support and Option Effects are voided.",
     support_speed: 3,
     support_script:
-      "opponent.support_voided = true;\nopponent.option_voided = true;",
+      "opponent.support_voided = true; opponent.option_voided = true;",
     support_effect_is_jamming: 1,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7390,7 +7390,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "If own Level is lower, switch HP with opponent.",
     support_speed: 2,
     support_script:
-      "const levelValues = { R: 1, C: 2, U: 3, M: 4, A: 2 };\nif (levelValues[own.level] < levelValues[opponent.level]) {\n  const tempHp = own.hp;\n  own.hp = opponent.hp;\n  opponent.hp = tempHp;\n}",
+      "const levelValues = { R: 1, C: 2, U: 3, M: 4, A: 2 }; if (levelValues[own.level] < levelValues[opponent.level]) { const tempHp = own.hp; own.hp = opponent.hp; opponent.hp = tempHp; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7448,7 +7448,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Own Attack Power, HP, and Specialty become same as the opponent's.",
     support_speed: 2,
     support_script:
-      "own.c_power = opponent.c_power;\nown.t_power = opponent.t_power;\nown.x_power = opponent.x_power;\nown.hp = opponent.hp;\nown.specialty = opponent.specialty;",
+      "own.c_power = opponent.c_power; own.t_power = opponent.t_power; own.x_power = opponent.x_power; own.hp = opponent.hp; own.specialty = opponent.specialty;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7475,9 +7475,9 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_is_jamming: 0,
     x_effect_changes_attack: 0,
     support:
-      "Pick Partner Card from own Online Deck at random and put in own Hand.",
+      "Draw Partner Cards from own Online Deck until Hand is full.",
     support_speed: 2,
-    support_script: 'commands.push("draw-card|own|1");',
+    support_script: 'commands.push("draw-partner|own|" + Math.max(0, 4 - own.hand_count));',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7506,7 +7506,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Change own Specialty to Fire. Boost own Attack Power +200.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Fire";\nown.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;',
+      'own.specialty = "Fire"; own.c_power += 200; own.t_power += 200; own.x_power += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7534,7 +7534,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Change own Specialty to Ice. Recover own HP by +200.",
     support_speed: 2,
-    support_script: 'own.specialty = "Ice";\nown.hp += 200;',
+    support_script: 'own.specialty = "Ice"; own.hp += 200;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7562,7 +7562,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Change own Specialty to Nature. Attack first.",
     support_speed: 2,
-    support_script: 'own.specialty = "Nature";\nown.is_first_attack = true;',
+    support_script: 'own.specialty = "Nature"; own.is_first_attack = true;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7591,7 +7591,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Change own Specialty to Darkness. Both players' HP are halved.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Darkness";\nown.hp = Math.floor(own.hp / 2);\nopponent.hp = Math.floor(opponent.hp / 2);',
+      'own.specialty = "Darkness"; own.hp = Math.floor(own.hp / 2); opponent.hp = Math.floor(opponent.hp / 2);',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7621,7 +7621,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Change own Specialty to Rare. Opponent discards 1 Card at random.",
     support_speed: 2,
     support_script:
-      'own.specialty = "Rare";\ncommands.push("move-card|opponent|hand|trash|1|random");',
+      'own.specialty = "Rare"; commands.push("move-card|opponent|hand|trash|1|random");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7650,7 +7650,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent's attack changes from ○ to △, △ to ✕, or ✕ to ○.",
     support_speed: 2,
     support_script:
-      'if (opponent.selected_attack === "c") {\n  opponent.selected_attack = "t";\n} else if (opponent.selected_attack === "t") {\n  opponent.selected_attack = "x";\n} else if (opponent.selected_attack === "x") {\n  opponent.selected_attack = "c";\n}',
+      'if (opponent.selected_attack === "c") { opponent.selected_attack = "t"; } else if (opponent.selected_attack === "t") { opponent.selected_attack = "x"; } else if (opponent.selected_attack === "x") { opponent.selected_attack = "c"; }',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 1,
     is_partner: 0,
@@ -7679,7 +7679,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +300.",
     support_speed: 1,
     support_script:
-      "own.c_power += 300;\nown.t_power += 300;\nown.x_power += 300;",
+      "own.c_power += 300; own.t_power += 300; own.x_power += 300;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7709,7 +7709,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Randomly discard 1 Card from own Hand. Opponent's Attack Power is 0.",
     support_speed: 1,
     support_script:
-      'commands.push("move-card|own|hand|trash|1|random");\nopponent.c_power = 0;\nopponent.t_power = 0;\nopponent.x_power = 0;',
+      'commands.push("move-card|own|hand|trash|1|random"); opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0;',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -7934,7 +7934,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Boost own Attack Power +100.",
     support_speed: 2,
     support_script:
-      "own.c_power += 100;\nown.t_power += 100;\nown.x_power += 100;",
+      "own.c_power += 100; own.t_power += 100; own.x_power += 100;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8270,7 +8270,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "Own Attack Power is tripled.",
     support_speed: 1,
-    support_script: "own.c_power *= 3;\nown.t_power *= 3;\nown.x_power *= 3;",
+    support_script: "own.c_power *= 3; own.t_power *= 3; own.x_power *= 3;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8326,7 +8326,7 @@ export const MASTER_CARDS: MasterCard[] = [
     x_effect_changes_attack: 0,
     support: "If opponent's HP are lower then own, opponent's HP become 10.",
     support_speed: 2,
-    support_script: "if (opponent.hp < own.hp) {\n  opponent.hp = 10;\n}",
+    support_script: "if (opponent.hp < own.hp) { opponent.hp = 10; }",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8355,7 +8355,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Own Attack Power is boosted by the number of own HP.",
     support_speed: 1,
     support_script:
-      "own.c_power += own.hp;\nown.t_power += own.hp;\nown.x_power += own.hp;",
+      "own.c_power += own.hp; own.t_power += own.hp; own.x_power += own.hp;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8385,7 +8385,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Opponent's Support and Option Effects are voided. His Attack Power is 0.",
     support_speed: 3,
     support_script:
-      "opponent.support_voided = true;\nopponent.option_voided = true;\nopponent.c_power = 0;\nopponent.t_power = 0;\nopponent.x_power = 0;",
+      "opponent.support_voided = true; opponent.option_voided = true; opponent.c_power = 0; opponent.t_power = 0; opponent.x_power = 0;",
     support_effect_is_jamming: 1,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8415,7 +8415,7 @@ export const MASTER_CARDS: MasterCard[] = [
       'Attack first. Own attack becomes "Eat-up HP." Boost Attack Power +200.',
     support_speed: 2,
     support_script:
-      "own.is_first_attack = true;\nown.is_absorbing = true;\nown.c_power += 200;\nown.t_power += 200;\nown.x_power += 200;",
+      "own.is_first_attack = true; own.is_absorbing = true; own.c_power += 200; own.t_power += 200; own.x_power += 200;",
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8445,7 +8445,7 @@ export const MASTER_CARDS: MasterCard[] = [
       "Move top 10 Cards from Offline Pile to Online Deck, then shuffle.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|own|trash|deck|10|top");\ncommands.push("shuffle|own|deck");',
+      'commands.push("move-card|own|trash|deck|10|top"); commands.push("shuffle|own|deck");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
@@ -8474,7 +8474,7 @@ export const MASTER_CARDS: MasterCard[] = [
     support: "Opponent discards his Hand and all Cards in his DP Slot.",
     support_speed: 2,
     support_script:
-      'commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all");\ncommands.push("move-card|opponent|dp|trash|" + opponent.dp_count + "|all");',
+      'commands.push("move-card|opponent|hand|trash|" + opponent.hand_count + "|all"); commands.push("move-card|opponent|dp|trash|" + opponent.dp_count + "|all");',
     support_effect_is_jamming: 0,
     support_effect_changes_attack: 0,
     is_partner: 0,
