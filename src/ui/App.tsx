@@ -3,7 +3,7 @@ import type { AttackType, MasterCard } from "@src/types";
 import { correctPartnerCard } from "@src/data/digiparts";
 import { armorCardByNumber } from "@src/data/armor";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
-import { CpuPlayer } from "@src/ai/cpu-player";
+import { CpuPlayer, difficultyFromExp } from "@src/ai/cpu-player";
 import { OPPONENT_ACTORS, getActorById } from "@src/data/actors";
 import { getDeckById } from "@src/data/prebuilt-decks";
 import type { PlayerProfile } from "@src/store/profile-store";
@@ -222,7 +222,11 @@ export function App() {
     eng.setOnChange(() => setVersion((v) => v + 1));
     rewardClaim = null;
     resultRecorded = false;
-    setCpu(new CpuPlayer(eng));
+    // AI skill scales with the CPU deck's exp (mirror/custom → mid tier).
+    const cpuExp = cpuDeckValue.startsWith(PREBUILT_PREFIX)
+      ? (getDeckById(parseInt(cpuDeckValue.slice(PREBUILT_PREFIX.length), 10))?.exp ?? 5)
+      : 5;
+    setCpu(new CpuPlayer(eng, "cpu", difficultyFromExp(cpuExp)));
     setEngine(eng);
     setAttack("c");
     setSupportIdx(null);
@@ -586,6 +590,7 @@ export function App() {
             setEngine(null) (e.g. "Change Setup"). */}
         <div class="columns">
           <div class="column">
+            <TurnInfo g={game()!} />
             <LogArea g={game()!} />
             <ControlPanel g={game()!} />
           </div>
@@ -644,9 +649,9 @@ export function App() {
               />
             </Show>
           </div>
-          <div class="column">
-            <TurnInfo g={game()!} />
-            <div class="area">
+          <div class="column column-side">
+            <CardInspector />
+            <div class="area area-speed">
               <h2>Battle Speed</h2>
               <input
                 type="range"
@@ -659,7 +664,6 @@ export function App() {
               />
               <div class="tag">{(battleSpeed() / 1000).toFixed(1)}s per action</div>
             </div>
-            <CardInspector />
           </div>
         </div>
       </Show>

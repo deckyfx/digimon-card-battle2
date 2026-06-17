@@ -4,7 +4,7 @@
 }
 
 .cd-card-number {
-  display: inline-block;
+  align-self: flex-start;
   padding: 3px 8px;
   margin-bottom: 8px;
   background: rgba(0, 243, 255, 0.07);

@@ -76,15 +76,12 @@ export function SideRail(props: { p: PlayerState; mirrored?: boolean }) {
   );
 }
 
-/** Tall TURN tab shown in a hand row's right rail when it is that side's turn. */
+/** Tall "1st Attack" tab shown in a hand row's right rail when it is that side's turn. */
 export function TurnTab(props: { on: boolean }) {
   return (
     <div class="turn-rail">
       <div class="turn-tab" classList={{ on: props.on }}>
-        <span>T</span>
-        <span>U</span>
-        <span>R</span>
-        <span>N</span>
+        <span class="turn-label">1<span class="turn-ord">st</span> ATTACK</span>
       </div>
     </div>
   );

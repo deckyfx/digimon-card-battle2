@@ -27,8 +27,8 @@ export function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand:
             <div class="row">
               <Index each={slots()}>
                 {(slot) => (
-                  <Show when={slot()} fallback={<div class="card empty">— empty slot —</div>}>
-                    <CardView card={slot() as MasterCard} />
+                  <Show when={slot()} fallback={<div class="card empty card--art">— empty slot —</div>}>
+                    <CardView card={slot() as MasterCard} art />
                   </Show>
                 )}
               </Index>

@@ -384,6 +384,9 @@ function FormPanel(props: {
   // The single equipped cross_eff part (groups allow at most one), if any.
   const xPart = () => props.xMods[0];
   const supPart = () => props.supMods[0];
+  // A support_eff part REPLACES the card's support effect (mirrors the engine's
+  // correctSupportEffect), so show the part's support text when one is equipped.
+  const supCorrected = () => (supPart()?.support ?? c().support)?.trim() || "None";
   // Card X effect + cross power after the equipped cross_eff correction.
   const xCorrection = () =>
     correctXEffect(
@@ -466,7 +469,7 @@ function FormPanel(props: {
         <div class="pm-eff">
           <div class="pm-eff-head">Support Effect</div>
           <p class="pm-eff-text" classList={{ "pm-eff-text--corrected": !!supPart() }}>
-            <EffectText text={(supPart()?.support ?? c().support)?.trim() || "None"} />
+            <EffectText text={supCorrected()} />
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import type { MasterCard } from "@src/types";
 import type { GameEngine, PlayerId, PlayerState } from "@src/engine/game-engine";
 import { quantizeStat } from "@src/engine/battle-context";
@@ -77,31 +77,82 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
 /** DP stack readout flanking the battle zone. (The armor side deck stays
     hidden — it is not rendered on the battle board.) */
 function DpRail(props: { p: PlayerState; g: GameEngine; side: PlayerId }) {
+  const [open, setOpen] = createSignal(false);
+  const dpCards = () => props.p.dpSlot;
+  const top = () => dpCards()[dpCards().length - 1];
+  // Only the player's own stock is shown — the CPU's DP cards stay hidden.
+  const ownSide = () => props.side === "player";
+  const canView = () => ownSide() && dpCards().length > 0;
   return (
     <div class={`rail dp-rail dp-${props.side}`}>
-      <div class="rail-stat">
-        <div class="rail-label">DP</div>
-        <div class="rail-num">
+      <div class="dp-heading">DP</div>
+      {/* DP stack: latest card (own side) or an empty frame (CPU is hidden),
+          with the DP total centered over it. Click (own, non-empty) to view all. */}
+      <button
+        class="dp-stack"
+        classList={{ "dp-stack--view": canView() }}
+        disabled={!canView()}
+        title={canView() ? "View stocked DP cards" : undefined}
+        onClick={() => canView() && setOpen(true)}
+      >
+        <Show when={ownSide() && top()} keyed fallback={<div class="dp-empty" />}>
+          {(card) => (
+            <div class="dp-stack-card">
+              <CardView card={card} art />
+            </div>
+          )}
+        </Show>
+        <span class="dp-value">
           <Ticker value={props.g.dpTotal(props.p)} />
-        </div>
-        <div class="dp-slots">
-          <For each={Array.from({ length: 8 })}>
-            {(_, i) => <div class="dp-slot" classList={{ filled: i() < props.p.dpSlot.length }} />}
-          </For>
-        </div>
+        </span>
+      </button>
+      <div class="dp-slots">
+        <For each={Array.from({ length: 8 })}>
+          {(_, i) => <div class="dp-slot" classList={{ filled: i() < props.p.dpSlot.length }} />}
+        </For>
       </div>
+
+      <Show when={open()}>
+        <div class="modal-overlay" onClick={() => setOpen(false)}>
+          <div class="modal dp-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Stocked DP — {dpCards().length} card{dpCards().length === 1 ? "" : "s"}</h2>
+            <div class="dp-card-list">
+              <For each={dpCards()}>{(c) => <CardView card={c} art />}</For>
+            </div>
+            <div class="setup-actions">
+              <button class="primary" onClick={() => setOpen(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </Show>
     </div>
   );
 }
 
 /** Docked support card display (face up or mystery-down). */
-function SupportDock(props: { s: { card: MasterCard | null; faceUp: boolean } | null }) {
+function SupportDock(props: {
+  s: { card: MasterCard | null; faceUp: boolean } | null;
+  /** CPU side: align the "Support" label to the top-right to mirror the player. */
+  mirror?: boolean;
+}) {
   return (
     <Show when={props.s}>
-      <div class="support-card">
+      <div class="support-card" classList={{ "support-card--mirror": props.mirror }}>
         <div class="tag">Support</div>
-        <Show when={props.s!.faceUp && props.s!.card} fallback={<div class="card mystery">?</div>}>
-          <CardView card={props.s!.card as MasterCard} />
+        <Show
+          when={props.s!.card}
+          fallback={
+            /* Gamble chosen but not yet drawn: a generic face-down back. */
+            <div class="card card--art card-back">
+              <img src="/assets/cards/back.png" alt="Face-down support" />
+            </div>
+          }
+        >
+          {/* Gamble supports render face-down (back) and flip to reveal once
+              the resolver sets the side revealed. */}
+          <CardView card={props.s!.card as MasterCard} art flipped={!props.s!.faceUp} />
         </Show>
       </div>
     </Show>
@@ -158,7 +209,7 @@ export function Battlefield(props: {
             <SupportDock s={supportFor("player")} />
           </div>
           <div class="vs-side vs-cpu vs-with-support" classList={sideClass("cpu")}>
-            <SupportDock s={supportFor("cpu")} />
+            <SupportDock s={supportFor("cpu")} mirror />
             <ActiveDigimonView p={props.g.players.cpu} g={props.g} />
           </div>
         </div>

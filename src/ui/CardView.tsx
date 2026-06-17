@@ -1,5 +1,6 @@
 import { Show, createSignal } from "solid-js";
 import { CardSpecialty, CardType, type MasterCard } from "@src/types";
+import { DigiCardFront } from "./DigiCard";
 
 /** Card currently inspected (hovered) — rendered in the right detail panel. */
 export const [inspectedCard, setInspectedCard] = createSignal<MasterCard | null>(null);
@@ -32,18 +33,44 @@ export function specialtyClass(card: MasterCard): string {
 }
 
 /**
- * Compact card: stats only. Attack names, card number, and full effect text
- * live in the right-hand detail panel (hover the card to inspect it).
+ * Card mini-view. By default a compact stat grid; with `art` it renders the
+ * full card face (same visual as the detail panel) for the battle board. Either
+ * way, hovering inspects the card in the right-hand detail panel, and any
+ * `children` (action balloons) overlay the card.
  */
-export function CardView(props: { card: MasterCard; children?: import("solid-js").JSX.Element }) {
+export function CardView(props: {
+  card: MasterCard;
+  /** Render the visual card art instead of the text stat grid. */
+  art?: boolean;
+  /**
+   * Art mode only: render the card face-down (back showing). Toggling this back
+   * to false animates a flip — used for gamble supports revealed at resolution.
+   */
+  flipped?: boolean;
+  children?: import("solid-js").JSX.Element;
+}) {
   const c = () => props.card;
   const isDigimon = () => c().type === CardType.Digimon;
   return (
     <div
       class={`card ${specialtyClass(c())}`}
-      classList={{ option: c().type === CardType.Option }}
-      onMouseEnter={() => setInspectedCard(c())}
+      classList={{ option: c().type === CardType.Option, "card--art": props.art }}
+      // A face-down card stays a mystery — don't reveal it in the detail panel.
+      onMouseEnter={() => !props.flipped && setInspectedCard(c())}
     >
+      <Show when={props.art}>
+        <div class="card-flip" classList={{ "is-flipped": props.flipped }}>
+          <div class="card-flip-inner">
+            <div class="card-flip-face card-flip-front">
+              <DigiCardFront card={c()} />
+            </div>
+            <div class="card-flip-face card-flip-back">
+              <img src="/assets/cards/back.png" alt="Card back" />
+            </div>
+          </div>
+        </div>
+      </Show>
+      <Show when={!props.art}>
       <div class="name-row">
         <span class="name">{c().name}</span>
         <Show when={isDigimon()}>
@@ -86,6 +113,7 @@ export function CardView(props: { card: MasterCard; children?: import("solid-js"
         </Show>
       </Show>
       <div class="effect effect-support">Support: {c().support || "None"}</div>
+      </Show>
       {props.children}
     </div>
   );

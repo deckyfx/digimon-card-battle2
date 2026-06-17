@@ -1,21 +1,70 @@
 import { CardLevel, CardType, type AttackType, type MasterCard } from "@src/types";
-import type { BattleChoice, GameEngine, PlayerId, PlayerState } from "@src/engine/game-engine";
+import type {
+  ActiveDigimon,
+  BattleChoice,
+  GameEngine,
+  PlayerId,
+  PlayerState,
+} from "@src/engine/game-engine";
+import { createCombatantCtx, quantizeStat, type CombatantCtx } from "@src/engine/battle-context";
+import { ScriptRunner, type SideZoneOps } from "@src/engine/script-runner";
 
 // Armor sits between Rookie and Champion in practical strength.
 const LEVEL_ORDER: Record<string, number> = { R: 0, A: 0.5, C: 1, U: 2, None: 9 };
+
+/**
+ * No-op zone operations for effect sandboxing. The AI runs effect scripts on
+ * throwaway contexts purely to read the resulting power/HP/flag mutations; the
+ * queued zone commands (draw/move/shuffle) must do nothing.
+ */
+const NOOP_ZONES: SideZoneOps = {
+  drawCards() {},
+  drawPartners() {},
+  moveCards() {},
+  shuffleDeck() {},
+  dpCount() {
+    return 0;
+  },
+  handCount() {
+    return 0;
+  },
+};
+
+/** Per-tier probability the AI takes its evaluated-best attack (else it blunders). */
+const OPTIMAL_PROB: Record<number, number> = { 1: 0.35, 2: 0.55, 3: 0.75, 4: 0.9, 5: 1.0 };
+
+/**
+ * Maps a deck's `exp` reward (2–7) to an AI skill tier (1–5). City maps assign
+ * escalating-exp decks as the player progresses, so this auto-scales difficulty
+ * from "dumb" early opponents to "cunning" late ones.
+ */
+export function difficultyFromExp(exp: number): number {
+  if (exp <= 2) return 1;
+  if (exp <= 4) return 2;
+  if (exp <= 5) return 3;
+  if (exp <= 6) return 4;
+  return 5;
+}
 
 /**
  * Rule-based CPU opponent (MVP).
  *
  * Prep priorities: deploy lowest level → evolve if possible → stock DP when an
  * evolution target is in hand → end phase.
- * Attack priorities: guaranteed kill → survival (max power) → weighted random.
- * Support: highest utility (prefers Option cards with effects).
+ * Attack: an outcome-based evaluator scores each attack by sandbox-running its
+ * effect (specialty multipliers, counters, power-to-0, …), weighing lethal,
+ * damage and — at higher tiers — return-swing risk and the player's counters.
+ * The `difficulty` tier (1–5) blends this smart pick with visible blunders so
+ * early opponents feel beatable and late ones play cunningly.
  */
 export class CpuPlayer {
+  /** Silent script runner for effect sandboxing (no battle-log spam). */
+  private readonly runner = new ScriptRunner(() => {});
+
   constructor(
     private readonly engine: GameEngine,
     private readonly id: PlayerId = "cpu",
+    private readonly difficulty: number = 3,
   ) {}
 
   /** Runs the CPU's deploy + digivolve phases, ending with endPrep(). */
@@ -44,6 +93,13 @@ export class CpuPlayer {
       if (this.engine.phase !== "digivolve") return;
     }
 
+    // Tier 1 sometimes neglects to develop its board — a visible blunder that
+    // keeps early opponents beatable.
+    if (this.difficulty <= 1 && Math.random() < 0.35) {
+      this.engine.endPrep();
+      return;
+    }
+
     // Evolve if possible, otherwise stock DP toward a held evolution target.
     let acted = true;
     while (acted) {
@@ -60,31 +116,101 @@ export class CpuPlayer {
     const active = cpu.active;
     if (!active || !foe.active) return { attack: "c", supportHandIndex: null };
 
-    const penalty = active.penalty;
-    const powers: Record<AttackType, number> = {
-      c: Math.round(active.card.c_pow * penalty),
-      t: Math.round(active.card.t_pow * penalty),
-      x: Math.round(active.card.x_pow * penalty),
-    };
+    const tier = this.difficulty;
     const types: AttackType[] = ["c", "t", "x"];
+    const penalty = active.penalty;
+    const rawPowers: Record<AttackType, number> = {
+      c: quantizeStat(active.card.c_pow * penalty),
+      t: quantizeStat(active.card.t_pow * penalty),
+      x: quantizeStat(active.card.x_pow * penalty),
+    };
 
-    // 1. Guaranteed kill.
-    let attack = types.find((t) => powers[t] >= (foe.active?.hp ?? Infinity));
+    // Naive baseline — highest raw power (what a dumb AI does, ignores effects).
+    const naive = [...types].sort((a, b) => rawPowers[b] - rawPowers[a])[0] as AttackType;
 
-    // 2. Survival / value: highest power.
-    if (!attack) {
-      attack = [...types].sort((a, b) => powers[b] - powers[a])[0] as AttackType;
+    // Smart pick — outcome-aware score per attack, effects sandbox-simulated.
+    const best = [...types]
+      .map((t) => ({ t, score: this.scoreAttack(t, tier) }))
+      .sort((a, b) => b.score - a.score)[0]!.t;
+
+    // Blend smart vs blunder by tier: low tiers often fall back to the naive
+    // pick, and the very lowest sometimes throw an outright random attack.
+    let attack: AttackType;
+    if (Math.random() < (OPTIMAL_PROB[tier] ?? 1)) {
+      attack = best;
+    } else if (tier <= 2 && Math.random() < 0.5) {
+      attack = types[Math.floor(Math.random() * types.length)] as AttackType;
+    } else {
+      attack = naive;
     }
 
-    // 3. Weighted random tweak: sometimes pick ✕ for its effect.
-    if (active.card.x_effect_script && powers.x === powers[attack] && Math.random() < 0.5) {
-      attack = "x";
-    }
-
-    // No good support in hand → occasionally gamble the top of the deck.
-    const supportHandIndex = this.pickSupport(cpu);
-    const supportFromDeck = supportHandIndex === null && cpu.deck.length > 4 && Math.random() < 0.35;
+    // Low tiers sometimes fail to play an available support (a blunder); high
+    // tiers always use the best one and gamble the deck more readily.
+    const supportHandIndex =
+      Math.random() < 0.5 + tier * 0.1 ? this.pickSupport(cpu) : null;
+    const gambleProb = 0.15 + tier * 0.06;
+    const supportFromDeck =
+      supportHandIndex === null && cpu.deck.length > 4 && Math.random() < gambleProb;
     return { attack, supportHandIndex, supportFromDeck };
+  }
+
+  /**
+   * Outcome score for attacking with `t`, higher = better. Sandbox-runs our own
+   * ✕ effect (and, at tier 5, the opponent's) on throwaway contexts so specialty
+   * multipliers, counters and power-to-0 effects are reflected in the numbers.
+   */
+  private scoreAttack(t: AttackType, tier: number): number {
+    const cpu = this.engine.players[this.id];
+    const foe = this.engine.opponentOf(this.id);
+    const active = cpu.active as ActiveDigimon;
+    const foeActive = foe.active as ActiveDigimon;
+
+    const ownCtx = this.evalCtx(active, t);
+    const foeCtx = this.evalCtx(foeActive, "c");
+
+    // Apply our ✕ effect exactly as the resolver would (mutates the copies).
+    if (t === "x" && active.card.x_effect_script) {
+      this.runner.run(active.card.x_effect_script, ownCtx, foeCtx, NOOP_ZONES, NOOP_ZONES);
+    }
+
+    const myPower = t === "c" ? ownCtx.c_power : t === "t" ? ownCtx.t_power : ownCtx.x_power;
+    const lethal = myPower >= foeCtx.hp;
+    const effDmg = Math.min(myPower, foeCtx.hp);
+
+    let score = (lethal ? 100_000 : 0) + effDmg * 10;
+
+    // Tier 4+: weigh the opponent's return swing (don't trade into death).
+    if (tier >= 4) {
+      const foeBest = Math.max(foeCtx.c_power, foeCtx.t_power, foeCtx.x_power);
+      const iStrikeFirst = ownCtx.is_first_attack || this.engine.turn === this.id;
+      const risk = lethal && iStrikeFirst ? 0 : Math.min(foeBest, ownCtx.hp);
+      score -= risk * 6;
+    }
+
+    // Tier 5: avoid attacking into the player's dangerous counter.
+    if (tier >= 5 && foeActive.card.x_effect_script) {
+      const foeIfX = this.evalCtx(foeActive, "x");
+      const ownCopy = this.evalCtx(active, t);
+      this.runner.run(foeActive.card.x_effect_script, foeIfX, ownCopy, NOOP_ZONES, NOOP_ZONES);
+      if (foeIfX.is_countering.includes(t)) score -= 50_000;
+    }
+
+    return score;
+  }
+
+  /** Builds a throwaway combatant context for evaluation (mirrors buildSide). */
+  private evalCtx(d: ActiveDigimon, attack: AttackType): CombatantCtx {
+    return createCombatantCtx({
+      hp: d.hp,
+      level: d.card.level,
+      specialty: d.specialty ?? d.card.specialty,
+      c_power: quantizeStat(d.card.c_pow * d.penalty),
+      t_power: quantizeStat(d.card.t_pow * d.penalty),
+      x_power: quantizeStat(d.card.x_pow * d.penalty),
+      selected_attack: attack,
+      dp_count: 0,
+      hand_count: 0,
+    });
   }
 
   /**

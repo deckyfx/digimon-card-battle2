@@ -87,10 +87,10 @@ export function PlayerArea(props: {
                   <Show
                     when={slot() && !lentAsSupport()}
                     fallback={
-                      <div class="card empty">{lentAsSupport() ? "→ support" : "— empty slot —"}</div>
+                      <div class="card empty card--art">{lentAsSupport() ? "→ support" : "— empty slot —"}</div>
                     }
                   >
-                    <CardView card={card()}>
+                    <CardView card={card()} art>
                       {/* Battle support pick: legal supports offer themselves
                           (digivolve option cards are prep-phase only). */}
                       <Show when={props.supportPick && props.g.isLegalSupport(card())}>
@@ -105,6 +105,11 @@ export function PlayerArea(props: {
                         <div class="bubbles">
                           <Show when={isMyDeploy() && props.g.isDeployable(card())}>
                             <button
+                              classList={{
+                                "pen-ok": props.g.deployPenaltyFor(card()) === 1,
+                                "pen-half": props.g.deployPenaltyFor(card()) === 0.5,
+                                "pen-quarter": props.g.deployPenaltyFor(card()) === 0.25,
+                              }}
                               title={`${p().active ? "Switch deployment to this" : "Deploy"}${
                                 props.g.deployPenaltyFor(card()) < 1
                                   ? ` — penalized ×${props.g.deployPenaltyFor(card())}`
@@ -115,8 +120,8 @@ export function PlayerArea(props: {
                               {props.g.deployPenaltyFor(card()) === 1
                                 ? "OK"
                                 : props.g.deployPenaltyFor(card()) === 0.5
-                                  ? "⚠½"
-                                  : "⚠¼"}
+                                  ? "1/2"
+                                  : "1/4"}
                             </button>
                           </Show>
                           <Show
@@ -128,7 +133,7 @@ export function PlayerArea(props: {
                             }
                           >
                             <button title="Stock DP" onClick={() => props.g.stockDp(hi())}>
-                              DP⬆
+                              DP+
                             </button>
                           </Show>
                           <Show when={isMyDigivolve() && props.g.canEvolve(p(), card())}>

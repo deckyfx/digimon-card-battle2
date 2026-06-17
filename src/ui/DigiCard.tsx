@@ -17,22 +17,41 @@ const INLINE_SPECIALTY_ICON: Record<string, string> = {
   Ice: "/assets/icons/icon-ice.svg",
   Nature: "/assets/icons/icon-nature.svg",
   Darkness: "/assets/icons/icon-darkness.svg",
+  // "Dark" is the shorthand some card effect text uses for the Darkness specialty.
+  Dark: "/assets/icons/icon-darkness.svg",
   Rare: "/assets/icons/icon-rare.svg",
 };
 
+/** Card level letter → level badge icon. */
+const INLINE_LEVEL_ICON: Record<string, string> = {
+  R: "/assets/icons/badge-r.svg",
+  C: "/assets/icons/badge-c.svg",
+  U: "/assets/icons/badge-u.svg",
+  A: "/assets/icons/badge-a.svg",
+};
+
+// The level alternative captures the whole "Level <X>" phrase so its prefix
+// ("Level ", "Level is ", "Levels are ") stays as text and only the letter
+// becomes a badge — matching only R/C/U/A right after a "Level" keyword avoids
+// catching the article "a" or stray capitals.
 const INLINE_SPLIT =
-  /(○|△|✕|\bFire\b|\bIce\b|\bNature\b|\bDarkness\b|\bRare\b)/;
+  /(○|△|✕|\bFire\b|\bIce\b|\bNature\b|\bDarkness\b|\bDark\b|\bRare\b|[Ll]evels?(?: is| are)? [RCUA]\b)/;
+
+/** Matches a captured level phrase → [, prefix, letter]. */
+const LEVEL_PHRASE = /^([Ll]evels?(?: is| are)? )([RCUA])$/;
 
 /**
- * Renders effect / DigiPart text, replacing attack-button glyphs (○ △ ✕) and
- * specialty keywords (Fire, Ice, Nature, Darkness, Rare) with their inline
- * icons. Plain `×` (multiplication) and other text are left untouched.
+ * Renders effect / DigiPart text, replacing attack-button glyphs (○ △ ✕),
+ * specialty keywords (Fire, Ice, Nature, Darkness, Rare) and card-level
+ * references ("Level U" → ⓤ badge) with their inline icons. Plain `×`
+ * (multiplication) and other text are left untouched.
  */
 export function EffectText(props: { text: string }): JSX.Element {
   const tokens = () => props.text.split(INLINE_SPLIT);
   return (
     <>
       {tokens().map((tok) => {
+        if (!tok) return null;
         const btn = INLINE_BTN_ICON[tok];
         if (btn) return <img src={btn} class="digi-inline-icon" alt={tok} />;
         const spec = INLINE_SPECIALTY_ICON[tok];
@@ -40,6 +59,21 @@ export function EffectText(props: { text: string }): JSX.Element {
           return (
             <img src={spec} class="digi-inline-icon digi-inline-icon--spec" alt={tok} title={tok} />
           );
+        const lvl = LEVEL_PHRASE.exec(tok);
+        if (lvl) {
+          const letter = lvl[2]!;
+          return (
+            <>
+              {lvl[1]}
+              <img
+                src={INLINE_LEVEL_ICON[letter]}
+                class="digi-inline-icon digi-inline-icon--level"
+                alt={letter}
+                title={`Level ${letter}`}
+              />
+            </>
+          );
+        }
         return tok as JSX.Element;
       })}
     </>

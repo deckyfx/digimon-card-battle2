@@ -3,6 +3,7 @@ import type { AttackType, MasterCard } from "@src/types";
 import type { GameEngine } from "@src/engine/game-engine";
 import { quantizeStat } from "@src/engine/battle-context";
 import { setInspectedCard } from "./CardView";
+import { EffectText } from "./DigiCard";
 
 /**
  * Pending "use an ineffective digivolve option anyway?" confirmation —
@@ -64,6 +65,11 @@ export function PromptDialogs(props: {
     return { c: act.card.c_attack, t: act.card.t_attack, x: act.card.x_attack }[t];
   };
   const ATTACK_GLYPH: Record<AttackType, string> = { c: "○", t: "△", x: "✕" };
+  const ATTACK_ICON: Record<AttackType, string> = {
+    c: "/assets/icons/button-circle.png",
+    t: "/assets/icons/button-triangle.png",
+    x: "/assets/icons/button-cross.png",
+  };
   const supportLabel = () => {
     if (props.supportIdx === "deck") return "🎲 Top of deck (mystery)";
     if (typeof props.supportIdx === "number") return p().hand[props.supportIdx]?.name ?? null;
@@ -174,8 +180,10 @@ export function PromptDialogs(props: {
       {/* Battle step 1: pick the attack. */}
       <Show when={isBattleSelect() && !props.attackConfirmed && p().active}>
         <div class="prompt-dock">
-          <div class="modal prompt">
-            <div class="prompt-text">{p().active?.card.name} — choose your attack</div>
+          <div class="modal prompt prompt-attack">
+            <div class="prompt-text">
+              <span class="prompt-cardname">{p().active?.card.name}</span> — choose your attack
+            </div>
             <div class="prompt-attacks">
               <For each={["c", "t", "x"] as AttackType[]}>
                 {(t) => (
@@ -186,16 +194,18 @@ export function PromptDialogs(props: {
                       props.setAttackConfirmed(true);
                     }}
                   >
-                    <span>
-                      {ATTACK_GLYPH[t]} {attackName(t)}
-                    </span>
+                    <img class="attack-icon" src={ATTACK_ICON[t]} alt={ATTACK_GLYPH[t]} />
+                    <span class="attack-name">{attackName(t)}</span>
                     <span class="attack-pow">{attackPow(t)}</span>
                   </button>
                 )}
               </For>
             </div>
             <Show when={p().active?.card.x_effect}>
-              <div class="tag">✕ effect: {p().active?.card.x_effect}</div>
+              <div class="attack-xeffect">
+                <img class="attack-icon attack-icon--sm" src={ATTACK_ICON.x} alt="✕" />
+                <span><EffectText text={p().active!.card.x_effect!} /></span>
+              </div>
             </Show>
           </div>
         </div>

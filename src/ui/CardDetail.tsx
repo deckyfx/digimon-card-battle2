@@ -1,27 +1,7 @@
-import { Show, type JSX } from "solid-js";
+import { Show } from "solid-js";
 import { CardLevel, type MasterCard } from "@src/types";
-import { DigiCard, getLevelBadge, getSpecialtyIcon, getOptionIcon } from "@src/ui/DigiCard";
+import { DigiCard, EffectText } from "@src/ui/DigiCard";
 import "./card-detail.css";
-
-// ─── Inline button text helper ────────────────────────────────────────────────
-
-const BTN_ICON: Record<string, string> = {
-  "○": "/assets/icons/button-circle.png",
-  "△": "/assets/icons/button-triangle.png",
-  "✕": "/assets/icons/button-cross.png",
-};
-
-export function ButtonText(props: { text: string }): JSX.Element {
-  const parts = () => props.text.split(/(○|△|✕)/);
-  return (
-    <>
-      {parts().map((part) => {
-        const icon = BTN_ICON[part];
-        return icon ? <img src={icon} class="cd-inline-btn" alt={part} /> : (part as JSX.Element);
-      })}
-    </>
-  );
-}
 
 // ─── Card detail panel ────────────────────────────────────────────────────────
 
@@ -37,32 +17,11 @@ export function CardDetail(props: CardDetailProps) {
 
   return (
     <div class="card-detail">
-      <div class="cd-card-number">CARD #{c().number}</div>
+      <div class="cd-card-number">#{c().number}</div>
+      <h3 class="cd-name">{c().name}</h3>
 
       <div class="cd-card-view">
         <DigiCard card={c()} />
-      </div>
-
-      <div class="cd-header">
-        <h3 class="cd-name">{c().name}</h3>
-      </div>
-
-      {/* Level + Specialty icons */}
-      <div class="cd-row">
-        <div class="cd-stat-box cd-center">
-          <img
-            src={isDigimon() ? getLevelBadge(c()) : getOptionIcon(c())}
-            class="cd-badge-lg"
-            alt={c().level}
-          />
-        </div>
-        <div class="cd-stat-box cd-center">
-          <img
-            src={isDigimon() ? getSpecialtyIcon(c()) : getOptionIcon(c())}
-            class="cd-badge-md"
-            alt={c().specialty}
-          />
-        </div>
       </div>
 
       {/* HP + DP (Digimon only) */}
@@ -112,7 +71,7 @@ export function CardDetail(props: CardDetailProps) {
               Effect
             </h4>
             <div class="cd-text-block">
-              <ButtonText text={c().x_effect!} />
+              <EffectText text={c().x_effect!} />
             </div>
           </div>
         </Show>
@@ -123,7 +82,7 @@ export function CardDetail(props: CardDetailProps) {
         <div class="cd-section">
           <h4 class="cd-section-label">Support Effect</h4>
           <div class="cd-text-block">
-            <ButtonText text={c().support!} />
+            <EffectText text={c().support!} />
           </div>
         </div>
       </Show>
