@@ -5,6 +5,7 @@ import { CardView } from "./CardView";
 import { AttackReveal } from "./AttackReveal";
 import { SideRail, TurnTab, createStableHand } from "./hand-common";
 import { setFizzleConfirm } from "./PromptDialogs";
+import { registerZone, flyCard, getZoneRect } from "./card-animation";
 
 /** Player hand row with the manga action balloons, plus identity footer. */
 export function PlayerArea(props: {
@@ -67,7 +68,7 @@ export function PlayerArea(props: {
       <div class="with-rail" style={{ "margin-top": "10px" }}>
         <SideRail p={p()} mirrored />
         <div class="rail-main">
-          <div class="row">
+          <div class="row" ref={(el) => registerZone("player-hand", el)}>
             <Index each={slots()}>
               {(slot, slotIdx) => {
                 const card = () => slot() as MasterCard;
@@ -115,7 +116,13 @@ export function PlayerArea(props: {
                                   ? ` — penalized ×${props.g.deployPenaltyFor(card())}`
                                   : ""
                               }`}
-                              onClick={() => props.g.deploy(hi())}
+                              onClick={(e) => {
+                                const fromRect = (e.currentTarget as HTMLElement).closest(".card")?.getBoundingClientRect() ?? null;
+                                const movedCard = card();
+                                props.g.deploy(hi());
+                                const toRect = getZoneRect("player-battler");
+                                if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                              }}
                             >
                               {props.g.deployPenaltyFor(card()) === 1
                                 ? "OK"
@@ -132,12 +139,30 @@ export function PlayerArea(props: {
                               props.g.canStockMoreDp(p())
                             }
                           >
-                            <button title="Stock DP" onClick={() => props.g.stockDp(hi())}>
+                            <button
+                              title="Stock DP"
+                              onClick={(e) => {
+                                const fromRect = (e.currentTarget as HTMLElement).closest(".card")?.getBoundingClientRect() ?? null;
+                                const movedCard = card();
+                                props.g.stockDp(hi());
+                                const toRect = getZoneRect("player-dp");
+                                if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                              }}
+                            >
                               DP+
                             </button>
                           </Show>
                           <Show when={isMyDigivolve() && props.g.canEvolve(p(), card())}>
-                            <button title="Digivolve" onClick={() => props.g.evolve(hi())}>
+                            <button
+                              title="Digivolve"
+                              onClick={(e) => {
+                                const fromRect = (e.currentTarget as HTMLElement).closest(".card")?.getBoundingClientRect() ?? null;
+                                const movedCard = card();
+                                props.g.evolve(hi());
+                                const toRect = getZoneRect("player-battler");
+                                if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                              }}
+                            >
                               Digivolve
                             </button>
                           </Show>
@@ -164,11 +189,18 @@ export function PlayerArea(props: {
                                   <button
                                     classList={{ fizzle: !effective() }}
                                     title={`Use ${optionLabel[kind()]}${effective() ? "" : " — no valid target, card will be trashed"}`}
-                                    onClick={() => {
+                                    onClick={(e) => {
                                       // Ineffective play still trashes the card — confirm first
                                       // via the floating prompt dialog.
-                                      if (!effective()) setFizzleConfirm(card());
-                                      else props.g.useDigivolveOption(hi());
+                                      if (!effective()) {
+                                        setFizzleConfirm(card());
+                                      } else {
+                                        const fromRect = (e.currentTarget as HTMLElement).closest(".card")?.getBoundingClientRect() ?? null;
+                                        const movedCard = card();
+                                        props.g.useDigivolveOption(hi());
+                                        const toRect = getZoneRect("player-battler");
+                                        if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                                      }
                                     }}
                                   >
                                     Use
@@ -182,7 +214,13 @@ export function PlayerArea(props: {
                             {(o) => (
                               <button
                                 title={`${optionLabel[o.kind]} Digivolve → this card`}
-                                onClick={() => props.g.useDigivolveOption(o.index, hi())}
+                                onClick={(e) => {
+                                  const fromRect = (e.currentTarget as HTMLElement).closest(".card")?.getBoundingClientRect() ?? null;
+                                  const movedCard = card();
+                                  props.g.useDigivolveOption(o.index, hi());
+                                  const toRect = getZoneRect("player-battler");
+                                  if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                                }}
                               >
                                 Digivolve
                               </button>

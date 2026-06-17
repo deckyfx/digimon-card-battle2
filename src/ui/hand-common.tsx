@@ -3,6 +3,7 @@ import type { MasterCard } from "@src/types";
 import type { PlayerState } from "@src/engine/game-engine";
 import { Ticker } from "./Ticker";
 import { CardView } from "./CardView";
+import { registerZone } from "./card-animation";
 
 /**
  * Stable hand slots: cards keep their slot when others are used, so the view
@@ -50,7 +51,7 @@ export function SideRail(props: { p: PlayerState; mirrored?: boolean }) {
   const [trashOpen, setTrashOpen] = createSignal(false);
 
   const deck = (
-    <div class="zone-stack">
+    <div class="zone-stack" ref={(el) => registerZone(props.mirrored ? "player-deck" : "cpu-deck", el)}>
       <Show when={props.p.deck[0]} keyed>
         {(card) => (
           <div class="zone-stack-card">
@@ -78,6 +79,7 @@ export function SideRail(props: { p: PlayerState; mirrored?: boolean }) {
     <div
       class="zone-stack"
       classList={{ "zone-stack--clickable": props.p.trash.length > 0 }}
+      ref={(el) => registerZone(props.mirrored ? "player-trash" : "cpu-trash", el)}
       onClick={() => props.p.trash.length > 0 && setTrashOpen(true)}
     >
       <Show when={props.p.trash.at(-1)} keyed>

@@ -1,5 +1,7 @@
 import { Show, createEffect, createSignal } from "solid-js";
 import type { AttackType, MasterCard } from "@src/types";
+import { flyCard, getZoneRect } from "./card-animation";
+import { CardAnimationOverlay } from "./CardAnimationOverlay";
 import { correctPartnerCard } from "@src/data/digiparts";
 import { armorCardByNumber } from "@src/data/armor";
 import { GameEngine, type PlayerId, type PlayerState } from "@src/engine/game-engine";
@@ -219,7 +221,54 @@ export function App() {
       partnerNums,
     );
     eng.log.push(`${eng.players.player.name} [${mine.name}] vs ${eng.players.cpu.name} [${theirs.name}]`);
-    eng.setOnChange(() => setVersion((v) => v + 1));
+    let prevPlayerHand: MasterCard[] = [];
+    let prevCpuHand: MasterCard[] = [];
+    let prevCpuActive: string | null = null; // card.number of active cpu Digimon
+    eng.setOnChange(() => {
+      // Detect new player draw cards (face-up animation deck → hand)
+      const curPlayerHand = eng.players.player.hand;
+      if (curPlayerHand.length > prevPlayerHand.length) {
+        const prevCounts = new Map<MasterCard, number>();
+        for (const c of prevPlayerHand) prevCounts.set(c, (prevCounts.get(c) ?? 0) + 1);
+        const newCards: MasterCard[] = [];
+        const seen = new Map<MasterCard, number>();
+        for (const c of curPlayerHand) {
+          const prevN = prevCounts.get(c) ?? 0;
+          const seenN = seen.get(c) ?? 0;
+          if (seenN >= prevN) newCards.push(c);
+          seen.set(c, seenN + 1);
+        }
+        const fromRect = getZoneRect("player-deck");
+        const toRect = getZoneRect("player-hand");
+        if (fromRect && toRect) {
+          for (const card of newCards) flyCard(card, fromRect, toRect);
+        }
+      }
+
+      // Detect new CPU draw cards (face-down animation deck → hand)
+      const curCpuHand = eng.players.cpu.hand;
+      if (curCpuHand.length > prevCpuHand.length) {
+        const count = curCpuHand.length - prevCpuHand.length;
+        const fromRect = getZoneRect("cpu-deck");
+        const toRect = getZoneRect("cpu-hand");
+        if (fromRect && toRect) {
+          for (let i = 0; i < count; i++) flyCard(null, fromRect, toRect);
+        }
+      }
+
+      // Detect CPU deploy (active changes from null to a card)
+      const curCpuActiveNum = eng.players.cpu.active?.card.number ?? null;
+      if (curCpuActiveNum !== null && prevCpuActive === null) {
+        const fromRect = getZoneRect("cpu-hand");
+        const toRect = getZoneRect("cpu-battler");
+        if (fromRect && toRect) flyCard(null, fromRect, toRect);
+      }
+
+      prevPlayerHand = [...curPlayerHand];
+      prevCpuHand = [...curCpuHand];
+      prevCpuActive = curCpuActiveNum;
+      setVersion((v) => v + 1);
+    });
     rewardClaim = null;
     resultRecorded = false;
     // AI skill scales with the CPU deck's exp (mirror/custom → mid tier).
@@ -453,6 +502,8 @@ export function App() {
   }
 
   return (
+    <>
+    <CardAnimationOverlay />
     <div class="layout">
       <Show
         when={game()}
@@ -668,5 +719,6 @@ export function App() {
         </div>
       </Show>
     </div>
+    </>
   );
 }

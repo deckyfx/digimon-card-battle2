@@ -5,6 +5,7 @@ import { quantizeStat } from "@src/engine/battle-context";
 import { CardView, setInspectedCard, specialtyClass, specialtyToClass } from "./CardView";
 import { DigiCardFront } from "./DigiCard";
 import { Ticker } from "./Ticker";
+import { registerZone } from "./card-animation";
 
 /**
  * Battle-zone card: shows EFFECTIVE values — penalty-adjusted powers, live
@@ -117,6 +118,7 @@ function DpRail(props: { p: PlayerState; g: GameEngine; side: PlayerId }) {
         classList={{ "dp-stack--view": canView() }}
         disabled={!canView()}
         title={canView() ? "View stocked DP cards" : undefined}
+        ref={(el) => registerZone(props.side === "player" ? "player-dp" : "cpu-dp", el)}
         onClick={() => canView() && setOpen(true)}
       >
         <Show when={ownSide() && top()} keyed fallback={<div class="dp-empty" />}>
@@ -228,11 +230,11 @@ export function Battlefield(props: {
         {/* DP stacks flank the battle zone: yours bottom-left, theirs top-right. */}
         <DpRail p={props.g.players.player} g={props.g} side="player" />
         <div class="vs-zone rail-main">
-          <div class="vs-side vs-player vs-with-support" classList={sideClass("player")}>
+          <div class="vs-side vs-player vs-with-support" classList={sideClass("player")} ref={(el) => registerZone("player-battler", el)}>
             <ActiveDigimonView p={props.g.players.player} g={props.g} />
             <SupportDock s={supportFor("player")} />
           </div>
-          <div class="vs-side vs-cpu vs-with-support" classList={sideClass("cpu")}>
+          <div class="vs-side vs-cpu vs-with-support" classList={sideClass("cpu")} ref={(el) => registerZone("cpu-battler", el)}>
             <SupportDock s={supportFor("cpu")} mirror />
             <ActiveDigimonView p={props.g.players.cpu} g={props.g} />
           </div>

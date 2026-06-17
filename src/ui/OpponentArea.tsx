@@ -4,6 +4,7 @@ import type { GameEngine, PlayerState } from "@src/engine/game-engine";
 import { CardView } from "./CardView";
 import { AttackReveal } from "./AttackReveal";
 import { SideRail, TurnTab, createStableHand } from "./hand-common";
+import { registerZone } from "./card-animation";
 
 /** Opponent header + hand row (revealed or hidden per the visibility rule). */
 export function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand: boolean; portrait?: string }) {
@@ -24,7 +25,7 @@ export function OpponentArea(props: { p: PlayerState; g: GameEngine; revealHand:
         <SideRail p={props.p} />
         <div class="rail-main">
           <Show when={props.revealHand}>
-            <div class="row">
+            <div class="row" ref={(el) => registerZone("cpu-hand", el)}>
               <Index each={slots()}>
                 {(slot) => (
                   <Show when={slot()} fallback={<div class="card empty card--art">— empty slot —</div>}>
