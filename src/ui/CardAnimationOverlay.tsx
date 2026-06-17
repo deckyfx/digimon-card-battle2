@@ -14,21 +14,21 @@ function FlyingCardEl(props: { fc: FlyingCard }) {
 
   onMount(() => {
     const { from, to } = props.fc;
-    // Position at source rect using transform (GPU-accelerated).
-    // The element itself stays at top-left: 0,0 inside the overlay.
+    // Uniform scale (driven by width) so the card keeps its portrait aspect —
+    // zones aren't card-shaped, so scaling X/Y independently would stretch it.
+    const fromScale = from.width / BASE_W;
+    const toScale = to.width / BASE_W;
     gsap.set(el, {
       x: from.left,
       y: from.top,
-      scaleX: from.width / BASE_W,
-      scaleY: from.height / BASE_H,
+      scale: fromScale,
       // Stay invisible during the stagger delay so ghost cards don't pile up.
       opacity: props.fc.delay > 0 ? 0 : 1,
     });
     gsap.to(el, {
       x: to.left,
       y: to.top,
-      scaleX: to.width / BASE_W,
-      scaleY: to.height / BASE_H,
+      scale: toScale,
       opacity: 1,
       duration: 0.35,
       ease: "power3.inOut",

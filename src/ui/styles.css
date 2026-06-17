@@ -322,6 +322,16 @@ button.mini {
   position: relative;
 }
 
+/* A card still flying in from the deck: keep its slot empty (no duplicate under
+   the flying clone), then fade in when the animation lands. */
+.card.card-incoming {
+  opacity: 0;
+}
+
+.card--art {
+  transition: opacity 0.2s ease;
+}
+
 /* Art mode: render the full card face at ~90% of native (200×217) so it fits
    the board's hand/support slots. DigiCardFront fills via absolute inset. */
 .card--art {
@@ -576,6 +586,15 @@ button.mini {
   border-radius: 6px;
   background: #232842;
   overflow: hidden;
+}
+
+/* A Digimon flying in (deploy / digivolve): keep the slot hidden until the
+   flying clone lands. The reveal is INSTANT (no transition) so it coincides
+   exactly with the clone's removal — the clone ends at this slot's position
+   and full opacity, so the hand-off is seamless. A fade here would make the
+   card briefly vanish on landing (a blink). */
+.battler-slot.is-incoming {
+  opacity: 0;
 }
 
 /* Art fills the entire slot; stats overlay on top at the bottom */

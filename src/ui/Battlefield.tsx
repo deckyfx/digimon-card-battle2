@@ -5,7 +5,7 @@ import { quantizeStat } from "@src/engine/battle-context";
 import { CardView, setInspectedCard, specialtyClass, specialtyToClass } from "./CardView";
 import { DigiCardFront } from "./DigiCard";
 import { Ticker } from "./Ticker";
-import { registerZone } from "./card-animation";
+import { registerZone, pendingZone } from "./card-animation";
 
 /**
  * Battle-zone card: shows EFFECTIVE values — penalty-adjusted powers, live
@@ -50,8 +50,12 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
         {a() ? a()!.card.name : "Waiting…"}
       </div>
 
-      <div class={`battler-slot ${a() ? battlerSpecialtyClass() : "battler-slot--empty"}`}>
-        <div class="battler-art">
+      <div
+        class={`battler-slot ${a() ? battlerSpecialtyClass() : "battler-slot--empty"}${
+          pendingZone(`${props.p.id}-battler`) ? " is-incoming" : ""
+        }`}
+      >
+        <div class="battler-art" ref={(el) => registerZone(`${props.p.id}-battler`, el)}>
           <Show when={a()}>
             <DigiCardFront card={a()!.card} />
           </Show>
@@ -230,11 +234,11 @@ export function Battlefield(props: {
         {/* DP stacks flank the battle zone: yours bottom-left, theirs top-right. */}
         <DpRail p={props.g.players.player} g={props.g} side="player" />
         <div class="vs-zone rail-main">
-          <div class="vs-side vs-player vs-with-support" classList={sideClass("player")} ref={(el) => registerZone("player-battler", el)}>
+          <div class="vs-side vs-player vs-with-support" classList={sideClass("player")}>
             <ActiveDigimonView p={props.g.players.player} g={props.g} />
             <SupportDock s={supportFor("player")} />
           </div>
-          <div class="vs-side vs-cpu vs-with-support" classList={sideClass("cpu")} ref={(el) => registerZone("cpu-battler", el)}>
+          <div class="vs-side vs-cpu vs-with-support" classList={sideClass("cpu")}>
             <SupportDock s={supportFor("cpu")} mirror />
             <ActiveDigimonView p={props.g.players.cpu} g={props.g} />
           </div>

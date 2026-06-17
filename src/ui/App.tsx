@@ -224,6 +224,14 @@ export function App() {
     let prevPlayerHand: MasterCard[] = [];
     let prevCpuHand: MasterCard[] = [];
     let prevCpuActive: string | null = null; // card.number of active cpu Digimon
+    // A card-sized landing rect inside a hand row (the row itself is far wider
+    // than one card — flying to it directly would stretch the card).
+    const handSlotRect = (row: DOMRect, slot: number): DOMRect => {
+      const h = row.height;
+      const w = (h * 200) / 217; // card aspect from the row (card) height
+      const gap = 10;
+      return new DOMRect(row.left + slot * (w + gap), row.top, w, h);
+    };
     eng.setOnChange(() => {
       // Detect new player draw cards (face-up animation deck → hand)
       const curPlayerHand = eng.players.player.hand;
@@ -241,18 +249,37 @@ export function App() {
         const fromRect = getZoneRect("player-deck");
         const toRect = getZoneRect("player-hand");
         if (fromRect && toRect) {
-          newCards.forEach((card, i) => flyCard(card, fromRect, toRect, i * 1.0));
+          newCards.forEach((card, i) =>
+            flyCard(card, fromRect, handSlotRect(toRect, prevPlayerHand.length + i), i * 1.0, {
+              dest: "player-hand",
+              realCard: card,
+            }),
+          );
         }
       }
 
-      // Detect new CPU draw cards (face-down animation deck → hand)
+      // Detect new CPU draw cards (face-down clone flies; real card hides its slot)
       const curCpuHand = eng.players.cpu.hand;
       if (curCpuHand.length > prevCpuHand.length) {
-        const count = curCpuHand.length - prevCpuHand.length;
+        const prevCounts = new Map<MasterCard, number>();
+        for (const c of prevCpuHand) prevCounts.set(c, (prevCounts.get(c) ?? 0) + 1);
+        const newCpuCards: MasterCard[] = [];
+        const seen = new Map<MasterCard, number>();
+        for (const c of curCpuHand) {
+          const prevN = prevCounts.get(c) ?? 0;
+          const seenN = seen.get(c) ?? 0;
+          if (seenN >= prevN) newCpuCards.push(c);
+          seen.set(c, seenN + 1);
+        }
         const fromRect = getZoneRect("cpu-deck");
         const toRect = getZoneRect("cpu-hand");
         if (fromRect && toRect) {
-          for (let i = 0; i < count; i++) flyCard(null, fromRect, toRect, i * 1.0);
+          newCpuCards.forEach((card, i) =>
+            flyCard(null, fromRect, handSlotRect(toRect, prevCpuHand.length + i), i * 1.0, {
+              dest: "cpu-hand",
+              realCard: card,
+            }),
+          );
         }
       }
 
@@ -261,7 +288,8 @@ export function App() {
       if (curCpuActiveNum !== null && prevCpuActive === null) {
         const fromRect = getZoneRect("cpu-hand");
         const toRect = getZoneRect("cpu-battler");
-        if (fromRect && toRect) flyCard(null, fromRect, toRect);
+        if (fromRect && toRect)
+          flyCard(null, handSlotRect(fromRect, 0), toRect, 0, { dest: "cpu-battler" });
       }
 
       prevPlayerHand = [...curPlayerHand];

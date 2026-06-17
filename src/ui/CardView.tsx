@@ -47,13 +47,15 @@ export function CardView(props: {
    * to false animates a flip — used for gamble supports revealed at resolution.
    */
   flipped?: boolean;
+  /** Extra class on the card root (e.g. "card-incoming" to hide while in flight). */
+  class?: string;
   children?: import("solid-js").JSX.Element;
 }) {
   const c = () => props.card;
   const isDigimon = () => c().type === CardType.Digimon;
   return (
     <div
-      class={`card ${specialtyClass(c())}`}
+      class={`card ${specialtyClass(c())} ${props.class ?? ""}`}
       classList={{ option: c().type === CardType.Option, "card--art": props.art }}
       // A face-down card stays a mystery — don't reveal it in the detail panel.
       onMouseEnter={() => !props.flipped && setInspectedCard(c())}

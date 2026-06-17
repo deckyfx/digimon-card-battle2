@@ -1,11 +1,11 @@
-import { For, Index, Show } from "solid-js";
+import { For, Index, Show, createMemo } from "solid-js";
 import type { MasterCard } from "@src/types";
 import type { GameEngine } from "@src/engine/game-engine";
 import { CardView } from "./CardView";
 import { AttackReveal } from "./AttackReveal";
 import { SideRail, TurnTab, createStableHand } from "./hand-common";
 import { setFizzleConfirm } from "./PromptDialogs";
-import { registerZone, flyCard, getZoneRect } from "./card-animation";
+import { registerZone, flyCard, getZoneRect, pendingHand } from "./card-animation";
 
 /** Player hand row with the manga action balloons, plus identity footer. */
 export function PlayerArea(props: {
@@ -18,6 +18,22 @@ export function PlayerArea(props: {
 }) {
   const p = () => props.g.players.player;
   const slots = createStableHand(() => p().hand);
+
+  /** Slot indices whose card is still flying in from the deck — render empty
+   *  until the draw animation lands, so the card isn't duplicated under it. */
+  const incomingSlots = createMemo(() => {
+    const pending = pendingHand("player");
+    const hidden = new Set<number>();
+    if (pending.size === 0) return hidden;
+    const remaining = new Map(pending);
+    slots().forEach((card, i) => {
+      if (card && (remaining.get(card) ?? 0) > 0) {
+        hidden.add(i);
+        remaining.set(card, (remaining.get(card) as number) - 1);
+      }
+    });
+    return hidden;
+  });
 
   /** Slot currently lent to the battlefield as the selected support card. */
   const supportSlotIdx = () => {
@@ -91,7 +107,7 @@ export function PlayerArea(props: {
                       <div class="card empty card--art">{lentAsSupport() ? "→ support" : "— empty slot —"}</div>
                     }
                   >
-                    <CardView card={card()} art>
+                    <CardView card={card()} art class={incomingSlots().has(slotIdx) ? "card-incoming" : ""}>
                       {/* Battle support pick: legal supports offer themselves
                           (digivolve option cards are prep-phase only). */}
                       <Show when={props.supportPick && props.g.isLegalSupport(card())}>
@@ -121,7 +137,8 @@ export function PlayerArea(props: {
                                 const movedCard = card();
                                 props.g.deploy(hi());
                                 const toRect = getZoneRect("player-battler");
-                                if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                                if (fromRect && toRect)
+                                  flyCard(movedCard, fromRect, toRect, 0, { dest: "player-battler" });
                               }}
                             >
                               {props.g.deployPenaltyFor(card()) === 1
@@ -160,7 +177,8 @@ export function PlayerArea(props: {
                                 const movedCard = card();
                                 props.g.evolve(hi());
                                 const toRect = getZoneRect("player-battler");
-                                if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                                if (fromRect && toRect)
+                                  flyCard(movedCard, fromRect, toRect, 0, { dest: "player-battler" });
                               }}
                             >
                               Digivolve
@@ -199,7 +217,8 @@ export function PlayerArea(props: {
                                         const movedCard = card();
                                         props.g.useDigivolveOption(hi());
                                         const toRect = getZoneRect("player-battler");
-                                        if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                                        if (fromRect && toRect)
+                                          flyCard(movedCard, fromRect, toRect, 0, { dest: "player-battler" });
                                       }
                                     }}
                                   >
@@ -219,7 +238,8 @@ export function PlayerArea(props: {
                                   const movedCard = card();
                                   props.g.useDigivolveOption(o.index, hi());
                                   const toRect = getZoneRect("player-battler");
-                                  if (fromRect && toRect) flyCard(movedCard, fromRect, toRect);
+                                  if (fromRect && toRect)
+                                    flyCard(movedCard, fromRect, toRect, 0, { dest: "player-battler" });
                                 }}
                               >
                                 Digivolve
