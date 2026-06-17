@@ -3,6 +3,7 @@ import type { MasterCard } from "@src/types";
 import type { GameEngine, PlayerId, PlayerState } from "@src/engine/game-engine";
 import { quantizeStat } from "@src/engine/battle-context";
 import { CardView, setInspectedCard, specialtyClass, specialtyToClass } from "./CardView";
+import { DigiCardFront } from "./DigiCard";
 import { Ticker } from "./Ticker";
 
 /**
@@ -39,38 +40,61 @@ function ActiveDigimonView(props: { p: PlayerState; g: GameEngine }) {
   };
 
   return (
-    <Show when={a()} fallback={<div class="card empty">— no active Digimon —</div>}>
-      <div class={`card battler ${battlerSpecialtyClass()}`} onMouseEnter={() => setInspectedCard(a()!.card)}>
-        <div class="name-row">
-          <span class="name">{a()!.card.name}</span>
-          <span class="lvl">{a()!.card.level}</span>
+    <div
+      class="battler-wrap"
+      onMouseEnter={() => a() && setInspectedCard(a()!.card)}
+    >
+      {/* Name row — always rendered to prevent layout shift */}
+      <div class="battler-name" classList={{ "battler-name--waiting": !a() }}>
+        {a() ? a()!.card.name : "Waiting…"}
+      </div>
+
+      <div class={`battler-slot ${a() ? battlerSpecialtyClass() : "battler-slot--empty"}`}>
+        <div class="battler-art">
+          <Show when={a()}>
+            <DigiCardFront card={a()!.card} />
+          </Show>
         </div>
-        <div>
-          HP: <Ticker value={a()!.hp} fromZero />/<Ticker value={a()!.maxHp} fromZero />
-          {a()!.penalty < 1 ? ` · ×${a()!.penalty}` : ""}
-        </div>
-        <div class="hp-bar">
-          <div style={{ width: `${Math.max(0, Math.min(100, (a()!.hp / a()!.maxHp) * 100))}%` }} />
-        </div>
-        <div class="stat-split">
-          <span>
-            ○ <Ticker value={pow("c")} fromZero />
-          </span>
-          <span>
-            △ <Ticker value={pow("t")} fromZero />
-          </span>
-        </div>
-        <div>
-          ✕ <Ticker value={pow("x")} fromZero />
-        </div>
-        <Show when={a()!.card.x_effect}>
-          <div class="effect effect-x">✕: {a()!.card.x_effect}</div>
-        </Show>
-        <Show when={a()!.stack.length > 0}>
-          <div class="tag">Stacked: {a()!.stack.map((c) => c.name).join(" → ")}</div>
+
+        <Show when={a()}>
+          <div class="battler-stats">
+            <div class="battler-hp-bar">
+              <div
+                class="battler-hp-fill"
+                style={{ width: `${Math.max(0, Math.min(100, (a()!.hp / a()!.maxHp) * 100))}%` }}
+              />
+            </div>
+            <div class="battler-hp-vals">
+              HP <Ticker value={a()!.hp} fromZero />/<Ticker value={a()!.maxHp} fromZero />
+              {a()!.penalty < 1 ? <span class="battler-penalty"> ×{a()!.penalty}</span> : ""}
+            </div>
+            <div class="battler-atk-list">
+              <div class="battler-atk">
+                <img src="/assets/icons/button-circle.png" class="battler-atk-icon" alt="○" />
+                <Ticker value={pow("c")} fromZero />
+              </div>
+              <div class="battler-atk">
+                <img src="/assets/icons/button-triangle.png" class="battler-atk-icon" alt="△" />
+                <Ticker value={pow("t")} fromZero />
+              </div>
+              <div class="battler-atk">
+                <img src="/assets/icons/button-cross.png" class="battler-atk-icon" alt="✕" />
+                <Ticker value={pow("x")} fromZero />
+              </div>
+            </div>
+            <Show when={a()!.card.x_effect}>
+              <div class="battler-xeffect">
+                <img src="/assets/icons/button-cross.png" class="battler-atk-icon" alt="✕" />
+                {a()!.card.x_effect}
+              </div>
+            </Show>
+            <Show when={a()!.stack.length > 0}>
+              <div class="battler-stack">{a()!.stack.map((c) => c.name).join(" → ")}</div>
+            </Show>
+          </div>
         </Show>
       </div>
-    </Show>
+    </div>
   );
 }
 

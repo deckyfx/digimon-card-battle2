@@ -542,22 +542,177 @@ button.mini {
   padding: 0 5px;
 }
 
-/* Battle-zone card: larger status text (no support line to make room). */
-.card.battler {
-  font-size: 0.95rem;
-  line-height: 1.5;
+/* ── Redesigned battle-zone Digimon slot ─────────────────────────────────── */
+
+/* Outer wrapper: name label + card slot stacked */
+.battler-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: var(--card-w);
+  cursor: default;
 }
 
-.card.battler .name {
-  font-size: 1.05rem;
+/* Card name sitting above the slot */
+.battler-name {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 2px;
 }
 
-.card.battler .lvl {
-  font-size: 0.8rem;
+/* Card container: no border — art fills to the edges */
+.battler-slot {
+  width: var(--card-w);
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: #232842;
+  overflow: hidden;
 }
 
-.card.battler .effect {
-  font-size: 0.8rem;
+/* Art fills the entire slot; stats overlay on top at the bottom */
+.battler-slot {
+  position: relative;
+}
+
+/* Art section: determines slot height via aspect-ratio */
+.battler-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 200 / 217;
+  overflow: hidden;
+}
+
+/* DigiCardFront renders absolute-inset — make it fill the art frame */
+.battler-art .digi-card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Stats overlay: dark gradient fading up from the bottom of the art */
+.battler-stats {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 7px 6px;
+  background: linear-gradient(
+    to top,
+    rgba(8, 10, 20, 0.96) 0%,
+    rgba(8, 10, 20, 0.82) 55%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+/* HP bar */
+.battler-hp-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1px;
+}
+
+.battler-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* HP values text — same font style as attack stats */
+.battler-hp-vals {
+  font-family: "Audiowide", monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 4px #000, 0 0 8px rgba(0,0,0,0.8);
+}
+
+.battler-penalty {
+  color: #ffc66d;
+  font-size: 0.75rem;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* Attack rows */
+.battler-atk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 2px;
+}
+
+.battler-atk {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: "Audiowide", monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-shadow: 0 1px 4px #000, 0 0 8px rgba(0,0,0,0.8);
+}
+
+.battler-atk-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* X Effect text */
+.battler-xeffect {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: #a8b4d0;
+  line-height: 1.35;
+  margin-top: 2px;
+  text-shadow: 0 1px 3px #000;
+}
+
+.battler-xeffect .battler-atk-icon {
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* Empty slot placeholder */
+.battler-slot--empty {
+  border: 2px dashed rgba(74, 80, 112, 0.5);
+}
+
+/* "Waiting…" in the name row */
+.battler-name--waiting {
+  color: rgba(154, 163, 199, 0.45);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+/* Digivolve stack breadcrumb */
+.battler-stack {
+  font-size: 0.65rem;
+  color: #ffc66d;
+  margin-top: 1px;
+  text-shadow: 0 1px 3px #000;
 }
 
 /* Two stats sharing a line: spread apart with clear breathing room. */
@@ -908,16 +1063,104 @@ button.mini {
   }
 }
 
-.rail-stat {
-  text-align: center;
-  font-size: 0.72rem;
-  color: #9aa3c7;
+/* Deck / Trash card zone: rotated 90° card preview with label overlay */
+.zone-stack {
+  position: relative;
+  width: var(--rail-w);                        /* 64px */
+  height: calc(var(--rail-w) * 200 / 217);     /* ≈59px = card-width × scale */
+  overflow: hidden;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
-.rail-stat .rail-num {
-  font-size: 1.05rem;
+.zone-stack--clickable {
+  cursor: pointer;
+}
+
+/* Card inside the zone: rotated -90° and scaled to fill the container.
+   translateY moves the pivot so the rotated card sits flush in the frame.
+   Math: scale = rail-w / art-h = 64 / (180×217/200) ≈ 0.328
+         container height = art-w × scale = 180 × 0.328 ≈ 59px */
+.zone-stack-card .card {
+  width: 180px;
+  height: calc(180px * 217 / 200);
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  transform-origin: top left;
+  transform:
+    translateY(calc(var(--rail-w) * 200 / 217))
+    rotate(-90deg)
+    scale(0.328);
+}
+
+/* DECK / TRASH label + count centered over the rotated card */
+.zone-stack-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.zone-stack-title {
+  font-family: "Audiowide", sans-serif;
+  font-size: 0.48rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 4px #000, 0 0 8px rgba(0, 0, 0, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.zone-stack-count {
+  font-family: "Audiowide", sans-serif;
+  font-size: 1rem;
   font-weight: 700;
-  color: #e8e8ee;
+  color: #fff;
+  text-shadow: 0 1px 4px #000, 0 0 10px rgba(0, 0, 0, 0.95);
+  line-height: 1;
+}
+
+/* Trash dialog */
+.trash-modal {
+  width: max-content;
+  max-width: 90vw;
+}
+
+.trash-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, calc(var(--card-w) * 0.7));
+  gap: 10px;
+  padding: 4px;
+  margin: 8px 0 14px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Each trash card: scaled to 70% via overflow-hidden wrapper */
+.trash-card-wrap {
+  width: calc(var(--card-w) * 0.7);
+  height: calc(var(--card-w) * 0.7 * 217 / 200);
+  overflow: hidden;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.trash-card-wrap .card {
+  width: 180px;
+  height: calc(180px * 217 / 200);
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  transform: scale(0.7);
+  transform-origin: top left;
 }
 
 .win-lights {
@@ -927,7 +1170,7 @@ button.mini {
 }
 
 .win-light {
-  height: 30px;
+  height: 20px;
   border: 2px solid #4a5070;
   border-radius: 6px;
   background: #1c1f2e;
@@ -1044,16 +1287,14 @@ button.mini {
 
 /* Stocked-DP dialog: all DP cards at full art size, wrapped. */
 .dp-modal {
-  max-width: 80vw;
+  width: max-content;
+  max-width: 90vw;
 }
 
 .dp-card-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, var(--card-w));
   gap: 14px;
-  justify-content: center;
-  max-height: 62vh;
-  overflow-y: auto;
   padding: 4px;
   margin: 8px 0 14px;
 }

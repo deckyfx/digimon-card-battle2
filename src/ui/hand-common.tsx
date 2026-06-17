@@ -1,7 +1,8 @@
-import { For } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import type { MasterCard } from "@src/types";
 import type { PlayerState } from "@src/engine/game-engine";
 import { Ticker } from "./Ticker";
+import { CardView } from "./CardView";
 
 /**
  * Stable hand slots: cards keep their slot when others are used, so the view
@@ -42,36 +43,89 @@ export function createStableHand(hand: () => MasterCard[]): () => (MasterCard | 
 }
 
 /**
- * Side rail beside the hand: deck/trash counts and the three win lights
- * (one turns green per point scored; three lights = match won).
- * `mirrored` flips the order for the player side (lights on top).
+ * Side rail beside the hand: deck/trash card previews (rotated 90°) and the
+ * three win lights. `mirrored` puts the lights on top (player side).
  */
 export function SideRail(props: { p: PlayerState; mirrored?: boolean }) {
-  const counts = (
-    <>
-      <div class="rail-stat">
-        <div class="rail-label">Deck</div>
-        <div class="rail-num">
-          <Ticker value={props.p.deck.length} />
-        </div>
+  const [trashOpen, setTrashOpen] = createSignal(false);
+
+  const deck = (
+    <div class="zone-stack">
+      <Show when={props.p.deck[0]} keyed>
+        {(card) => (
+          <div class="zone-stack-card">
+            <CardView card={card} art flipped />
+          </div>
+        )}
+      </Show>
+      <Show when={!props.p.deck[0]}>
+        <div class="dp-empty" />
+      </Show>
+      <div class="zone-stack-label">
+        <span class="zone-stack-title">Deck</span>
+        <span class="zone-stack-count"><Ticker value={props.p.deck.length} /></span>
       </div>
-      <div class="rail-stat">
-        <div class="rail-label">Trash</div>
-        <div class="rail-num">
-          <Ticker value={props.p.trash.length} />
-        </div>
-      </div>
-    </>
+    </div>
   );
+
   const lights = (
     <div class="win-lights">
       <For each={[0, 1, 2]}>{(i) => <div class="win-light" classList={{ on: props.p.score > i }} />}</For>
     </div>
   );
+
+  const trash = (
+    <div
+      class="zone-stack"
+      classList={{ "zone-stack--clickable": props.p.trash.length > 0 }}
+      onClick={() => props.p.trash.length > 0 && setTrashOpen(true)}
+    >
+      <Show when={props.p.trash.at(-1)} keyed>
+        {(card) => (
+          <div class="zone-stack-card">
+            <CardView card={card} art />
+          </div>
+        )}
+      </Show>
+      <Show when={!props.p.trash.at(-1)}>
+        <div class="dp-empty" />
+      </Show>
+      <div class="zone-stack-label">
+        <span class="zone-stack-title">Trash</span>
+        <span class="zone-stack-count"><Ticker value={props.p.trash.length} /></span>
+      </div>
+    </div>
+  );
+
   return (
     <div class="rail">
-      {props.mirrored ? lights : counts}
-      {props.mirrored ? counts : lights}
+      {/* mirrored=true (player): lights → deck → trash
+          mirrored=false (opponent): deck → trash → lights */}
+      {props.mirrored ? lights : deck}
+      {props.mirrored ? deck : trash}
+      {props.mirrored ? trash : lights}
+
+
+      {/* Trash dialog — up to 29 cards at 70% size, newest first */}
+      <Show when={trashOpen()}>
+        <div class="modal-overlay" onClick={() => setTrashOpen(false)}>
+          <div class="modal trash-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Trash — {props.p.trash.length} card{props.p.trash.length === 1 ? "" : "s"}</h2>
+            <div class="trash-card-grid">
+              <For each={[...props.p.trash].reverse()}>
+                {(c) => (
+                  <div class="trash-card-wrap">
+                    <CardView card={c} art />
+                  </div>
+                )}
+              </For>
+            </div>
+            <div class="setup-actions">
+              <button class="primary" onClick={() => setTrashOpen(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      </Show>
     </div>
   );
 }
