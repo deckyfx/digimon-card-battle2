@@ -1,6 +1,6 @@
 import { Show, createEffect, createSignal } from "solid-js";
 import type { AttackType, MasterCard } from "@src/types";
-import { flyCard, getZoneRect } from "./card-animation";
+import { flyCard, getZoneRect, isAnimating } from "./card-animation";
 import { CardAnimationOverlay } from "./CardAnimationOverlay";
 import { correctPartnerCard } from "@src/data/digiparts";
 import { armorCardByNumber } from "@src/data/armor";
@@ -241,7 +241,7 @@ export function App() {
         const fromRect = getZoneRect("player-deck");
         const toRect = getZoneRect("player-hand");
         if (fromRect && toRect) {
-          for (const card of newCards) flyCard(card, fromRect, toRect);
+          newCards.forEach((card, i) => flyCard(card, fromRect, toRect, i * 1.0));
         }
       }
 
@@ -252,7 +252,7 @@ export function App() {
         const fromRect = getZoneRect("cpu-deck");
         const toRect = getZoneRect("cpu-hand");
         if (fromRect && toRect) {
-          for (let i = 0; i < count; i++) flyCard(null, fromRect, toRect);
+          for (let i = 0; i < count; i++) flyCard(null, fromRect, toRect, i * 1.0);
         }
       }
 
@@ -289,6 +289,9 @@ export function App() {
   createEffect(() => {
     const g = game();
     if (!g || cpuScheduled) return;
+    // Wait for all card animations to finish before letting the CPU act —
+    // this ensures draw animations complete before the opponent deploys.
+    if (isAnimating()) return;
     if ((g.phase === "deploy" || g.phase === "digivolve") && g.turn === "cpu") {
       cpuScheduled = true;
       setTimeout(() => {
@@ -308,6 +311,9 @@ export function App() {
   createEffect(() => {
     const g = game();
     if (!g || battleScheduled) return;
+    // Wait for card animations before advancing the battle — prevents rushing
+    // through battle steps while draw or deploy animations are still playing.
+    if (isAnimating()) return;
     if (g.phase === "battle-resolve") {
       battleScheduled = true;
       setTimeout(() => {

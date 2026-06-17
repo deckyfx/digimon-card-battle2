@@ -23,11 +23,21 @@ export interface FlyingCard {
   card: MasterCard | null;
   from: DOMRect;
   to: DOMRect;
+  /** Seconds to wait before the GSAP tween starts (for staggered sequences). */
+  delay: number;
 }
 
 let _nextId = 0;
 const [flyingCards, _setFlying] = createSignal<FlyingCard[]>([]);
 export { flyingCards };
+
+/**
+ * Reactive accessor — true while any card is in flight.
+ * Read inside a SolidJS reactive context to track changes.
+ */
+export function isAnimating(): boolean {
+  return flyingCards().length > 0;
+}
 
 /** Remove a flying card by id (called when its GSAP animation completes). */
 export function completeFly(id: number): void {
@@ -35,7 +45,7 @@ export function completeFly(id: number): void {
 }
 
 /** Kick off a flying-card animation from one screen rect to another. */
-export function flyCard(card: MasterCard | null, from: DOMRect, to: DOMRect): void {
+export function flyCard(card: MasterCard | null, from: DOMRect, to: DOMRect, delay = 0): void {
   const id = _nextId++;
-  _setFlying((prev) => [...prev, { id, card, from, to }]);
+  _setFlying((prev) => [...prev, { id, card, from, to, delay }]);
 }

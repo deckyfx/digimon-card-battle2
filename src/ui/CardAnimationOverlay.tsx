@@ -21,14 +21,18 @@ function FlyingCardEl(props: { fc: FlyingCard }) {
       y: from.top,
       scaleX: from.width / BASE_W,
       scaleY: from.height / BASE_H,
+      // Stay invisible during the stagger delay so ghost cards don't pile up.
+      opacity: props.fc.delay > 0 ? 0 : 1,
     });
     gsap.to(el, {
       x: to.left,
       y: to.top,
       scaleX: to.width / BASE_W,
       scaleY: to.height / BASE_H,
+      opacity: 1,
       duration: 0.35,
       ease: "power3.inOut",
+      delay: props.fc.delay,
       onComplete: () => completeFly(props.fc.id),
     });
   });
